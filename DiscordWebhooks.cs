@@ -19,6 +19,11 @@ namespace BattleBitDiscordWebhooks
 
         public DiscordWebhooks(RunnerServer server) : base(server)
         {
+            if (!File.Exists("DiscordWebhooks.json"))
+            {
+                File.WriteAllText("DiscordWebhooks.json", JsonConvert.SerializeObject(new WebhookConfiguration(), Formatting.Indented));
+            }
+
             this.configuration = JsonConvert.DeserializeObject<WebhookConfiguration>(File.ReadAllText("DiscordWebhooks.json"));
             if (string.IsNullOrEmpty(this.configuration?.WebhookURL))
             {

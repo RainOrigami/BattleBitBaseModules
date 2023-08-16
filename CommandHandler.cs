@@ -23,15 +23,16 @@ public class CommandHandler : BattleBitModule
     }
 
     private PlayerPermissions permissions = null!;
+    private Dictionary<string, (BattleBitModule Module, MethodInfo Method)> commandCallbacks = new();
+    PlayerFinder.PlayerFinder findPlayer;
 
     public override void OnModulesLoaded()
     {
         this.permissions = this.Server.GetModule<PlayerPermissions>()!;
-
+        this.findPlayer = this.Server.GetModule<PlayerFinder.PlayerFinder>()!;
         this.Register(this);
     }
 
-    private Dictionary<string, (BattleBitModule Module, MethodInfo Method)> commandCallbacks = new();
 
     public void Register(BattleBitModule module)
     {
@@ -129,34 +130,20 @@ public class CommandHandler : BattleBitModule
             {
                 RunnerPlayer? targetPlayer = null;
 
-                PlayerFinder.PlayerFinder? findPlayer = this.Server.GetModule<PlayerFinder.PlayerFinder>();
-                if (findPlayer == null)
+                try
                 {
-                    targetPlayer = this.Server.AllPlayers.FirstOrDefault(p => p.Name == argument);
-
-                    if (targetPlayer == null)
-                    {
-                        player.Message($"Could not find player with name {argument}.<br>Because the PlayerFinder module is not available, you have to specify the exact and full player name.");
-                        return;
-                    }
+                    targetPlayer = findPlayer.ByNamePart(argument);
                 }
-                else
+                catch (ManyPlayersMatchException ex)
                 {
-                    try
-                    {
-                        targetPlayer = findPlayer.ByNamePart(argument);
-                    }
-                    catch (ManyPlayersMatchException)
-                    {
-                        player.Message($"Multiple players found with name containing {argument}:<br>{string.Join(", ", findPlayer.AllByNamePart(argument).Select(p => p.Name))}");
-                        return;
-                    }
+                    player.Message($"Multiple players found with name containing {argument}:<br>{string.Join(", ", ex.Players.Select(p => p.Name))}");
+                    return;
+                }
 
-                    if (targetPlayer == null)
-                    {
-                        player.Message($"Could not find player name containing {argument}.");
-                        return;
-                    }
+                if (targetPlayer == null)
+                {
+                    player.Message($"Could not find player name containing {argument}.");
+                    return;
                 }
 
                 args[i] = targetPlayer;

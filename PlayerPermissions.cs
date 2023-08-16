@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using PlayerFinder;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Permissions
@@ -63,9 +64,9 @@ namespace Permissions
             }
         }
 
-        public override Task OnConnected()
+        public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
         {
-            //this.Server.GetModule<CommandHandler>()?.Register(this);
+            args.Stats.Roles = this.GetPlayerRoles(steamID);
             return Task.CompletedTask;
         }
 

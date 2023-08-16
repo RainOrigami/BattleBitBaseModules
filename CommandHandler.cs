@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 namespace Commands;
 
 [RequireModule(typeof(PlayerPermissions))]
+[RequireModule(typeof(PlayerFinder.PlayerFinder))]
 public class CommandHandler : BattleBitModule
 {
     private const string COMMAND_PREFIX = "!";

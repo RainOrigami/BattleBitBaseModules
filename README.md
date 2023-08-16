@@ -2,11 +2,25 @@
 All the basic modules for the modular BattleBit API https://github.com/RainOrigami/BattleBitAPIRunner
 
 # Modules
+- MOTD - Module for displaying a message to every player who joins the server
 - PlayerFinder - Library module for finding players
 - PlayerPermissions - Library module for basic persistent player permissions (Roles)
 - CommandHandler - Library module for easy command handling
 - PermissionsCommands - Module for adding and removing permissions using in-game chat
 - DiscordWebhooks - Module for sending messages to discord webhooks
+
+## MOTD
+### Description
+This module shows a configurable message to each player when they join a server.
+The message can be changed in the `motd.txt`.
+The MOTD is stored and shared globally across all connected servers. Every time the MOTD is set, the text file is written to.
+
+### Commands
+- `setmotd "message of the day"` - Sets a new MOTD. Requires Admin role to execute.
+- `motd` - Shows the current MOTD again.
+
+### Dependencies
+- [CommandHandler](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/CommandHandler.cs)
 
 ## PlayerFinder
 ### Description

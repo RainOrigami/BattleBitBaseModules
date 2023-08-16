@@ -9,14 +9,11 @@ using System.Threading.Tasks;
 
 namespace Permissions
 {
-    [RequireModule(typeof(PlayerFinder.PlayerFinder))]
     public class PlayerPermissions : BattleBitModule
     {
         private const string PERMISSIONS_FILE = "PlayerPermissions.json";
 
         private static Dictionary<ulong, Roles> playerRoles = new();
-
-        private PlayerFinder.PlayerFinder playerFinder = null!;
 
         public PlayerPermissions(RunnerServer server) : base(server)
         {
@@ -24,11 +21,6 @@ namespace Permissions
             {
                 this.loadPermissions();
             }
-        }
-
-        public override void OnModulesLoaded()
-        {
-            this.playerFinder = this.Server.GetModule<PlayerFinder.PlayerFinder>()!;
         }
 
         private void loadPermissions()

@@ -1,7 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using Newtonsoft.Json;
-using PlayerFinder;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;

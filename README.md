@@ -69,11 +69,42 @@ This module provides in-game chat commands to add and remove roles of players.
 This module can be used by other modules to create easy to use chat commands and automatically parse and provide the required parameters.
 The hardcoded command prefix is `!`.
 
+To create a new command in your module, register your module with CommandHandler in `OnModulesLoaded`:
+```cs
+public override void OnModulesLoaded()
+{
+    this.Server.GetModule<CommandHandler>()!.Register(this);
+}
+```
+
+Commands are public void methods that take zero or many.
+They require the `[CommandCallback("name")]` attribute:
+- `name` - The name of the command that the player has to enter in chat (prefixed by the command prefix).
+- `Description` - A short description of the command for use in the `help` command.
+- `AllowedRoles` - A set of roles that are allowed to see and execute the command.
+
+The first method parameter must always be of type `RunnerPlayer` and contains the player who has called this command.
+Other parameters are automatically parsed. Parameters of type `RunnerPlayer` will try to find a player using the `PlayerFinder.ByNamePart`. Enums, such as `Roles` are parsed. Simple types, such as string, int, float, double, bool, are parsed.
+Optional parameters are not supported at the moment.
+
+**Example**
+```cs
+[CommandCallback("ping", Description = "Ping Pong", AllowedRoles = Roles.VIP)]
+public void PingCommand(RunnerPlayer commandSource, int time)
+{
+  Thread.Sleep(time);
+  commandSource.Message("Pong!");
+}
+```
+
 ### Commands
 - `help` - Lists all available and accessible commands.
 
 ### Dependencies
 - [PlayerPermissions](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerPermissions.cs)
+
+### Available methods and properties
+- `void Register(BattleBitModule module)` - Registers the commands of the specified module
 
 ## DiscordWebhooks
 ### Description

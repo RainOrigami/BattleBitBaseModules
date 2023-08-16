@@ -3,9 +3,9 @@ All the basic modules for the modular BattleBit API https://github.com/RainOriga
 
 # Modules
 - PlayerFinder - Library module for finding players
-- Permissions - Library module for basic persistent player permissions (Roles)
-- Commands - Library module for easy command handling
-- PermissionsManager - Module for adding and removing permissions using in-game chat
+- PlayerPermissions - Library module for basic persistent player permissions (Roles)
+- CommandHandler - Library module for easy command handling
+- PermissionsCommands - Module for adding and removing permissions using in-game chat
 - DiscordWebhooks - Module for sending messages to discord webhooks
 
 ## PlayerFinder
@@ -21,7 +21,7 @@ This module can be used by other modules to find players by different means. It 
 - `RunnerPlayer? BySteamId(ulong steamId)` - Find a player by their steam64id. Returns a `RunnerPlayer` instance or null, if no player was found.
 - `public RunnerPlayer[] AllByNamePart(string namePart)` - Find all players matching part of their name.
 
-## Permissions
+## PlayerPermissions
 ### Description
 This module stores player roles (Admin, Moderator, VIP, Special) to a json file and will load and apply previously assigned roles to players when they join.
 It can also be used by other modules to get, set and check for roles of a player.
@@ -29,7 +29,7 @@ It can also be used by other modules to get, set and check for roles of a player
 Roles are stored and shared globally across all connected servers. Every time a user role is changed, the json file is written to.
 
 ### Dependencies
-- [PlayerFinder](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerFinder.cs)
+- [Newtonsoft JSON](https://github.com/JamesNK/Newtonsoft.Json/releases) - `Bin\net6.0\Newtonsoft.Json.dll`
 
 ### Available methods and properties
 - `bool HasPlayerRole(ulong steamID, Roles role)` - Returns true if the roles of a player include the specified role or set of roles.
@@ -67,7 +67,8 @@ This module sends player connect and disconnect, server connect and disconnect, 
 It can also be used by other modules to send raw webhook messages.
 
 ### Dependencies
-- None
+- [Newtonsoft JSON](https://github.com/JamesNK/Newtonsoft.Json/releases) - `Bin\net6.0\Newtonsoft.Json.dll`
+- System.Net.Http - Copy from your dotnet6 installation, for example `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\6.0.*\System.Net.Http.dll`
 
 ### Available methods and properties
 - `void SendMessage(string message)` - Send the message to the webhook

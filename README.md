@@ -46,10 +46,10 @@ This module can be used by other modules to find players by different means. It 
 
 ## PlayerPermissions
 ### Description
-This module stores player roles (Admin, Moderator, Vip, Special) to a json file and will load and apply previously assigned roles to players when they join.
+This module stores player roles (Admin, Moderator, Vip, Special) to a config file and will load and apply previously assigned roles to players when they join.
 It can also be used by other modules to get, set and check for roles of a player.
 
-Roles are stored and shared globally across all connected servers. Every time a user role is changed, the json file is written to.
+Roles are stored and shared globally across all connected servers. Every time a user role is changed, the configuration is saved.
 
 ### Dependencies
 - None
@@ -67,7 +67,7 @@ This module provides in-game chat commands to add and remove roles of players.
 
 ### Commands
 - `addperm player role` - Adds the role to the player. Requires Admin role to execute.
-- `removeperm` - Removes the role from the player. Requires Admin role to execute.
+- `removeperm player role` - Removes the role from the player. Requires Admin role to execute.
 
 ### Dependencies
 - [PlayerPermissions](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerPermissions.cs)
@@ -104,10 +104,16 @@ public void PingCommand(RunnerPlayer commandSource, int time, string? message = 
   Thread.Sleep(time);
   commandSource.Message($"Pong{(message is null ? "" : " ")}{message}!");
 }
+[CommandCallback("boop", Description = "Boop!", AllowedRoles = Roles.Vip)]
+public void BoopCommand()
+{
+  this.Server.SayToChat("Booping!");
+}
 ```
 
 ### Commands
 - `help` - Lists all available and accessible commands.
+- `help command` - Shows the description and parameters of a command.
 
 ### Dependencies
 - (Optional) [PlayerPermissions](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerPermissions.cs)

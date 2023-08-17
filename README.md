@@ -37,7 +37,7 @@ This module can be used by other modules to find players by different means. It 
 
 ## PlayerPermissions
 ### Description
-This module stores player roles (Admin, Moderator, VIP, Special) to a json file and will load and apply previously assigned roles to players when they join.
+This module stores player roles (Admin, Moderator, Vip, Special) to a json file and will load and apply previously assigned roles to players when they join.
 It can also be used by other modules to get, set and check for roles of a player.
 
 Roles are stored and shared globally across all connected servers. Every time a user role is changed, the json file is written to.
@@ -89,7 +89,7 @@ Optional parameters are not supported at the moment.
 
 **Example**
 ```cs
-[CommandCallback("ping", Description = "Ping Pong", AllowedRoles = Roles.VIP)]
+[CommandCallback("ping", Description = "Ping Pong", AllowedRoles = Roles.Vip)]
 public void PingCommand(RunnerPlayer commandSource, int time)
 {
   Thread.Sleep(time);

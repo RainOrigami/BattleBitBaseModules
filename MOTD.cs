@@ -1,7 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
@@ -9,26 +8,13 @@ namespace BattleBitBaseModules;
 [RequireModule(typeof(CommandHandler))]
 public class MOTD : BattleBitModule
 {
-    private static string? motd = null;
+    public MOTDConfiguration Configuration { get; set; }
 
     [ModuleReference]
     public CommandHandler CommandHandler { get; set; }
 
     public MOTD(RunnerServer server) : base(server)
     {
-        if (motd is not null)
-        {
-            return;
-        }
-
-        if (!File.Exists("motd.txt"))
-        {
-            File.WriteAllText("motd.txt", motd);
-        }
-        else
-        {
-            motd = File.ReadAllText("motd.txt");
-        }
     }
 
     public override void OnModulesLoaded()
@@ -38,21 +24,26 @@ public class MOTD : BattleBitModule
 
     public override Task OnPlayerConnected(RunnerPlayer player)
     {
-        player.Message(motd);
+        player.Message(this.Configuration.MOTD);
         return Task.CompletedTask;
     }
 
     [CommandCallback("setmotd", Description = "Sets the MOTD", AllowedRoles = Roles.Admin)]
     public void SetMOTD(RunnerPlayer commandSource, string motd)
     {
-        MOTD.motd = motd;
-        File.WriteAllText("motd.txt", motd);
-        commandSource.Message(motd);
+        this.Configuration.MOTD = motd;
+        this.Configuration.Save();
+        this.ShowMOTD(commandSource);
     }
 
     [CommandCallback("motd", Description = "Shows the MOTD")]
     public void ShowMOTD(RunnerPlayer commandSource)
     {
-        commandSource.Message(motd);
+        commandSource.Message(string.Format(this.Configuration.MOTD, commandSource.Name, commandSource.PingMs, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount));
     }
+}
+
+public class MOTDConfiguration : ModuleConfiguration
+{
+    public string MOTD { get; set; } = "Welcome!";
 }

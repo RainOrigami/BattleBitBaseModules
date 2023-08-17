@@ -12,8 +12,17 @@ All the basic modules for the modular BattleBit API https://github.com/RainOriga
 ## MOTD
 ### Description
 This module shows a configurable message to each player when they join a server.
-The message can be changed in the `motd.txt`.
-The MOTD is stored and shared globally across all connected servers. Every time the MOTD is set, the text file is written to.
+The following placeholders are available:
+- `{0}` - Player name
+- `{1}` - Player ping in ms
+- `{2}` - Server name
+- `{3}` - Gamemode
+- `{4}` - Map name
+- `{5}` - Day or Night
+- `{6}` - Map size
+- `{7}` - Current player count
+- `{8}` - In queue player count
+- `{9}` - Max player count
 
 ### Commands
 - `setmotd "message of the day"` - Sets a new MOTD. Requires Admin role to execute.

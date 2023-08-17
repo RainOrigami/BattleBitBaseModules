@@ -17,7 +17,7 @@ public class CommandConfiguration : ModuleConfiguration
 
 public class CommandHandler : BattleBitModule
 {
-    public static CommandConfiguration CommandConfiguration { get; set; } = new();
+    public static CommandConfiguration CommandConfiguration { get; set; }
 
     public CommandHandler(RunnerServer server) : base(server)
     {

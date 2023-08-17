@@ -85,15 +85,15 @@ They require the `[CommandCallback("name")]` attribute:
 
 The first method parameter must always be of type `RunnerPlayer` and contains the player who has called this command.
 Other parameters are automatically parsed. Parameters of type `RunnerPlayer` will try to find a player using the `PlayerFinder.ByNamePart` if available, otherwise uses exact case-insensitive matching. Enums, such as `Roles` are parsed. Simple types, such as string, int, float, double, bool, are parsed.
-Optional parameters are not supported at the moment.
+Optional parameters are supported.
 
 **Example**
 ```cs
 [CommandCallback("ping", Description = "Ping Pong", AllowedRoles = Roles.Vip)]
-public void PingCommand(RunnerPlayer commandSource, int time)
+public void PingCommand(RunnerPlayer commandSource, int time, string? message = null)
 {
   Thread.Sleep(time);
-  commandSource.Message("Pong!");
+  commandSource.Message($"Pong{(message is null ? "" : " ")}{message}!");
 }
 ```
 

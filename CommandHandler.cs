@@ -113,9 +113,10 @@ public class CommandHandler : BattleBitModule
             return;
         }
 
-        if (parameters.Length != fullCommand.Length)
+        bool hasOptional = parameters.Any(p => p.IsOptional);
+        if (fullCommand.Length - 1 < parameters.Skip(1).Count(p => !p.IsOptional) || fullCommand.Length - 1 > parameters.Length - 1)
         {
-            messagePlayerCommandUsage(player, method, $"Require {parameters.Length - 1} but got {fullCommand.Length - 1} arguments");
+            messagePlayerCommandUsage(player, method, $"Require {(hasOptional ? $"between {parameters.Skip(1).Count(p => !p.IsOptional)} and {parameters.Length - 1}" : $"{parameters.Length - 1}")} but got {fullCommand.Length - 1} argument{((fullCommand.Length - 1) == 1 ? "" : "s")}.");
             return;
         }
 
@@ -124,8 +125,15 @@ public class CommandHandler : BattleBitModule
 
         for (int i = 1; i < parameters.Length; i++)
         {
-            string argument = fullCommand[i].Trim();
             ParameterInfo parameter = parameters[i];
+
+            if (parameter.IsOptional && i >= fullCommand.Length)
+            {
+                args[i] = parameter.DefaultValue;
+                continue;
+            }
+
+            string argument = fullCommand[i].Trim();
 
             if (parameter.ParameterType == typeof(string))
             {
@@ -184,8 +192,8 @@ public class CommandHandler : BattleBitModule
     private static void messagePlayerCommandUsage(RunnerPlayer player, MethodInfo method, string? error = null)
     {
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
-
-        player.Message($"<color=\"red\">Invalid command usage{(error == null ? "" : $" ({error})")}.<color=\"white\"><br><b>Usage</b>: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => s.Name))}");
+        bool hasOptional = method.GetParameters().Any(p => p.IsOptional);
+        player.Message($"<color=\"red\">Invalid command usage{(error == null ? "" : $" ({error})")}.<color=\"white\"><br><b>Usage</b>: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><size=80%>* Parameter is optional." : "")}");
     }
 
     private static bool tryParseParameter(ParameterInfo parameterInfo, string input, out object? parsedValue)
@@ -258,25 +266,42 @@ public class CommandHandler : BattleBitModule
     }
 
     [CommandCallback("help", Description = "Shows this help message")]
-    public void HelpCommand(RunnerPlayer player)
+    public void HelpCommand(RunnerPlayer player, string? command = null)
     {
         StringBuilder helpOutput = new();
 
-        helpOutput.AppendLine("Available commands:");
-
-        foreach (var (command, (module, method)) in this.commandCallbacks)
+        if (command is null)
         {
-            CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
+            helpOutput.AppendLine("<#FFA500>Available commands<br><color=\"white\">");
 
-            if (this.PlayerPermissions is not null)
+            helpOutput.AppendLine($"<b>{CommandConfiguration.CommandPrefix}help command</b>: Shows the command syntax");
+            foreach (var (commandKey, (module, method)) in this.commandCallbacks)
             {
-                if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.Call<Roles>("GetPlayerRoles", player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+                CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
+
+                if (this.PlayerPermissions is not null)
                 {
-                    continue;
+                    if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.Call<Roles>("GetPlayerRoles", player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+                    {
+                        continue;
+                    }
                 }
+
+                helpOutput.AppendLine($"<b>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}</b>{(string.IsNullOrEmpty(commandCallbackAttribute.Description) ? "" : $": {commandCallbackAttribute.Description}")}");
+            }
+        }
+        else
+        {
+            if (!this.commandCallbacks.TryGetValue(command, out var commandCallback))
+            {
+                player.Message($"<color=\"red\">Command {command} not found.<color=\"white\">");
+                return;
             }
 
-            helpOutput.AppendLine($"<b>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}</b>: {commandCallbackAttribute.Description}");
+            CommandCallbackAttribute commandCallbackAttribute = commandCallback.Method.GetCustomAttribute<CommandCallbackAttribute>()!;
+
+            bool hasOptional = commandCallback.Method.GetParameters().Any(p => p.IsOptional);
+            player.Message($"<size=120%>{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}<size=100%><br>{commandCallbackAttribute.Description}<br><#F5F5F5>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><color=\"white\"><size=80%>* Parameter is optional." : "")}");
         }
 
         player.Message(helpOutput.ToString());

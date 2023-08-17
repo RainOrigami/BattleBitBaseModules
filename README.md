@@ -81,10 +81,10 @@ Commands are public void methods that take zero or many.
 They require the `[CommandCallback("name")]` attribute:
 - `name` - The name of the command that the player has to enter in chat (prefixed by the command prefix).
 - `Description` - A short description of the command for use in the `help` command.
-- `AllowedRoles` - A set of roles that are allowed to see and execute the command.
+- `AllowedRoles` - A set of roles that are allowed to see and execute the command. Only works if PlayerPermissions is loaded.
 
 The first method parameter must always be of type `RunnerPlayer` and contains the player who has called this command.
-Other parameters are automatically parsed. Parameters of type `RunnerPlayer` will try to find a player using the `PlayerFinder.ByNamePart`. Enums, such as `Roles` are parsed. Simple types, such as string, int, float, double, bool, are parsed.
+Other parameters are automatically parsed. Parameters of type `RunnerPlayer` will try to find a player using the `PlayerFinder.ByNamePart` if available, otherwise uses exact case-insensitive matching. Enums, such as `Roles` are parsed. Simple types, such as string, int, float, double, bool, are parsed.
 Optional parameters are not supported at the moment.
 
 **Example**
@@ -101,7 +101,8 @@ public void PingCommand(RunnerPlayer commandSource, int time)
 - `help` - Lists all available and accessible commands.
 
 ### Dependencies
-- [PlayerPermissions](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerPermissions.cs)
+- (Optional) [PlayerPermissions](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerPermissions.cs)
+- (Optional) [PlayerFinder](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerFinder.cs)
 
 ### Available methods and properties
 - `void Register(BattleBitModule module)` - Registers the commands of the specified module

@@ -76,13 +76,20 @@ This module provides in-game chat commands to add and remove roles of players.
 ## CommandHandler
 ### Description
 This module can be used by other modules to create easy to use chat commands and automatically parse and provide the required parameters.
-The hardcoded command prefix is `!`.
+The default command prefix is `!` and can be changed in the global configuration.
 
 To create a new command in your module, register your module with CommandHandler in `OnModulesLoaded`:
 ```cs
-public override void OnModulesLoaded()
+[RequireModule(typeof(CommandHandler))]
+public class MyModule : BattleBitModule
 {
-    this.Server.GetModule<CommandHandler>()!.Register(this);
+    [ModuleReference]
+    public CommandHandler CommandHandler { get; set; }
+
+    public override void OnModulesLoaded()
+    {
+        this.CommandHandler.Register(this);
+    }
 }
 ```
 

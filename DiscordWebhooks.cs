@@ -15,19 +15,19 @@ namespace BattleBitDiscordWebhooks
     {
         private Queue<DiscordMessage> discordMessageQueue = new();
         private HttpClient httpClient = new HttpClient();
-        private WebhookConfiguration configuration;
+        public WebhookConfiguration Configuration { get; set; }
 
         public DiscordWebhooks(RunnerServer server) : base(server)
         {
-            if (!File.Exists("DiscordWebhooks.json"))
-            {
-                File.WriteAllText("DiscordWebhooks.json", JsonConvert.SerializeObject(new WebhookConfiguration(), Formatting.Indented));
-            }
 
-            this.configuration = JsonConvert.DeserializeObject<WebhookConfiguration>(File.ReadAllText("DiscordWebhooks.json"));
-            if (string.IsNullOrEmpty(this.configuration?.WebhookURL))
+        }
+
+        public override void OnModulesLoaded()
+        {
+            if (string.IsNullOrEmpty(this.Configuration.WebhookURL))
             {
-                throw new Exception("Webhook URL is empty");
+                this.Unload();
+                throw new Exception("Webhook URL is not set. Please set it in the configuration file.");
             }
         }
 
@@ -90,7 +90,7 @@ namespace BattleBitDiscordWebhooks
 
                         if (messages.Count > 0)
                         {
-                            await sendWebhookMessage(this.configuration.WebhookURL, string.Join(Environment.NewLine, messages.Select(message => message.ToString())));
+                            await sendWebhookMessage(this.Configuration.WebhookURL, string.Join(Environment.NewLine, messages.Select(message => message.ToString())));
                         }
 
                         messages.Clear();
@@ -213,7 +213,7 @@ namespace BattleBitDiscordWebhooks
         }
     }
 
-    internal class WebhookConfiguration
+    public class WebhookConfiguration : ModuleConfiguration
     {
         public string WebhookURL { get; set; } = string.Empty;
     }

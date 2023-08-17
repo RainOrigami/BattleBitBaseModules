@@ -7,33 +7,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Commands;
 
-[RequireModule(typeof(PlayerPermissions))]
-[RequireModule(typeof(PlayerFinder.PlayerFinder))]
+public class CommandConfiguration : ModuleConfiguration
+{
+    public string CommandPrefix { get; set; } = "!";
+}
+
 public class CommandHandler : BattleBitModule
 {
-    private const string COMMAND_PREFIX = "!";
+    public static CommandConfiguration CommandConfiguration { get; set; } = new();
 
     public CommandHandler(RunnerServer server) : base(server)
     {
 
     }
 
-    private PlayerPermissions permissions = null!;
     private Dictionary<string, (BattleBitModule Module, MethodInfo Method)> commandCallbacks = new();
-    PlayerFinder.PlayerFinder findPlayer;
+
+    [ModuleReference]
+    public BattleBitModule? PlayerFinder { get; set; }
+    [ModuleReference]
+    public BattleBitModule? PlayerPermissions { get; set; }
 
     public override void OnModulesLoaded()
     {
-        this.permissions = this.Server.GetModule<PlayerPermissions>()!;
-        this.findPlayer = this.Server.GetModule<PlayerFinder.PlayerFinder>()!;
         this.Register(this);
     }
-
 
     public void Register(BattleBitModule module)
     {
@@ -70,7 +74,7 @@ public class CommandHandler : BattleBitModule
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message)
     {
-        if (!message.StartsWith(COMMAND_PREFIX) || (message.StartsWith(COMMAND_PREFIX) && message.Length <= COMMAND_PREFIX.Length))
+        if (!message.StartsWith(CommandConfiguration.CommandPrefix) || (message.StartsWith(CommandConfiguration.CommandPrefix) && message.Length <= CommandConfiguration.CommandPrefix.Length))
         {
             return Task.FromResult(true);
         }
@@ -83,7 +87,7 @@ public class CommandHandler : BattleBitModule
     private void handleCommand(RunnerPlayer player, string message)
     {
         string[] fullCommand = parseCommandString(message);
-        string command = fullCommand[0].Trim().ToLower()[COMMAND_PREFIX.Length..];
+        string command = fullCommand[0].Trim().ToLower()[CommandConfiguration.CommandPrefix.Length..];
 
         if (!this.commandCallbacks.ContainsKey(command))
         {
@@ -95,10 +99,13 @@ public class CommandHandler : BattleBitModule
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
         // Permissions
-        if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.permissions.GetPlayerRoles(player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+        if (this.PlayerPermissions is not null)
         {
-            player.Message($"You don't have permission to use this command.");
-            return;
+            if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.Call<Roles>("GetPlayerRoles", player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+            {
+                player.Message($"You don't have permission to use this command.");
+                return;
+            }
         }
 
         ParameterInfo[] parameters = method.GetParameters();
@@ -131,19 +138,32 @@ public class CommandHandler : BattleBitModule
             {
                 RunnerPlayer? targetPlayer = null;
 
-                try
+                if (this.PlayerFinder is not null)
                 {
-                    targetPlayer = findPlayer.ByNamePart(argument);
+                    try
+                    {
+                        targetPlayer = this.PlayerFinder.Call<RunnerPlayer?>("ByNamePart", argument);
+                    }
+                    catch (Exception ex)
+                    {
+                        player.Message(ex.ToString());
+                        return;
+                    }
+
+                    if (targetPlayer == null)
+                    {
+                        player.Message($"Could not find player name containing {argument}.");
+                        return;
+                    }
                 }
-                catch (ManyPlayersMatchException ex)
+                else
                 {
-                    player.Message($"Multiple players found with name containing {argument}:<br>{string.Join(", ", ex.Players.Select(p => p.Name))}");
-                    return;
+                    targetPlayer = this.Server.AllPlayers.FirstOrDefault(p => p.Name.Equals(argument, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (targetPlayer == null)
                 {
-                    player.Message($"Could not find player name containing {argument}.");
+                    player.Message($"Could not find player {argument}.");
                     return;
                 }
 
@@ -168,7 +188,7 @@ public class CommandHandler : BattleBitModule
     {
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-        player.Message($"<color=\"red\">Invalid command usage{(error == null ? "" : $" ({error})")}.<color=\"white\"><br><b>Usage</b>: {COMMAND_PREFIX}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => s.Name))}");
+        player.Message($"<color=\"red\">Invalid command usage{(error == null ? "" : $" ({error})")}.<color=\"white\"><br><b>Usage</b>: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => s.Name))}");
     }
 
     private static bool tryParseParameter(ParameterInfo parameterInfo, string input, out object? parsedValue)
@@ -251,12 +271,15 @@ public class CommandHandler : BattleBitModule
         {
             CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-            if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.permissions.GetPlayerRoles(player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+            if (this.PlayerPermissions is not null)
             {
-                continue;
+                if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.Call<Roles>("GetPlayerRoles", player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+                {
+                    continue;
+                }
             }
 
-            helpOutput.AppendLine($"<b>{COMMAND_PREFIX}{commandCallbackAttribute.Name}</b>: {commandCallbackAttribute.Description}");
+            helpOutput.AppendLine($"<b>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}</b>: {commandCallbackAttribute.Description}");
         }
 
         player.Message(helpOutput.ToString());

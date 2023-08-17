@@ -11,6 +11,9 @@ public class MOTD : BattleBitModule
 {
     private static string? motd = null;
 
+    [ModuleReference]
+    public CommandHandler CommandHandler { get; set; }
+
     public MOTD(RunnerServer server) : base(server)
     {
         if (motd is not null)
@@ -30,7 +33,7 @@ public class MOTD : BattleBitModule
 
     public override void OnModulesLoaded()
     {
-        Server.GetModule<CommandHandler>()!.Register(this);
+        this.CommandHandler.Register(this);
     }
 
     public override Task OnPlayerConnected(RunnerPlayer player)

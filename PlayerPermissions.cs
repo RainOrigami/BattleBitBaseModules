@@ -10,49 +10,10 @@ namespace Permissions
 {
     public class PlayerPermissions : BattleBitModule
     {
-        private const string PERMISSIONS_FILE = "PlayerPermissions.json";
-
-        private static Dictionary<ulong, Roles> playerRoles = new();
+        public static PlayerPermissionsConfiguration Configuration { get; set; }
 
         public PlayerPermissions(RunnerServer server) : base(server)
         {
-            if (playerRoles.Count == 0)
-            {
-                this.loadPermissions();
-            }
-        }
-
-        private void loadPermissions()
-        {
-            lock (playerRoles)
-            {
-                playerRoles.Clear();
-                try
-                {
-                    foreach (KeyValuePair<ulong, Roles> kvp in JsonConvert.DeserializeObject<Dictionary<ulong, Roles>>(File.ReadAllText(PERMISSIONS_FILE)))
-                    {
-                        playerRoles.Add(kvp.Key, kvp.Value);
-                    }
-                }
-                catch
-                {
-
-                }
-
-                if (playerRoles.Count == 0)
-                {
-                    // Possible missing file, create a new one
-                    savePermissions();
-                }
-            }
-        }
-
-        private void savePermissions()
-        {
-            lock (playerRoles)
-            {
-                File.WriteAllText(PERMISSIONS_FILE, JsonConvert.SerializeObject(playerRoles));
-            }
         }
 
         public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
@@ -63,11 +24,11 @@ namespace Permissions
 
         public override Task OnPlayerConnected(RunnerPlayer player)
         {
-            lock (playerRoles)
+            lock (Configuration.PlayerRoles)
             {
-                if (!playerRoles.ContainsKey(player.SteamID))
+                if (!Configuration.PlayerRoles.ContainsKey(player.SteamID))
                 {
-                    playerRoles.Add(player.SteamID, Roles.None);
+                    Configuration.PlayerRoles.Add(player.SteamID, Roles.None);
                 }
             }
 
@@ -81,11 +42,11 @@ namespace Permissions
 
         public Roles GetPlayerRoles(ulong steamID)
         {
-            lock (playerRoles)
+            lock (Configuration.PlayerRoles)
             {
-                if (playerRoles.ContainsKey(steamID))
+                if (Configuration.PlayerRoles.ContainsKey(steamID))
                 {
-                    return playerRoles[steamID];
+                    return Configuration.PlayerRoles[steamID];
                 }
             }
 
@@ -94,19 +55,19 @@ namespace Permissions
 
         public void SetPlayerRoles(ulong steamID, Roles roles)
         {
-            lock (playerRoles)
+            lock (Configuration.PlayerRoles)
             {
-                if (playerRoles.ContainsKey(steamID))
+                if (Configuration.PlayerRoles.ContainsKey(steamID))
                 {
-                    playerRoles[steamID] = roles;
+                    Configuration.PlayerRoles[steamID] = roles;
                 }
                 else
                 {
-                    playerRoles.Add(steamID, roles);
+                    Configuration.PlayerRoles.Add(steamID, roles);
                 }
             }
 
-            this.savePermissions();
+            Configuration.Save();
         }
 
         public void AddPlayerRoles(ulong steamID, Roles role)
@@ -118,5 +79,10 @@ namespace Permissions
         {
             this.SetPlayerRoles(steamID, this.GetPlayerRoles(steamID) & ~role);
         }
+    }
+
+    public class PlayerPermissionsConfiguration : ModuleConfiguration
+    {
+        public Dictionary<ulong, Roles> PlayerRoles { get; set; } = new();
     }
 }

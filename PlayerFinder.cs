@@ -63,5 +63,10 @@ namespace PlayerFinder
         {
             this.Players = players;
         }
+
+        public override string ToString()
+        {
+            return $"Multiple players match: {string.Join(", ", this.Players.Select(p => p.Name))}";
+        }
     }
 }

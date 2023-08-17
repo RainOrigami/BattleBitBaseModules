@@ -245,7 +245,7 @@ public class CommandHandler : BattleBitModule
     {
         StringBuilder helpOutput = new();
 
-        helpOutput.AppendLine("Available commands:<br>");
+        helpOutput.AppendLine("Available commands:");
 
         foreach (var (command, (module, method)) in this.commandCallbacks)
         {
@@ -256,7 +256,7 @@ public class CommandHandler : BattleBitModule
                 continue;
             }
 
-            helpOutput.AppendLine($"<b>{COMMAND_PREFIX}{commandCallbackAttribute.Name}</b>: {commandCallbackAttribute.Description}<br>");
+            helpOutput.AppendLine($"<b>{COMMAND_PREFIX}{commandCallbackAttribute.Name}</b>: {commandCallbackAttribute.Description}");
         }
 
         player.Message(helpOutput.ToString());

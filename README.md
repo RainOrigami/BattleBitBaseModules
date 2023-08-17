@@ -43,7 +43,7 @@ It can also be used by other modules to get, set and check for roles of a player
 Roles are stored and shared globally across all connected servers. Every time a user role is changed, the json file is written to.
 
 ### Dependencies
-- [Newtonsoft JSON](https://github.com/JamesNK/Newtonsoft.Json/releases) - `Bin\net6.0\Newtonsoft.Json.dll`
+- None
 
 ### Available methods and properties
 - `bool HasPlayerRole(ulong steamID, Roles role)` - Returns true if the roles of a player include the specified role or set of roles.

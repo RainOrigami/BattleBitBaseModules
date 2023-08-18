@@ -11,7 +11,7 @@ namespace BattleBitBaseModules;
 
 public class RichText : BattleBitModule
 {
-    public static readonly string NewLine = "<br>";
+    public string NewLine() => "<br>";
 
     public string Color(string? color = null)
     {

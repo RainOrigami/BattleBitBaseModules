@@ -177,6 +177,7 @@ This module provides a simple way for other modules to create rich text messages
 - None
 
 ### Available methods and properties
+- `string NewLine()` - Make a new line.
 - `string Color(string? color = null)` - Sets the color of the text. Color must be hashtag prefixed hex value (eg. `#22FF38`). Color is optional can be null to reset the color to the default color white.
 - `string FromColorName(string colorName)` - Sets the color of the text to a color based on its name. See `BattleBitBaseModules.Colors` in `RichText.cs` for available color names.
 - `string SpriteByName(string spriteName, string? color = null)` - Returns a sprite by name. See `BattleBitBaseModules.Sprites` in `RichText.cs` for available sprites. Color must be hex value (eg. `#22FF38`). If no color is specified, the default color is used.

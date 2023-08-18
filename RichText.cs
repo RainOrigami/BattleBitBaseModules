@@ -15,15 +15,15 @@ public class RichText : BattleBitModule
 
     public string Color(string? color = null)
     {
-        if (!string.IsNullOrEmpty(color))
+        if (color is null)
         {
-            return $"<#{color}>";
+            return Colors.White;
         }
 
-        return "<#FFFFFF>";
+        return $"<{color}>";
     }
 
-    public string ColorNameToHex(string colorName)
+    public string FromColorName(string colorName)
     {
         FieldInfo? color = typeof(Colors).GetFields().FirstOrDefault(x => x.Name.ToLower() == colorName.ToLower());
         if (color == null)
@@ -35,7 +35,7 @@ public class RichText : BattleBitModule
         return color.GetValue(null)!.ToString();
     }
 
-    public string SpriteByName(string spriteName, string? color = null)
+    public string Sprite(string spriteName, string? color = null)
     {
         FieldInfo? sprite = typeof(Sprites).GetFields().FirstOrDefault(x => x.Name.ToLower() == spriteName.ToLower());
         if (sprite == null)

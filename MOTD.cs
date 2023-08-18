@@ -12,11 +12,7 @@ public class MOTD : BattleBitModule
 
     [ModuleReference]
     public CommandHandler CommandHandler { get; set; }
-
-    public MOTD(RunnerServer server) : base(server)
-    {
-    }
-
+    
     public override void OnModulesLoaded()
     {
         this.CommandHandler.Register(this);

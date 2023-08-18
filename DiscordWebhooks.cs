@@ -8,212 +8,211 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BattleBitDiscordWebhooks
+namespace BattleBitDiscordWebhooks;
+
+public class DiscordWebhooks : BattleBitModule
 {
-    public class DiscordWebhooks : BattleBitModule
+    private Queue<DiscordMessage> discordMessageQueue = new();
+    private HttpClient httpClient = new HttpClient();
+    public WebhookConfiguration Configuration { get; set; }
+
+    public override void OnModulesLoaded()
     {
-        private Queue<DiscordMessage> discordMessageQueue = new();
-        private HttpClient httpClient = new HttpClient();
-        public WebhookConfiguration Configuration { get; set; }
-
-        public DiscordWebhooks(RunnerServer server) : base(server)
+        if (string.IsNullOrEmpty(this.Configuration.WebhookURL))
         {
-
+            this.Unload();
+            throw new Exception("Webhook URL is not set. Please set it in the configuration file.");
         }
+    }
 
-        public override void OnModulesLoaded()
+    public override Task OnConnected()
+    {
+        discordMessageQueue.Enqueue(new WarningMessage("Server connected to API"));
+        Task.Run(() => sendChatMessagesToDiscord());
+        return Task.CompletedTask;
+    }
+
+    public override Task OnDisconnected()
+    {
+        discordMessageQueue.Enqueue(new WarningMessage("Server disconnected from API"));
+        return base.OnDisconnected();
+    }
+
+    public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string msg)
+    {
+        discordMessageQueue.Enqueue(new ChatMessage(player.Name, player.SteamID, channel, msg));
+
+        return Task.FromResult(true);
+    }
+
+    public override Task OnPlayerConnected(RunnerPlayer player)
+    {
+        this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, true));
+        return Task.CompletedTask;
+    }
+
+    public override Task OnPlayerDisconnected(RunnerPlayer player)
+    {
+        this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, false));
+        return Task.CompletedTask;
+    }
+
+    public override Task OnPlayerReported(RunnerPlayer from, RunnerPlayer to, ReportReason reason, string additional)
+    {
+        this.discordMessageQueue.Enqueue(new WarningMessage($"{from.Name} ({from.SteamID}) reported {to.Name} ({to.SteamID}) for {reason}:{Environment.NewLine}> {additional}"));
+        return Task.CompletedTask;
+    }
+
+    public void SendMessage(string message)
+    {
+        this.discordMessageQueue.Enqueue(new RawTextMessage(message));
+    }
+
+    private async Task sendChatMessagesToDiscord()
+    {
+        do
         {
-            if (string.IsNullOrEmpty(this.Configuration.WebhookURL))
-            {
-                this.Unload();
-                throw new Exception("Webhook URL is not set. Please set it in the configuration file.");
-            }
-        }
-
-        public override Task OnConnected()
-        {
-            discordMessageQueue.Enqueue(new ErrorMessage(false, "Server connected to API"));
-            Task.Run(() => sendChatMessagesToDiscord());
-            return Task.CompletedTask;
-        }
-
-        public override Task OnDisconnected()
-        {
-            discordMessageQueue.Enqueue(new ErrorMessage(false, "Server disconnected from API"));
-            return base.OnDisconnected();
-        }
-
-        public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string msg)
-        {
-            discordMessageQueue.Enqueue(new ChatMessage(player.Name, player.SteamID, channel, msg));
-
-            return Task.FromResult(true);
-        }
-
-        public override Task OnPlayerConnected(RunnerPlayer player)
-        {
-            this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, true));
-            return Task.CompletedTask;
-        }
-
-        public override Task OnPlayerDisconnected(RunnerPlayer player)
-        {
-            this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, false));
-            return Task.CompletedTask;
-        }
-
-        public void SendMessage(string message)
-        {
-            this.discordMessageQueue.Enqueue(new RawTextMessage(message));
-        }
-
-        private async Task sendChatMessagesToDiscord()
-        {
+            List<DiscordMessage> messages = new();
             do
             {
-                List<DiscordMessage> messages = new();
-                do
+                try
                 {
-                    try
+                    while (this.discordMessageQueue.TryDequeue(out DiscordMessage? message))
                     {
-                        while (this.discordMessageQueue.TryDequeue(out DiscordMessage? message))
+                        if (message == null)
                         {
-                            if (message == null)
-                            {
-                                continue;
-                            }
-
-                            messages.Add(message);
+                            continue;
                         }
 
-
-                        if (messages.Count > 0)
-                        {
-                            await sendWebhookMessage(this.Configuration.WebhookURL, string.Join(Environment.NewLine, messages.Select(message => message.ToString())));
-                        }
-
-                        messages.Clear();
+                        messages.Add(message);
                     }
-                    catch (Exception ex)
+
+
+                    if (messages.Count > 0)
                     {
-                        Console.WriteLine($"EXCEPTION IN DISCORD MESSAGE QUEUING:{Environment.NewLine}{ex}");
-                        await Task.Delay(500);
+                        await sendWebhookMessage(this.Configuration.WebhookURL, string.Join(Environment.NewLine, messages.Select(message => message.ToString())));
                     }
-                } while (messages.Count > 0);
 
-                await Task.Delay(250);
-            } while (this.Server?.IsConnected == true);
-        }
-
-        private async Task sendWebhookMessage(string webhookUrl, string message)
-        {
-            bool success = false;
-            while (!success)
-            {
-                var payload = new
-                {
-                    content = message
-                };
-
-                var payloadJson = JsonConvert.SerializeObject(payload);
-                var content = new StringContent(payloadJson, Encoding.UTF8, "application/json");
-
-                var response = await this.httpClient.PostAsync(webhookUrl, content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Error sending webhook message. Status Code: {response.StatusCode}");
+                    messages.Clear();
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"EXCEPTION IN DISCORD MESSAGE QUEUING:{Environment.NewLine}{ex}");
+                    await Task.Delay(500);
+                }
+            } while (messages.Count > 0);
 
-                success = response.IsSuccessStatusCode;
+            await Task.Delay(250);
+        } while (this.Server?.IsConnected == true);
+    }
+
+    private async Task sendWebhookMessage(string webhookUrl, string message)
+    {
+        bool success = false;
+        while (!success)
+        {
+            var payload = new
+            {
+                content = message
+            };
+
+            var payloadJson = JsonConvert.SerializeObject(payload);
+            var content = new StringContent(payloadJson, Encoding.UTF8, "application/json");
+
+            var response = await this.httpClient.PostAsync(webhookUrl, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Error sending webhook message. Status Code: {response.StatusCode}");
             }
-        }
 
+            success = response.IsSuccessStatusCode;
+        }
     }
 
-    internal class DiscordMessage
+}
+
+internal class DiscordMessage
+{
+}
+
+internal class RawTextMessage : DiscordMessage
+{
+    public string Message { get; set; }
+
+    public RawTextMessage(string message)
     {
+        this.Message = message;
     }
 
-    internal class RawTextMessage : DiscordMessage
+    public override string ToString()
     {
-        public string Message { get; set; }
-
-        public RawTextMessage(string message)
-        {
-            this.Message = message;
-        }
-
-        public override string ToString()
-        {
-            return this.Message;
-        }
+        return this.Message;
     }
+}
 
-    internal class ChatMessage : DiscordMessage
+internal class ChatMessage : DiscordMessage
+{
+    public string PlayerName { get; set; } = string.Empty;
+
+    public ChatMessage(string playerName, ulong steamID, ChatChannel channel, string message)
     {
-        public string PlayerName { get; set; } = string.Empty;
-
-        public ChatMessage(string playerName, ulong steamID, ChatChannel channel, string message)
-        {
-            this.PlayerName = playerName;
-            this.SteamID = steamID;
-            this.Channel = channel;
-            this.Message = message;
-        }
-
-        public ulong SteamID { get; set; }
-        public ChatChannel Channel { get; set; }
-        public string Message { get; set; } = string.Empty;
-
-        public override string ToString()
-        {
-            return $":speech_balloon: [{this.SteamID}] {this.PlayerName}: {this.Message}";
-        }
+        this.PlayerName = playerName;
+        this.SteamID = steamID;
+        this.Channel = channel;
+        this.Message = message;
     }
 
-    internal class JoinAndLeaveMessage : DiscordMessage
+    public ulong SteamID { get; set; }
+    public ChatChannel Channel { get; set; }
+    public string Message { get; set; } = string.Empty;
+
+    public override string ToString()
     {
-        public int PlayerCount { get; set; }
-
-        public JoinAndLeaveMessage(int playerCount, string playerName, ulong steamID, bool joined)
-        {
-            this.PlayerCount = playerCount;
-            this.PlayerName = playerName;
-            this.SteamID = steamID;
-            this.Joined = joined;
-        }
-
-        public string PlayerName { get; set; } = string.Empty;
-        public ulong SteamID { get; set; }
-        public bool Joined { get; set; }
-
-        public override string ToString()
-        {
-            return $"{(this.Joined ? ":arrow_right:" : ":arrow_left:")} [{this.SteamID}] {this.PlayerName} {(this.Joined ? "joined" : "left")} ({this.PlayerCount} players)";
-        }
+        return $":speech_balloon: [{this.SteamID}] {this.PlayerName}: {this.Message}";
     }
+}
 
-    internal class ErrorMessage : DiscordMessage
+internal class JoinAndLeaveMessage : DiscordMessage
+{
+    public int PlayerCount { get; set; }
+
+    public JoinAndLeaveMessage(int playerCount, string playerName, ulong steamID, bool joined)
     {
-        public ErrorMessage(bool isError, string message)
-        {
-            this.IsError = isError;
-            this.Message = message;
-        }
-
-        public bool IsError { get; set; }
-
-        public string Message { get; set; }
-
-        public override string ToString()
-        {
-            return $"{(this.IsError ? ":no_entry_sign: <@1118836369259778149>" : ":warning:")} {this.Message}";
-        }
+        this.PlayerCount = playerCount;
+        this.PlayerName = playerName;
+        this.SteamID = steamID;
+        this.Joined = joined;
     }
 
-    public class WebhookConfiguration : ModuleConfiguration
+    public string PlayerName { get; set; } = string.Empty;
+    public ulong SteamID { get; set; }
+    public bool Joined { get; set; }
+
+    public override string ToString()
     {
-        public string WebhookURL { get; set; } = string.Empty;
+        return $"{(this.Joined ? ":arrow_right:" : ":arrow_left:")} [{this.SteamID}] {this.PlayerName} {(this.Joined ? "joined" : "left")} ({this.PlayerCount} players)";
     }
+}
+
+internal class WarningMessage : DiscordMessage
+{
+    public WarningMessage(string message)
+    {
+        this.Message = message;
+    }
+
+    public bool IsError { get; set; }
+
+    public string Message { get; set; }
+
+    public override string ToString()
+    {
+        return $":warning: {this.Message}";
+    }
+}
+
+public class WebhookConfiguration : ModuleConfiguration
+{
+    public string WebhookURL { get; set; } = string.Empty;
 }

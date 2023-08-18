@@ -68,10 +68,10 @@ public class ModeratorTools : BattleBitModule
     }
 
     [CommandCallback("Ban", Description = "Bans a player", AllowedRoles = Roles.Moderator)]
-    public void Ban(RunnerPlayer commandSource, RunnerPlayer target, string? reason = null)
+    public void Ban(RunnerPlayer commandSource, RunnerPlayer target)
     {
         this.Server.ExecuteCommand($"ban {target.SteamID}");
-        target.Kick(reason ?? string.Empty);
+        target.Kick();
 
         commandSource.Message($"Player {target.Name} banned", 10);
     }

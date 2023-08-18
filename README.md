@@ -2,12 +2,40 @@
 All the basic modules for the modular BattleBit API https://github.com/RainOrigami/BattleBitAPIRunner
 
 # Modules
+- ModeratorTools - Module for basic in-game moderation tools
 - MOTD - Module for displaying a message to every player who joins the server
 - PlayerFinder - Library module for finding players
 - PlayerPermissions - Library module for basic persistent player permissions (Roles)
 - CommandHandler - Library module for easy command handling
 - PermissionsCommands - Module for adding and removing permissions using in-game chat
 - DiscordWebhooks - Module for sending messages to discord webhooks
+- RichText - Library module for creating rich text messages
+
+## ModeratorTools
+### Description
+This module provides in-game chat commands to moderate the server.
+
+### Commands
+All commands require the Moderator role to execute.
+- `say message` - Sends a message to all players.
+- `announceshort message` - Sends a short announcement to all players.
+- `announcelong message` - Sends a long announcement to all players.
+- `message player message` - Sends a message to the player.
+- `clear` - Clears the chat.
+- `kick player [reason]` - Kicks the player from the server.
+- `ban player` - Bans the player from the server.
+- `kill player` - Kills the player.
+- `gag player` - Gags the player preventing them from using text chat.
+- `ungag player` - Un-gags the player.
+- `mute player` - Mutes the player preventing them from using voice chat.
+- `unmute player` - Un-mutes the player.
+- `silence player` - Silences the player preventing them from using both voice and text chat.
+- `unsilence player` - Un-silences the player.
+- `lockspawn [player]` - Locks the spawn of the player or all players.
+- `unlockspawn [player]` - Unlocks the spawn of the player or all players.
+
+### Dependencies
+- [CommandHandler](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/CommandHandler.cs)
 
 ## MOTD
 ### Description
@@ -133,3 +161,21 @@ It can also be used by other modules to send raw webhook messages.
 
 ### Available methods and properties
 - `void SendMessage(string message)` - Send the message to the webhook
+
+## RichText
+### Description
+This module provides a simple way for other modules to create rich text messages for chat, announcements or messages.  It doesn't do anything by itself.
+
+### Dependencies
+- None
+
+### Available methods and properties
+- `string Color(string? color = null)` - Sets the color of the text. Color must be hex value (eg. `#22FF38`). If no color is specified, the default color is used.
+- `string ColorNameToHex(string colorName)` - Converts a color name to a hex color code. See `BattleBitBaseModules.Colors` in `RichText.cs` for available colors.
+- `string SpriteByName(string spriteName, string? color = null)` - Returns a sprite by name. See `BattleBitBaseModules.Sprites` in `RichText.cs` for available sprites. Color must be hex value (eg. `#22FF38`). If no color is specified, the default color is used.
+- `string Bold(bool bold)` - Sets the boldness of the text. True to bold, false to unbold.
+- `string Italic(bool italic)` - Sets the italicness of the text. True to italic, false to unitalic.
+- `string Underline(bool underline)` - Sets the underlineness of the text. True to underline, false to ununderline.
+- `string Strikethrough(bool strikethrough)` - Sets the strikethroughness of the text. True to strikethrough, false to unstrike.
+- `string Size(int size)` - Sets the size of the text. Size is percentage (eg. `150` for 150% text size).
+- `string Mark(bool mark, string color = "#ffff00aa")` - Sets the text as marked (highlighter). True to mark, false to unmark. Color must be hex value and can include alpha (eg. `#22FF38AA`).

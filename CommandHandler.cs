@@ -19,11 +19,6 @@ public class CommandHandler : BattleBitModule
 {
     public static CommandConfiguration CommandConfiguration { get; set; }
 
-    public CommandHandler(RunnerServer server) : base(server)
-    {
-
-    }
-
     private Dictionary<string, (BattleBitModule Module, MethodInfo Method)> commandCallbacks = new();
 
     [ModuleReference]

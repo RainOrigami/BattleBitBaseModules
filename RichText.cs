@@ -1,7 +1,9 @@
 ﻿using BBRAPIModules;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +13,65 @@ public class RichText : BattleBitModule
 {
     public static readonly string NewLine = "<br>";
 
+    public string Color(string? color = null)
+    {
+        if (!string.IsNullOrEmpty(color))
+        {
+            return $"<#{color}>";
+        }
+
+        return "<#FFFFFF>";
+    }
+
+    public string ColorNameToHex(string colorName)
+    {
+        FieldInfo? color = typeof(Colors).GetFields().FirstOrDefault(x => x.Name.ToLower() == colorName.ToLower());
+        if (color == null)
+        {
+            Console.WriteLine($"No color found with name {colorName}");
+            return "<#FFFFFF>";
+        }
+
+        return color.GetValue(null)!.ToString();
+    }
+
+    public string SpriteByName(string spriteName, string? color = null)
+    {
+        FieldInfo? sprite = typeof(Sprites).GetFields().FirstOrDefault(x => x.Name.ToLower() == spriteName.ToLower());
+        if (sprite == null)
+        {
+            Console.WriteLine($"No sprite found with name {spriteName}");
+            return string.Empty;
+        }
+
+        string spriteText = sprite.GetValue(null)!.ToString();
+        if (!string.IsNullOrEmpty(color))
+        {
+            spriteText = spriteText.Replace("<sprite ", $"<sprite color={color} ");
+        }
+
+        return spriteText;
+    }
+
+    public string Bold(bool bold) => bold ? "<b>" : "</b>";
+
+    public string Italic(bool italic) => italic ? "<i>" : "</i>";
+
+    public string Mark(bool mark, string color = "#ffff00aa") => mark ? $"<mark color=\"{color}\">" : "</mark>";
+
+    public string Strikethrough(bool strikethrough) => strikethrough ? "<s>" : "</s>";
+
+    public string Underline(bool underline) => underline ? "<u>" : "</u>";
+
+    public string Size(int size) => $"<size={size}>";
+
+    public string Subscript(bool subscript) => subscript ? "<sub>" : "</sub>";
+
+    public string Superscript(bool superscript) => superscript ? "<sup>" : "</sup>";
+}
+
+public static class Colors
+{
     public static readonly string Black = "<color=\"black\">";
     public static readonly string Blue = "<color=\"blue\">";
     public static readonly string Brown = "<color=\"brown\">";
@@ -152,7 +213,10 @@ public class RichText : BattleBitModule
     public static readonly string DarkGray = "<#A9A9A9>";
     public static readonly string LightGray = "<#D3D3D3>";
     public static readonly string Gainsboro = "<#DCDCDC>";
+}
 
+public static class Sprites
+{
     public static readonly string Moderator = "<sprite index=0>";
     public static readonly string Patreon = "<sprite index=1>";
     public static readonly string Creator = "<sprite index=2>";
@@ -169,44 +233,4 @@ public class RichText : BattleBitModule
     public static readonly string Misc4 = "<sprite index=13>";
     public static readonly string Misc5 = "<sprite index=14>";
     public static readonly string Misc6 = "<sprite index=15>";
-
-    public static string Bold(string text)
-    {
-        return $"<b>{text}</b>";
-    }
-
-    public static string Italic(string text)
-    {
-        return $"<i>{text}</i>";
-    }
-
-    public static string Mark(string text, string color = "#ffff00aa")
-    {
-        return $"<mark={color}>{text}</mark>";
-    }
-
-    public static string Strikethrough(string text)
-    {
-        return $"<s>{text}</s>";
-    }
-
-    public static string Underline(string text)
-    {
-        return $"<u>{text}</u>";
-    }
-
-    public static string Size(string text, int sizeValue)
-    {
-        return $"<size={sizeValue}>{text}</size>";
-    }
-
-    public static string Subscript(string text)
-    {
-        return $"<sub>{text}</sub>";
-    }
-
-    public static string Superscript(string text)
-    {
-        return $"<sup>{text}</sup>";
-    }
 }

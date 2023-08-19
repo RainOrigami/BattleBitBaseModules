@@ -129,7 +129,7 @@ They require the `[CommandCallback("name")]` attribute:
 
 The first method parameter must always be of type `RunnerPlayer` and contains the player who has called this command.
 Other parameters are automatically parsed. Parameters of type `RunnerPlayer` will try to find a player using the `PlayerFinder.ByNamePart` if available, otherwise uses exact case-insensitive matching. Enums, such as `Roles` are parsed. Simple types, such as string, int, float, double, bool, are parsed.
-Optional parameters are supported.
+Optional parameters and subcommands are supported
 
 **Example**
 ```cs
@@ -143,6 +143,16 @@ public void PingCommand(RunnerPlayer commandSource, int time, string? message = 
 public void BoopCommand()
 {
   this.Server.SayToChat("Booping!");
+}
+[CommandCallback("test one", Description = "Subcommands", AllowedRoles = Roles.Vip)]
+public void TestOneCommand()
+{
+  this.Server.SayToChat("Subcommands!");
+}
+[CommandCallback("test two", Description = "Subcommands", AllowedRoles = Roles.Vip)]
+public void TestTwoCommand()
+{
+  this.Server.SayToChat("Subcommands!");
 }
 ```
 

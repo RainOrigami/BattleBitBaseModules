@@ -63,7 +63,7 @@ public class RichText : BattleBitModule
 
     public string Underline(bool underline) => underline ? "<u>" : "</u>";
 
-    public string Size(int size) => $"<size={size}>";
+    public string Size(int size) => $"<size={size}%>";
 
     public string Subscript(bool subscript) => subscript ? "<sub>" : "</sub>";
 

@@ -50,13 +50,38 @@ public class CommandHandler : BattleBitModule
                 // Prevent duplicate command names in different methods or modules
                 if (this.commandCallbacks.ContainsKey(command))
                 {
-                    if (this.commandCallbacks[command].Method != method)
+                    if (this.commandCallbacks[command].Method == method)
                     {
-                        throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has the same name as another command callback method in the same module.");
+                        continue;
                     }
 
-                    // Already added
-                    continue;
+                    throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has the same name as another command callback method in the same module.");
+                }
+
+                // Prevent parent commands of subcommands (!perm command does not allow !perm add and !perm remove)
+                foreach (string subcommand in this.commandCallbacks.Keys.Where(c => c.Contains(' ')))
+                {
+                    if (!subcommand.StartsWith(command))
+                    {
+                        continue;
+                    }
+
+                    throw new Exception($"Command callback {command} in module {module.GetType().Name} conflicts with subcommand {subcommand}.");
+                }
+
+                // Prevent subcommands of existing commands (!perm add and !perm remove do not allow !perm)
+                if (command.Contains(' '))
+                {
+                    string[] subcommandChain = command.Split(' ');
+                    string subcommand = "";
+                    for (int i = 0; i < subcommandChain.Length; i++)
+                    {
+                        subcommand += $"{subcommandChain[i]} ";
+                        if (this.commandCallbacks.ContainsKey(subcommand.Trim()))
+                        {
+                            throw new Exception($"Command callback {command} in module {module.GetType().Name} conflicts with parent command {subcommand.Trim()}.");
+                        }
+                    }
                 }
 
                 this.commandCallbacks.Add(command, (module, method));
@@ -81,11 +106,19 @@ public class CommandHandler : BattleBitModule
         string[] fullCommand = parseCommandString(message);
         string command = fullCommand[0].Trim().ToLower()[CommandConfiguration.CommandPrefix.Length..];
 
+        int subCommandSkip;
+        for (subCommandSkip = 1; subCommandSkip < fullCommand.Length && !this.commandCallbacks.ContainsKey(command); subCommandSkip++)
+        {
+            command += $" {fullCommand[subCommandSkip]}";
+        }
+
         if (!this.commandCallbacks.ContainsKey(command))
         {
             player.Message("Command not found");
             return;
         }
+
+        fullCommand = new[] { command }.Concat(fullCommand.Skip(subCommandSkip)).ToArray();
 
         (BattleBitModule module, MethodInfo method) = this.commandCallbacks[command];
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;

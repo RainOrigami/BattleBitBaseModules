@@ -74,7 +74,7 @@ public class CommandHandler : BattleBitModule
                 {
                     string[] subcommandChain = command.Split(' ');
                     string subcommand = "";
-                    for (int i = 1; i < subcommandChain.Length; i++)
+                    for (int i = 0; i < subcommandChain.Length; i++)
                     {
                         subcommand += $"{subcommandChain[i]} ";
                         if (this.commandCallbacks.ContainsKey(subcommand.Trim()))
@@ -118,10 +118,7 @@ public class CommandHandler : BattleBitModule
             return;
         }
 
-        if (subCommandSkip > 1)
-        {
-            fullCommand = fullCommand[subCommandSkip..];
-        }
+        fullCommand = new[] { command }.Concat(fullCommand.Skip(subCommandSkip)).ToArray();
 
         (BattleBitModule module, MethodInfo method) = this.commandCallbacks[command];
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;

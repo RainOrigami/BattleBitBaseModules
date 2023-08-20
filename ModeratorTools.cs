@@ -23,7 +23,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Say", Description = "Prints a message to all players", AllowedRoles = Roles.Moderator)]
     public void Say(RunnerPlayer commandSource, string message)
     {
-        this.Server.SayToChat(message);
+        this.Server.SayToAllChat(message);
     }
 
     [CommandCallback("AnnounceShort", Description = "Prints a short announce to all players", AllowedRoles = Roles.Moderator)]
@@ -56,7 +56,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Clear", Description = "Clears the chat", AllowedRoles = Roles.Moderator)]
     public void Clear(RunnerPlayer commandSource)
     {
-        this.Server.SayToChat("".PadLeft(30, '\n') + "<size=0%>Chat cleared");
+        this.Server.SayToAllChat("".PadLeft(30, '\n') + "<size=0%>Chat cleared");
     }
 
     [CommandCallback("Kick", Description = "Kicks a player", AllowedRoles = Roles.Moderator)]
@@ -220,13 +220,13 @@ public class ModeratorTools : BattleBitModule
         return Task.FromResult(true);
     }
 
-    public override Task<OnPlayerSpawnArguments> OnPlayerSpawning(RunnerPlayer player, OnPlayerSpawnArguments request)
+    public override Task<OnPlayerSpawnArguments?> OnPlayerSpawning(RunnerPlayer player, OnPlayerSpawnArguments request)
     {
         if (this.globalSpawnLock || this.lockedSpawns.Contains(player.SteamID))
         {
-            player.Modifications.CanDeploy = false;
+            return Task.FromResult<OnPlayerSpawnArguments?>(null);
         }
 
-        return Task.FromResult(request);
+        return Task.FromResult(request as OnPlayerSpawnArguments?);
     }
 }

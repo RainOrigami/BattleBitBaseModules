@@ -35,6 +35,89 @@ public class RichText : BattleBitModule
         return color.GetValue(null)!.ToString();
     }
 
+    public string Align(string? alignment = null)
+    {
+        if (alignment is null)
+        {
+            return Alignments.None;
+        }
+
+        return $"<align=\"{alignment}\">";
+    }
+
+    public string FromAlignmentName(string alignmentName)
+    {
+        FieldInfo? alignment = typeof(Alignments).GetFields().FirstOrDefault(x => x.Name.ToLower() == alignmentName.ToLower());
+        if (alignment == null)
+        {
+            Console.WriteLine($"No alignment found with name {alignmentName}");
+            return Alignments.None;
+        }
+
+        return alignment.GetValue(null)!.ToString();
+    }
+
+    public string Alpha(string? alpha = null)
+    {
+        if (alpha is null)
+        {
+            return "<alpha=#FF>";
+        }
+
+        return $"<alpha={alpha}>";
+    }
+
+    public string CharacterSpacing(int pixels) => $"<cspace={pixels}>";
+    public string CharacterSpacing(float em) => $"<cspace={em}em>";
+
+    public string Font(string? fontName)
+    {
+        if (fontName is null)
+        {
+            return "<font=\"default\">";
+        }
+
+        return $"<font=\"{fontName}\">";
+    }
+
+    public string Indent(int? percentage = null)
+    {
+        if (percentage is null)
+        {
+            return "</indent>";
+        }
+
+        return $"<indent={percentage}%>";
+    }
+
+    public string LineHeight(int percentage) => $"<line-height={percentage}%>";
+
+    public string LineIndentation(int percentage) => $"<line-indent={percentage}%>";
+
+    public string Lowercase(bool lowercase) => lowercase ? "<lowercase>" : "</lowercase>";
+    public string Uppercase(bool uppercase) => uppercase ? "<uppercase>" : "</uppercase>";
+    public string Smallcaps(bool smallcaps) => smallcaps ? "<smallcaps>" : "</smallcaps>";
+
+    public string Margin(int pixels) => $"<margin={pixels}>";
+    public string Margin(float em) => $"<margin={em}em>";
+
+    public string Monospacing(int pixels) => $"<mspace={pixels}>";
+    public string Monospacing(float em) => $"<mspace={em}em>";
+    public string Monospacing() => "</mspace>";
+
+    public string Noparse(bool noparse) => noparse ? "<noparse>" : "</noparse>";
+
+    public string NonBreakingSpace(bool nonBreakingSpace) => nonBreakingSpace ? "<nobr>" : "</nobr>";
+
+    public string HorizontalPosition(int percentage) => $"<pos={percentage}%>";
+
+    public string HorizontalSpace(int pixels) => $"<space={pixels}>";
+    public string HorizontalSpace(float em) => $"<space={em}em>";
+
+    public string VerticalOffset(float em) => $"<voffset={em}em>";
+
+    public string TextWidth(int percentage) => $"<width={percentage}%>";
+
     public string Sprite(string spriteName, string? color = null)
     {
         FieldInfo? sprite = typeof(Sprites).GetFields().FirstOrDefault(x => x.Name.ToLower() == spriteName.ToLower());
@@ -63,11 +146,19 @@ public class RichText : BattleBitModule
 
     public string Underline(bool underline) => underline ? "<u>" : "</u>";
 
-    public string Size(int size) => $"<size={size}%>";
+    public string Size(int percentage) => $"<size={percentage}%>";
 
     public string Subscript(bool subscript) => subscript ? "<sub>" : "</sub>";
 
     public string Superscript(bool superscript) => superscript ? "<sup>" : "</sup>";
+}
+
+public static class Alignments
+{
+    public static readonly string Left = "<align=\"left\">";
+    public static readonly string Center = "<align=\"center\">";
+    public static readonly string Right = "<align=\"right\">";
+    public static readonly string None = "</align>";
 }
 
 public static class Colors

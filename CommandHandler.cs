@@ -236,7 +236,12 @@ public class CommandHandler : BattleBitModule
             }
             else
             {
-                parsedValue = Convert.ChangeType(input, parameterInfo.ParameterType);
+                Type? targetType = targetType = Nullable.GetUnderlyingType(parameterInfo.ParameterType);
+                if (targetType is null)
+                {
+                    targetType = parameterInfo.ParameterType;
+                }
+                parsedValue = Convert.ChangeType(input, targetType);
             }
 
             return true;

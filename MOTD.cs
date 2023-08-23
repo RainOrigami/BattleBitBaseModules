@@ -20,7 +20,7 @@ public class MOTD : BattleBitModule
 
     public override Task OnPlayerConnected(RunnerPlayer player)
     {
-        player.Message(this.Configuration.MOTD);
+        this.ShowMOTD(player);
         return Task.CompletedTask;
     }
 

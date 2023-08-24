@@ -33,6 +33,7 @@ All commands require the Moderator role to execute.
 - `unsilence player` - Un-silences the player.
 - `lockspawn [player]` - Locks the spawn of the player or all players.
 - `unlockspawn [player]` - Unlocks the spawn of the player or all players.
+- `inspect [player]` - Inspects the specified player or stops inspecting when no player is specified.
 
 ### Dependencies
 - [CommandHandler](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/CommandHandler.cs)

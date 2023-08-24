@@ -20,6 +20,38 @@ public class ModeratorTools : BattleBitModule
         this.CommandHandler.Register(this);
     }
 
+    public override Task OnConnected()
+    {
+        Task.Run(playerInspection);
+
+        return Task.CompletedTask;
+    }
+
+    private async void playerInspection()
+    {
+        while (this.IsLoaded && this.Server.IsConnected)
+        {
+            foreach (KeyValuePair<RunnerPlayer, RunnerPlayer> inspection in this.inspectPlayers)
+            {
+                RunnerPlayer target = inspection.Value;
+
+                StringBuilder playerInfo = new();
+                playerInfo.AppendLine($"{target.Name} ({target.SteamID} - {target.Role}");
+                playerInfo.AppendLine($"Net: {target.IP} - {target.PingMs}ms");
+                playerInfo.AppendLine($"Game: {target.Team} - {target.SquadName} - {(target.IsConnected ? "Connected" : "Disconnected")}");
+                playerInfo.AppendLine($"Health: {target.HP} - {(target.IsAlive ? "Alive" : "Dead")} - {(target.IsDown ? "Down" : "Up")} - {(target.IsBleeding ? "Bleeding" : "Not bleeding")}");
+                playerInfo.AppendLine($"State: {target.StandingState} - {target.LeaningState} - {(target.InVehicle ? "In vehicle" : "Not in vehicle")}");
+                playerInfo.AppendLine($"Position: {target.Position}");
+                playerInfo.AppendLine($"Loadout: {target.CurrentLoadout.PrimaryWeapon.ToolName} - {target.CurrentLoadout.SecondaryWeapon.ToolName} - {target.CurrentLoadout.ThrowableName}");
+                playerInfo.AppendLine($"Loadout: {target.CurrentLoadout.HeavyGadgetName} - {target.CurrentLoadout.LightGadgetName}");
+
+                inspection.Key.Message(playerInfo.ToString());
+            }
+
+            await Task.Delay(250);
+        }
+    }
+
     [CommandCallback("Say", Description = "Prints a message to all players", AllowedRoles = Roles.Moderator)]
     public void Say(RunnerPlayer commandSource, string message)
     {
@@ -203,6 +235,28 @@ public class ModeratorTools : BattleBitModule
             }
             this.lockedSpawns.Remove(target.SteamID);
             commandSource.Message($"Spawn unlocked for {target.Name}", 10);
+        }
+    }
+
+    private Dictionary<RunnerPlayer, RunnerPlayer> inspectPlayers = new();
+
+    [CommandCallback("Inspect", Description = "Inspects a player or stops inspection", AllowedRoles = Roles.Moderator)]
+    public void Inspect(RunnerPlayer commandSource, RunnerPlayer? target = null)
+    {
+        if (target is null)
+        {
+            this.inspectPlayers.Remove(commandSource);
+            commandSource.Message("Inspection stopped", 2);
+            return;
+        }
+
+        if (this.inspectPlayers.ContainsKey(commandSource))
+        {
+            this.inspectPlayers[commandSource] = target;
+        }
+        else
+        {
+            this.inspectPlayers.Add(commandSource, target);
         }
     }
 

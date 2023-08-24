@@ -4,6 +4,7 @@ All the basic modules for the modular BattleBit API https://github.com/RainOriga
 # Modules
 - [ModeratorTools](#ModeratorTools) - Module for basic in-game moderation tools
 - [MOTD](#MOTD) - Module for displaying a message to every player who joins the server
+- [Allowlist](#Allowlist) - Module for allowing only specific players to join the server
 - [PlayerFinder](#PlayerFinder) - Library module for finding players
 - [PlayerPermissions](#PlayerPermissions) - Library module for basic persistent player permissions (Roles)
 - [PermissionsCommands](#PermissionsCommands) - Module for adding and removing permissions using in-game chat

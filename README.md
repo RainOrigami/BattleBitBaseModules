@@ -2,14 +2,14 @@
 All the basic modules for the modular BattleBit API https://github.com/RainOrigami/BattleBitAPIRunner
 
 # Modules
-- ModeratorTools - Module for basic in-game moderation tools
-- MOTD - Module for displaying a message to every player who joins the server
-- PlayerFinder - Library module for finding players
-- PlayerPermissions - Library module for basic persistent player permissions (Roles)
-- CommandHandler - Library module for easy command handling
-- PermissionsCommands - Module for adding and removing permissions using in-game chat
-- DiscordWebhooks - Module for sending messages to discord webhooks
-- RichText - Library module for creating rich text messages
+- [ModeratorTools](#ModeratorTools) - Module for basic in-game moderation tools
+- [MOTD](#MOTD) - Module for displaying a message to every player who joins the server
+- [PlayerFinder](#PlayerFinder) - Library module for finding players
+- [PlayerPermissions](#PlayerPermissions) - Library module for basic persistent player permissions (Roles)
+- [PermissionsCommands](#PermissionsCommands) - Module for adding and removing permissions using in-game chat
+- [CommandHandler](#CommandHandler) - Library module for easy command handling
+- [DiscordWebhooks](#DiscordWebhooks) - Module for sending messages to discord webhooks
+- [RichText](#RichText) - Library module for creating rich text messages
 
 ## ModeratorTools
 ### Description
@@ -55,6 +55,18 @@ The following placeholders are available:
 ### Commands
 - `setmotd "message of the day"` - Sets a new MOTD. Requires Admin role to execute.
 - `motd` - Shows the current MOTD again.
+
+### Dependencies
+- [CommandHandler](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/CommandHandler.cs)
+
+## Allowlist
+### Description
+This module allows only specific players to join the server. All other players will be kicked.
+The allowlist is stored in a config file and will be loaded on server start.
+
+### Commands
+- `allow add steamid64` - Adds a player to the allowlist. Requires Moderator role to execute.
+- `allow remove steamid64` - Removes a player from the allowlist. Requires Moderator role to execute.
 
 ### Dependencies
 - [CommandHandler](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/CommandHandler.cs)

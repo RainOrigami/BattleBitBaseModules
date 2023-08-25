@@ -11,6 +11,7 @@ All the basic modules for the modular BattleBit API https://github.com/RainOriga
 - [CommandHandler](#CommandHandler) - Library module for easy command handling
 - [DiscordWebhooks](#DiscordWebhooks) - Module for sending messages to discord webhooks
 - [RichText](#RichText) - Library module for creating rich text messages
+- [SpectateControl](#SpectateControl) - Control which roles are allowed to use the spectate feature
 
 ## ModeratorTools
 ### Description
@@ -211,3 +212,25 @@ This module provides a simple way for other modules to create rich text messages
 - `string Strikethrough(bool strikethrough)` - Sets the strikethroughness of the text. True to strikethrough, false to unstrike.
 - `string Size(int size)` - Sets the size of the text. Size is percentage (eg. `150` for 150% text size).
 - `string Mark(bool mark, string color = "#ffff00aa")` - Sets the text as marked (highlighter). True to mark, false to unmark. Color must be hex value and can include alpha (eg. `#22FF38AA`).
+
+## SpectateControl
+### Description
+Enable and disable the spectate feature by the player role.
+
+To configure which roles are allowed to spectate, edit the global `Configuration.json`:
+```json
+{
+  "SpectatorRoles": 3
+}
+```
+
+The number is the sum of the roles that are allowed to spectate. The default is 3, which allows the Admin and Moderator roles to spectate.
+Role values:
+- 0 - None (everyone)
+- 1 - Admin
+- 2 - Moderator
+- 4 - Special
+- 8 - Vip
+
+### Dependencies
+- [PlayerPermissions](https://github.com/RainOrigami/BattleBitBaseModules/blob/main/PlayerPermissions.cs)

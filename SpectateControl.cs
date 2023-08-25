@@ -14,7 +14,7 @@ public class SpectateControl : BattleBitModule
 
     public override Task OnPlayerConnected(RunnerPlayer player)
     {
-        player.Modifications.CanSpectate = (PlayerPermissions.GetPlayerRoles(player.SteamID) & (Roles)Configuration.SpectatorRoles) > 0;
+        player.Modifications.CanSpectate = Configuration.SpectatorRoles == 0 || (PlayerPermissions.GetPlayerRoles(player.SteamID) & (Roles)Configuration.SpectatorRoles) > 0;
 
         return Task.CompletedTask;
     }

@@ -188,7 +188,6 @@ This module sends player connect and disconnect, server connect and disconnect, 
 It can also be used by other modules to send raw webhook messages.
 
 ### Dependencies
-- [Newtonsoft JSON](https://github.com/JamesNK/Newtonsoft.Json/releases) - `Bin\net6.0\Newtonsoft.Json.dll`
 - System.Net.Http - Copy from your dotnet6 installation, for example `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\6.0.*\System.Net.Http.dll`
 
 ### Available methods and properties

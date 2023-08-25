@@ -1,11 +1,11 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BattleBitDiscordWebhooks;
@@ -116,7 +116,7 @@ public class DiscordWebhooks : BattleBitModule
                 content = message
             };
 
-            var payloadJson = JsonConvert.SerializeObject(payload);
+            var payloadJson = JsonSerializer.Serialize(payload);
             var content = new StringContent(payloadJson, Encoding.UTF8, "application/json");
 
             var response = await this.httpClient.PostAsync(webhookUrl, content);

@@ -184,7 +184,7 @@ public void TestTwoCommand()
 
 ## DiscordWebhooks
 ### Description
-This module sends player connect and disconnect, server connect and disconnect, and player chat messages to a discord webhook which is specified in `DiscordWebhooks.json`.
+This module sends player connect and disconnect, server connect and disconnect, player chat messages and reports to a discord webhook which is specified in `DiscordWebhooks.json`.
 It can also be used by other modules to send raw webhook messages.
 
 ### Dependencies

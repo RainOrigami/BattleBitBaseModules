@@ -9,13 +9,13 @@ namespace BattleBitBaseModules;
 
 public class ProfanityFilter : BattleBitModule
 {
-    public ProfanityFilterConfiguration Configuration { get; set; }
+    public static ProfanityFilterConfiguration Configuration { get; set; }
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message)
     {
-        if (this.Configuration.Profanity.Any(x => message.Contains(x, StringComparison.OrdinalIgnoreCase)))
+        if (Configuration.Profanity.Any(x => message.Contains(x, StringComparison.OrdinalIgnoreCase)))
         {
-            player.Message(this.Configuration.Message, this.Configuration.MessageTimeout);
+            player.Message(Configuration.Message, Configuration.MessageTimeout);
             return Task.FromResult(false);
         }
 
@@ -23,7 +23,7 @@ public class ProfanityFilter : BattleBitModule
     }
 }
 
-public class ProfanityFilterConfiguration : BattleBitModule
+public class ProfanityFilterConfiguration : ModuleConfiguration
 {
     public List<string> Profanity { get; set; } = new();
     public float MessageTimeout { get; set; } = 10f;

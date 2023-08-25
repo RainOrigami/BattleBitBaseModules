@@ -15,7 +15,7 @@ public class ProfanityFilter : BattleBitModule
     {
         if (this.Configuration.Profanity.Any(x => message.Contains(x, StringComparison.OrdinalIgnoreCase)))
         {
-            player.Message("Please do not use profanity in chat.", this.Configuration.MessageTimeout);
+            player.Message(this.Configuration.Message, this.Configuration.MessageTimeout);
             return Task.FromResult(false);
         }
 
@@ -27,4 +27,5 @@ public class ProfanityFilterConfiguration : BattleBitModule
 {
     public List<string> Profanity { get; set; } = new();
     public float MessageTimeout { get; set; } = 10f;
+    public string Message { get; set; } = "Please do not use profanity in chat.";
 }

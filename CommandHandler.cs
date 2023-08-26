@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace Commands;
 
+/// <summary>
+/// Author: @RainOrigami
+/// Version: 0.4.5.1
+/// </summary>
+
 public class CommandConfiguration : ModuleConfiguration
 {
     public string CommandPrefix { get; set; } = "!";

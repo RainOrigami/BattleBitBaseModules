@@ -4,6 +4,11 @@ using System.Linq;
 
 namespace PlayerFinder;
 
+/// <summary>
+/// Author: @RainOrigami
+/// Version: 0.4.5.1
+/// </summary>
+
 public class PlayerFinder : BattleBitModule
 {
     public RunnerPlayer? ByExactName(string exactName, bool caseSensitive)

@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
+/// <summary>
+/// Author: @RainOrigami
+/// Version: 0.4.5.1
+/// </summary>
+
 [RequireModule(typeof(CommandHandler))]
 public class Allowlist : BattleBitModule
 {

@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 
 namespace Permissions;
 
+/// <summary>
+/// Author: @RainOrigami
+/// Version: 0.4.5.1
+/// </summary>
+
 public class PlayerPermissions : BattleBitModule
 {
     public static PlayerPermissionsConfiguration Configuration { get; set; }

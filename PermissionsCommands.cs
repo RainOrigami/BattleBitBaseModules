@@ -5,6 +5,11 @@ using Permissions;
 
 namespace PermissionsManager;
 
+/// <summary>
+/// Author: @RainOrigami
+/// Version: 0.4.5.1
+/// </summary>
+
 [RequireModule(typeof(PlayerPermissions))]
 [RequireModule(typeof(CommandHandler))]
 public class PermissionsCommands : BattleBitModule

@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace BattleBitDiscordWebhooks;
 
+/// <summary>
+/// Author: @RainOrigami
+/// Version: 0.4.5.1
+/// </summary>
+
 public class DiscordWebhooks : BattleBitModule
 {
     private Queue<DiscordMessage> discordMessageQueue = new();

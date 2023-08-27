@@ -1,13 +1,15 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.5.1
+/// Version: 0.4.8
 /// </summary>
 
 [RequireModule(typeof(CommandHandler))]
@@ -23,9 +25,28 @@ public class MOTD : BattleBitModule
         this.CommandHandler.Register(this);
     }
 
+    private List<ulong> greetedPlayers = new();
+
+    public override Task OnGameStateChanged(GameState oldState, GameState newState)
+    {
+        if (newState == GameState.EndingGame)
+        {
+            greetedPlayers.Clear();
+            greetedPlayers.AddRange(this.Server.AllPlayers.Select(p => p.SteamID));
+        }
+
+        return Task.CompletedTask;
+    }
+
     public override Task OnPlayerConnected(RunnerPlayer player)
     {
+        if (this.greetedPlayers.Contains(player.SteamID))
+        {
+            return Task.CompletedTask;
+        }
+
         this.ShowMOTD(player);
+
         return Task.CompletedTask;
     }
 

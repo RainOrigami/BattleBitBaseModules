@@ -7,21 +7,23 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.5.1
+/// Version: 0.4.7
 /// </summary>
 
 public class BasicProgression : BattleBitModule
 {
-    private const string DATA_DIR = "./data/PersistentProgressionFiles";
-
     public BasicProgressionConfiguration Configuration { get; set; }
 
-    public override void OnModulesLoaded()
+    private string dataDir => this.Configuration.PerServer ? Path.Combine(this.Configuration.DataDirectory, $"{this.Server.GameIP}:{this.Server.GamePort}") : this.Configuration.DataDirectory;
+
+    public override Task OnConnected()
     {
-        if (!Directory.Exists(DATA_DIR))
+        if (!Directory.Exists(dataDir))
         {
-            Directory.CreateDirectory(DATA_DIR);
+            Directory.CreateDirectory(dataDir);
         }
+
+        return Task.CompletedTask;
     }
 
     public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
@@ -45,14 +47,18 @@ public class BasicProgression : BattleBitModule
         return Task.CompletedTask;
     }
 
-    private static string getPlayerFileName(ulong steamId)
+    private string getPlayerFileName(ulong steamId)
     {
-        return Path.Combine(DATA_DIR, $"{steamId}.bin");
+        return Path.Combine(dataDir, $"{steamId}.bin");
     }
 }
 
 public class BasicProgressionConfiguration : ModuleConfiguration
 {
+    public string DataDirectory { get; set; } = "./data/PersistentProgressionFiles";
+
+    public bool PerServer { get; set; } = false;
+
     public bool ApplyInitialStatsOnEveryJoin { get; set; } = false;
 
     public PlayerStats? InitialStats { get; set; } = new PlayerStats()

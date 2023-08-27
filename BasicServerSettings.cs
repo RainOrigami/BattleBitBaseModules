@@ -1,18 +1,14 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.7.1
+/// Version: 0.4.7.2
 /// </summary>
 /// 
 public class BasicServerSettings : BattleBitModule

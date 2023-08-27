@@ -9,7 +9,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.7
+/// Version: 0.4.7.1
 /// </summary>
 
 public class Announcements : BattleBitModule
@@ -75,9 +75,9 @@ public class Announcements : BattleBitModule
         }
     }
 
-    private int doAnnouncement(int delay, DateTime lastAnnounce, int lastItem, List<string> messages, Action<string> action)
+    private int doAnnouncement(int delay, DateTime lastAnnounce, int lastItem, string[] messages, Action<string> action)
     {
-        if (messages.Count == 0)
+        if (messages.Length == 0)
         {
             return -1;
         }
@@ -87,7 +87,7 @@ public class Announcements : BattleBitModule
             return -1;
         }
 
-        if (lastItem >= messages.Count)
+        if (lastItem >= messages.Length)
         {
             lastItem = 0;
         }
@@ -108,11 +108,11 @@ public class AnnouncementsConfiguration : ModuleConfiguration
     public int MessageToPlayerTimeout { get; set; } = 10;
     public int SayToAllChatDelay { get; set; } = 60;
 
-    public List<string> AnnounceLong { get; set; } = new();
-    public List<string> AnnounceShort { get; set; } = new();
-    public List<string> UILogOnServer { get; set; } = new();
-    public List<string> MessageToPlayer { get; set; } = new();
-    public List<string> SayToAllChat { get; set; } = new()
+    public string[] AnnounceLong { get; set; } = Array.Empty<string>();
+    public string[] AnnounceShort { get; set; } = Array.Empty<string>();
+    public string[] UILogOnServer { get; set; } = Array.Empty<string>();
+    public string[] MessageToPlayer { get; set; } = Array.Empty<string>();
+    public string[] SayToAllChat { get; set; } = new[]
     {
         "We hope you enjoy our server!",
         "Feel free to write feedback in the chat!"

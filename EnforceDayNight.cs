@@ -18,7 +18,6 @@ public class EnforceDayNight : BattleBitModule
     
     public override Task OnConnected()
     {
-        // NOTE: This doesn't work in 0.4.5.1 because CanVoteDay and CanVoteNight have not been implemented yet.
         this.Server.ServerSettings.CanVoteDay = this.Configuration.AllowDayVotes;
         this.Server.ServerSettings.CanVoteNight = this.Configuration.AllowNightVotes;
 

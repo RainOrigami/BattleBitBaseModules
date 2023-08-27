@@ -2,6 +2,8 @@
 using BBRAPIModules;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -133,13 +135,13 @@ public class BasicServerSettingsConfiguration : ModuleConfiguration
     public bool? OnlyWinnerTeamCanVote { get; set; } = null;
     public bool? PlayerCollision { get; set; } = null;
     public bool? UnlockAllAttachments { get; set; } = null;
-    public Dictionary<GameState, RoundSettingsConfiguration> RoundSettings = new()
+    public ReadOnlyDictionary<GameState, RoundSettingsConfiguration> RoundSettings = new(new Dictionary<GameState, RoundSettingsConfiguration>()
     {
         { GameState.WaitingForPlayers, new(){ PlayersToStart = 1} },
         { GameState.CountingDown, new(){ SecondsLeft = 5 } },
         { GameState.Playing, new(){ MaxTickets= 5000, SecondsLeft= 1800, TeamATickets= 3000, TeamBTickets= 3000 } },
         { GameState.EndingGame, new() }
-    };
+    });
 
     public bool? AirStrafe { get; set; } = null;
     public VehicleType? AllowedVehicles { get; set; } = null;

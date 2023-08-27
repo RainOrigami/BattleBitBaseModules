@@ -10,7 +10,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.7
+/// Version: 0.4.7.1
 /// </summary>
 /// 
 public class BasicServerSettings : BattleBitModule
@@ -20,6 +20,11 @@ public class BasicServerSettings : BattleBitModule
     public override Task OnConnected()
     {
         this.applyServerSettings();
+
+        foreach (RunnerPlayer player in this.Server.AllPlayers)
+        {
+            this.applyPlayerSettings(player);
+        }
 
         return Task.CompletedTask;
     }
@@ -32,6 +37,13 @@ public class BasicServerSettings : BattleBitModule
         }
 
         this.applyRoundSettings(newState);
+
+        return Task.CompletedTask;
+    }
+
+    public override Task OnPlayerConnected(RunnerPlayer player)
+    {
+        this.applyPlayerSettings(player);
 
         return Task.CompletedTask;
     }
@@ -71,6 +83,37 @@ public class BasicServerSettings : BattleBitModule
         this.Server.RoundSettings.TeamATickets = roundSettings.TeamATickets ?? this.Server.RoundSettings.TeamATickets;
         this.Server.RoundSettings.TeamBTickets = roundSettings.TeamBTickets ?? this.Server.RoundSettings.TeamBTickets;
     }
+
+    private void applyPlayerSettings(RunnerPlayer player)
+    {
+        player.Modifications.AirStrafe = this.Configuration.AirStrafe ?? player.Modifications.AirStrafe;
+        player.Modifications.AllowedVehicles = this.Configuration.AllowedVehicles ?? player.Modifications.AllowedVehicles;
+        player.Modifications.CanDeploy = this.Configuration.CanDeploy ?? player.Modifications.CanDeploy;
+        player.Modifications.CanSpectate = this.Configuration.CanSpectate ?? player.Modifications.CanSpectate;
+        player.Modifications.CanSuicide = this.Configuration.CanSuicide ?? player.Modifications.CanSuicide;
+        player.Modifications.CanUseNightVision = this.Configuration.CanUseNightVision ?? player.Modifications.CanUseNightVision;
+        player.Modifications.CaptureFlagSpeedMultiplier = this.Configuration.CaptureFlagSpeedMultiplier ?? player.Modifications.CaptureFlagSpeedMultiplier;
+        player.Modifications.DownTimeGiveUpTime = this.Configuration.DownTimeGiveUpTime ?? player.Modifications.DownTimeGiveUpTime;
+        player.Modifications.FallDamageMultiplier = this.Configuration.FallDamageMultiplier ?? player.Modifications.FallDamageMultiplier;
+        player.Modifications.FriendlyHUDEnabled = this.Configuration.FriendlyHUDEnabled ?? player.Modifications.FriendlyHUDEnabled;
+        player.Modifications.GiveDamageMultiplier = this.Configuration.GiveDamageMultiplier ?? player.Modifications.GiveDamageMultiplier;
+        player.Modifications.HitMarkersEnabled = this.Configuration.HitMarkersEnabled ?? player.Modifications.HitMarkersEnabled;
+        player.Modifications.HpPerBandage = this.Configuration.HpPerBandage ?? player.Modifications.HpPerBandage;
+        player.Modifications.IsExposedOnMap = this.Configuration.IsExposedOnMap ?? player.Modifications.IsExposedOnMap;
+        player.Modifications.IsTextChatMuted = this.Configuration.IsTextChatMuted ?? player.Modifications.IsTextChatMuted;
+        player.Modifications.IsVoiceChatMuted = this.Configuration.IsVoiceChatMuted ?? player.Modifications.IsVoiceChatMuted;
+        player.Modifications.JumpHeightMultiplier = this.Configuration.JumpHeightMultiplier ?? player.Modifications.JumpHeightMultiplier;
+        player.Modifications.KillFeed = this.Configuration.KillFeed ?? player.Modifications.KillFeed;
+        player.Modifications.MinimumDamageToStartBleeding = this.Configuration.MinimumDamageToStartBleeding ?? player.Modifications.MinimumDamageToStartBleeding;
+        player.Modifications.MinimumHpToStartBleeding = this.Configuration.MinimumHpToStartBleeding ?? player.Modifications.MinimumHpToStartBleeding;
+        player.Modifications.PointLogHudEnabled = this.Configuration.PointLogHudEnabled ?? player.Modifications.PointLogHudEnabled;
+        player.Modifications.ReceiveDamageMultiplier = this.Configuration.ReceiveDamageMultiplier ?? player.Modifications.ReceiveDamageMultiplier;
+        player.Modifications.ReloadSpeedMultiplier = this.Configuration.ReloadSpeedMultiplier ?? player.Modifications.ReloadSpeedMultiplier;
+        player.Modifications.RespawnTime = this.Configuration.RespawnTime ?? player.Modifications.RespawnTime;
+        player.Modifications.RunningSpeedMultiplier = this.Configuration.RunningSpeedMultiplier ?? player.Modifications.RunningSpeedMultiplier;
+        player.Modifications.SpawningRule = this.Configuration.SpawningRule ?? player.Modifications.SpawningRule;
+        player.Modifications.StaminaEnabled = this.Configuration.StaminaEnabled ?? player.Modifications.StaminaEnabled;
+    }
 }
 public class BasicServerSettingsConfiguration : ModuleConfiguration
 {
@@ -97,6 +140,34 @@ public class BasicServerSettingsConfiguration : ModuleConfiguration
         { GameState.Playing, new(){ MaxTickets= 5000, SecondsLeft= 1800, TeamATickets= 3000, TeamBTickets= 3000 } },
         { GameState.EndingGame, new() }
     };
+
+    public bool? AirStrafe { get; set; } = null;
+    public VehicleType? AllowedVehicles { get; set; } = null;
+    public bool? CanDeploy { get; set; } = null;
+    public bool? CanSpectate { get; set; } = null;
+    public bool? CanSuicide { get; set; } = null;
+    public bool? CanUseNightVision { get; set; } = null;
+    public float? CaptureFlagSpeedMultiplier { get; set; } = null;
+    public float? DownTimeGiveUpTime { get; set; } = null;
+    public float? FallDamageMultiplier { get; set; } = null;
+    public bool? FriendlyHUDEnabled { get; set; } = null;
+    public float? GiveDamageMultiplier { get; set; } = null;
+    public bool? HitMarkersEnabled { get; set; } = null;
+    public float? HpPerBandage { get; set; } = null;
+    public bool? IsExposedOnMap { get; set; } = null;
+    public bool? IsTextChatMuted { get; set; } = null;
+    public bool? IsVoiceChatMuted { get; set; } = null;
+    public float? JumpHeightMultiplier { get; set; } = null;
+    public bool? KillFeed { get; set; } = null;
+    public float? MinimumDamageToStartBleeding { get; set; } = null;
+    public float? MinimumHpToStartBleeding { get; set; } = null;
+    public bool? PointLogHudEnabled { get; set; } = null;
+    public float? ReceiveDamageMultiplier { get; set; } = null;
+    public float? ReloadSpeedMultiplier { get; set; } = null;
+    public float? RespawnTime { get; set; } = null;
+    public float? RunningSpeedMultiplier { get; set; } = null;
+    public SpawningRule? SpawningRule { get; set; } = null;
+    public bool? StaminaEnabled { get; set; } = null;
 }
 
 public class RoundSettingsConfiguration

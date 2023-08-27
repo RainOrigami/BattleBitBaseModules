@@ -15,6 +15,7 @@ public class SpectateControl : BattleBitModule
 {
     public static SpectateControlConfiguration Configuration { get; set; }
 
+    [ModuleReference]
     public PlayerPermissions PlayerPermissions { get; set; }
 
     public override Task OnPlayerConnected(RunnerPlayer player)

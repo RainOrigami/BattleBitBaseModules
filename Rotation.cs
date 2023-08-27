@@ -48,7 +48,7 @@ public class RotationConfiguration : ModuleConfiguration
     public List<string> Maps { get; set; } = new()
     {
         "Azagor",
-        "Barsa",
+        "Basra",
         "Construction",
         "District",
         "Dustydew",

@@ -63,6 +63,12 @@ public class ModeratorTools : BattleBitModule
         this.Server.SayToAllChat(message);
     }
 
+    [CommandCallback("SayToPlayer", Description = "Prints a message to all players", AllowedRoles = Roles.Moderator)]
+    public void SayToPlayer(RunnerPlayer commandSource, RunnerPlayer target, string message)
+    {
+        this.Server.SayToChat(message, target.SteamID);
+    }
+
     [CommandCallback("AnnounceShort", Description = "Prints a short announce to all players", AllowedRoles = Roles.Moderator)]
     public void AnnounceShort(RunnerPlayer commandSource, string message)
     {

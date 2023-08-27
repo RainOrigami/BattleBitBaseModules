@@ -120,15 +120,20 @@ public class ModeratorTools : BattleBitModule
     }
 
     [CommandCallback("Kill", Description = "Kills a player", AllowedRoles = Roles.Moderator)]
-    public void Kill(RunnerPlayer commandSource, RunnerPlayer target)
+    public void Kill(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
         target.Kill();
 
         commandSource.Message($"Player {target.Name} killed", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     [CommandCallback("Gag", Description = "Gags a player", AllowedRoles = Roles.Moderator)]
-    public void Gag(RunnerPlayer commandSource, RunnerPlayer target)
+    public void Gag(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
         if (this.gaggedPlayers.Contains(target.SteamID))
         {
@@ -139,10 +144,15 @@ public class ModeratorTools : BattleBitModule
         this.gaggedPlayers.Add(target.SteamID);
 
         commandSource.Message($"Player {target.Name} gagged", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     [CommandCallback("Ungag", Description = "Ungags a player", AllowedRoles = Roles.Moderator)]
-    public void Ungag(RunnerPlayer commandSource, RunnerPlayer target)
+    public void Ungag(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
         if (!this.gaggedPlayers.Contains(target.SteamID))
         {
@@ -153,10 +163,15 @@ public class ModeratorTools : BattleBitModule
         this.gaggedPlayers.Remove(target.SteamID);
 
         commandSource.Message($"Player {target.Name} ungagged", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     [CommandCallback("Mute", Description = "Mutes a player", AllowedRoles = Roles.Moderator)]
-    public void Mute(RunnerPlayer commandSource, RunnerPlayer target)
+    public void Mute(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
         if (target.Modifications.IsVoiceChatMuted)
         {
@@ -167,10 +182,15 @@ public class ModeratorTools : BattleBitModule
         target.Modifications.IsVoiceChatMuted = true;
 
         commandSource.Message($"Player {target.Name} muted", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     [CommandCallback("Unmute", Description = "Unmutes a player", AllowedRoles = Roles.Moderator)]
-    public void Unmute(RunnerPlayer commandSource, RunnerPlayer target)
+    public void Unmute(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
         if (!target.Modifications.IsVoiceChatMuted)
         {
@@ -181,26 +201,41 @@ public class ModeratorTools : BattleBitModule
         target.Modifications.IsVoiceChatMuted = false;
 
         commandSource.Message($"Player {target.Name} unmuted", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     [CommandCallback("Silence", Description = "Mutes and gags a player", AllowedRoles = Roles.Moderator)]
-    public void Silence(RunnerPlayer commandSource, RunnerPlayer target)
+    public void Silence(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
         Mute(commandSource, target);
         Gag(commandSource, target);
         commandSource.Message($"Player {target.Name} silenced", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     [CommandCallback("Unsilence", Description = "Unmutes and ungags a player", AllowedRoles = Roles.Moderator)]
-    public void Unsilence(RunnerPlayer commandSource, RunnerPlayer target)
+    public void Unsilence(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
         Unmute(commandSource, target);
         Ungag(commandSource, target);
         commandSource.Message($"Player {target.Name} unsilenced", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     [CommandCallback("LockSpawn", Description = "Prevents a player or all players from spawning", AllowedRoles = Roles.Moderator)]
-    public void LockSpawn(RunnerPlayer commandSource, RunnerPlayer? target = null)
+    public void LockSpawn(RunnerPlayer commandSource, RunnerPlayer? target = null, string? message = null)
     {
         if (target == null)
         {
@@ -222,11 +257,16 @@ public class ModeratorTools : BattleBitModule
             target.Modifications.CanDeploy = false;
             this.lockedSpawns.Add(target.SteamID);
             commandSource.Message($"Spawn locked for {target.Name}", 10);
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                target.Message(message);
+            }
         }
     }
 
     [CommandCallback("UnlockSpawn", Description = "Allows a player or all players to spawn", AllowedRoles = Roles.Moderator)]
-    public void UnlockSpawn(RunnerPlayer commandSource, RunnerPlayer? target = null)
+    public void UnlockSpawn(RunnerPlayer commandSource, RunnerPlayer? target = null, string? message = null)
     {
         if (target == null)
         {
@@ -246,6 +286,11 @@ public class ModeratorTools : BattleBitModule
             }
             this.lockedSpawns.Remove(target.SteamID);
             commandSource.Message($"Spawn unlocked for {target.Name}", 10);
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                target.Message(message);
+            }
         }
     }
 

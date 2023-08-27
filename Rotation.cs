@@ -6,7 +6,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.5.1
+/// Version: 0.4.7
 /// </summary>
 
 public class Rotation : BattleBitModule

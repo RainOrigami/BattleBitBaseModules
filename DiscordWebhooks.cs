@@ -12,7 +12,7 @@ namespace BattleBitDiscordWebhooks;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.5.1
+/// Version: 0.4.7
 /// </summary>
 
 public class DiscordWebhooks : BattleBitModule
@@ -68,9 +68,16 @@ public class DiscordWebhooks : BattleBitModule
         return Task.CompletedTask;
     }
 
-    public void SendMessage(string message)
+    public void SendMessage(string message, string? webhookURL = null)
     {
-        this.discordMessageQueue.Enqueue(new RawTextMessage(message));
+        if (webhookURL is not null)
+        {
+            Task.Run(() => sendWebhookMessage(webhookURL, message));
+        }
+        else
+        {
+            this.discordMessageQueue.Enqueue(new RawTextMessage(message));
+        }
     }
 
     private async Task sendChatMessagesToDiscord()

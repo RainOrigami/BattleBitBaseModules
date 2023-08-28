@@ -1,5 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,7 +8,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.7
+/// Version: 0.4.8
 /// </summary>
 
 public class BasicProgression : BattleBitModule
@@ -26,25 +27,46 @@ public class BasicProgression : BattleBitModule
         return Task.CompletedTask;
     }
 
-    public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
+    public override async Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
     {
         if (this.Configuration.ApplyInitialStatsOnEveryJoin)
         {
             args.Stats = this.Configuration.InitialStats ?? args.Stats;
-            return Task.CompletedTask;
+            return;
         }
 
         string playerFileName = getPlayerFileName(steamID);
-        args.Stats = File.Exists(playerFileName) ? new PlayerStats(File.ReadAllBytes(playerFileName)) : (this.Configuration.InitialStats ?? args.Stats);
-
-        return Task.CompletedTask;
+        for (int i = 0; i < 5; i++)
+        {
+            try
+            {
+                args.Stats = File.Exists(playerFileName) ? new PlayerStats(File.ReadAllBytes(playerFileName)) : (this.Configuration.InitialStats ?? args.Stats);
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Tried {i} times to read from file {playerFileName} but failed:{ex}");
+            }
+            await Task.Delay(250);
+        }
     }
 
-    public override Task OnSavePlayerStats(ulong steamID, PlayerStats stats)
+    public override async Task OnSavePlayerStats(ulong steamID, PlayerStats stats)
     {
-        File.WriteAllBytes(getPlayerFileName(steamID), stats.SerializeToByteArray());
-
-        return Task.CompletedTask;
+        for (int i = 0; i < 5; i++)
+        {
+            try
+            {
+                File.WriteAllBytes(getPlayerFileName(steamID), stats.SerializeToByteArray());
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Tried {i} times to write to file {getPlayerFileName(steamID)} but failed:{ex}");
+            }
+            await Task.Delay(250);
+        }
+        Console.WriteLine("Giving up trying to save.");
     }
 
     private string getPlayerFileName(ulong steamId)

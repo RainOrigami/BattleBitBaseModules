@@ -6,7 +6,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.7
+/// Version: 0.4.8
 /// </summary>
 
 public class Rotation : BattleBitModule
@@ -15,8 +15,8 @@ public class Rotation : BattleBitModule
 
     public override Task OnConnected()
     {
-        this.Server.GamemodeRotation.SetRotation(this.Configuration.GameModes.ToArray());
-        this.Server.MapRotation.SetRotation(this.Configuration.Maps.ToArray());
+        this.Server.GamemodeRotation.SetRotation(this.Configuration.GameModes);
+        this.Server.MapRotation.SetRotation(this.Configuration.Maps);
 
         return Task.CompletedTask;
     }
@@ -24,7 +24,7 @@ public class Rotation : BattleBitModule
 
 public class RotationConfiguration : ModuleConfiguration
 {
-    public List<string> GameModes { get; set; } = new()
+    public string[] GameModes { get; set; } = new[]
     {
         "TDM",
         "AAS",
@@ -45,7 +45,7 @@ public class RotationConfiguration : ModuleConfiguration
         "VoxelTrench",
         "CaptureTheFlag"
     };
-    public List<string> Maps { get; set; } = new()
+    public string[] Maps { get; set; } = new[]
     {
         "Azagor",
         "Basra",

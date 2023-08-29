@@ -4,6 +4,7 @@ using Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.7
+/// Version: 0.4.9
 /// </summary>
 
 [RequireModule(typeof(CommandHandler))]
@@ -292,6 +293,36 @@ public class ModeratorTools : BattleBitModule
                 target.Message(message);
             }
         }
+    }
+
+    [CommandCallback("tp2me", Description = "Teleports a player to you", AllowedRoles = Roles.Moderator)]
+    public void TeleportPlayerToMe(RunnerPlayer commandSource, RunnerPlayer target)
+    {
+        target.Teleport(commandSource.Position);
+    }
+
+    [CommandCallback("tpme2", Description = "Teleports you to a player", AllowedRoles = Roles.Moderator)]
+    public void TeleportMeToPlayer(RunnerPlayer commandSource, RunnerPlayer target)
+    {
+        commandSource.Teleport(target.Position);
+    }
+
+    [CommandCallback("tp", Description = "Teleports a player to another player", AllowedRoles = Roles.Moderator)]
+    public void TeleportPlayerToPlayer(RunnerPlayer commandSource, RunnerPlayer target, RunnerPlayer destination)
+    {
+        target.Teleport(destination.Position);
+    }
+
+    [CommandCallback("tp2pos", Description = "Teleports a player to a position", AllowedRoles = Roles.Moderator)]
+    public void TeleportPlayerToPos(RunnerPlayer commandSource, RunnerPlayer target, Vector3 position)
+    {
+        target.Teleport(position);
+    }
+
+    [CommandCallback("tpme2pos", Description = "Teleports you to a position", AllowedRoles = Roles.Moderator)]
+    public void TeleportMeToPos(RunnerPlayer commandSource, Vector3 position)
+    {
+        commandSource.Teleport(position);
     }
 
     private Dictionary<RunnerPlayer, RunnerPlayer> inspectPlayers = new();

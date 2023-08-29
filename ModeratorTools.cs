@@ -298,31 +298,31 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("tp2me", Description = "Teleports a player to you", AllowedRoles = Roles.Moderator)]
     public void TeleportPlayerToMe(RunnerPlayer commandSource, RunnerPlayer target)
     {
-        target.Teleport(commandSource.Position);
+        target.Teleport(new Vector3((int)commandSource.Position.X, (int)commandSource.Position.Y, (int)commandSource.Position.Z));
     }
 
     [CommandCallback("tpme2", Description = "Teleports you to a player", AllowedRoles = Roles.Moderator)]
     public void TeleportMeToPlayer(RunnerPlayer commandSource, RunnerPlayer target)
     {
-        commandSource.Teleport(target.Position);
+        commandSource.Teleport(new Vector3((int)target.Position.X, (int)target.Position.Y, (int)target.Position.Z));
     }
 
     [CommandCallback("tp", Description = "Teleports a player to another player", AllowedRoles = Roles.Moderator)]
     public void TeleportPlayerToPlayer(RunnerPlayer commandSource, RunnerPlayer target, RunnerPlayer destination)
     {
-        target.Teleport(destination.Position);
+        target.Teleport(new Vector3((int)destination.Position.X, (int)destination.Position.Y, (int)destination.Position.Z));
     }
 
     [CommandCallback("tp2pos", Description = "Teleports a player to a position", AllowedRoles = Roles.Moderator)]
-    public void TeleportPlayerToPos(RunnerPlayer commandSource, RunnerPlayer target, Vector3 position)
+    public void TeleportPlayerToPos(RunnerPlayer commandSource, RunnerPlayer target, int x, int y, int z)
     {
-        target.Teleport(position);
+        target.Teleport(new Vector3(x, y, z));
     }
 
     [CommandCallback("tpme2pos", Description = "Teleports you to a position", AllowedRoles = Roles.Moderator)]
-    public void TeleportMeToPos(RunnerPlayer commandSource, Vector3 position)
+    public void TeleportMeToPos(RunnerPlayer commandSource, int x, int y, int z)
     {
-        commandSource.Teleport(position);
+        commandSource.Teleport(new Vector3(x, y, z));
     }
 
     private Dictionary<RunnerPlayer, RunnerPlayer> inspectPlayers = new();

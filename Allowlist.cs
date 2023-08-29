@@ -6,12 +6,8 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
-/// </summary>
-
 [RequireModule(typeof(CommandHandler))]
+[Module("Block players who are not on the allowlist from joining the server", "1.0.0")]
 public class Allowlist : BattleBitModule
 {
     public CommandHandler CommandHandler { get; set; }

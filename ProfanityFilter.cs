@@ -7,11 +7,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
-/// </summary>
-
+[Module("Bad word filter to remove chat messages", "1.0.0")]
 public class ProfanityFilter : BattleBitModule
 {
     public static ProfanityFilterConfiguration Configuration { get; set; }

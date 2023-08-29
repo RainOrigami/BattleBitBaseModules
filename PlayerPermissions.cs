@@ -5,11 +5,7 @@ using System.Threading.Tasks;
 
 namespace Permissions;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
-/// </summary>
-
+[Module("Library for persistent server roles for players", "1.0.0")]
 public class PlayerPermissions : BattleBitModule
 {
     public static PlayerPermissionsConfiguration Configuration { get; set; }

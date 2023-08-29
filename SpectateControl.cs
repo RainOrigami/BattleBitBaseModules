@@ -5,12 +5,8 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.7
-/// </summary>
-
 [RequireModule(typeof(PlayerPermissions))]
+[Module("Allow only specific Roles to spectate", "1.0.0")]
 public class SpectateControl : BattleBitModule
 {
     public static SpectateControlConfiguration Configuration { get; set; }

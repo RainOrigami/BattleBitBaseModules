@@ -5,12 +5,8 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
-/// </summary>
-
 [RequireModule(typeof(PlayerPermissions))]
+[Module("Keeps some free slots for allowed roles to join", "1.0.0")]
 public class ReservedSlots : BattleBitModule
 {
     public ReservedSlotsConfiguration Configuration { get; set; }

@@ -4,11 +4,7 @@ using System.Linq;
 
 namespace PlayerFinder;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
-/// </summary>
-
+[Module("Library functions for finding players by partial names or SteamID", "1.0.0")]
 public class PlayerFinder : BattleBitModule
 {
     public RunnerPlayer? ByExactName(string exactName, bool caseSensitive)

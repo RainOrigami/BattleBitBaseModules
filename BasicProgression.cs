@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.8
-/// </summary>
-
+[Module("Provide basic persistent progression for players", "1.0.0")]
 public class BasicProgression : BattleBitModule
 {
     public BasicProgressionConfiguration Configuration { get; set; }

@@ -3,18 +3,15 @@ using BBRAPIModules;
 using Commands;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.7
-/// </summary>
-
 [RequireModule(typeof(CommandHandler))]
+[Module("Basic moderator tools", "1.0.0")]
 public class ModeratorTools : BattleBitModule
 {
     [ModuleReference]

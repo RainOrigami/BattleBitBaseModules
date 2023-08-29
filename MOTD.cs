@@ -7,12 +7,8 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.8
-/// </summary>
-
 [RequireModule(typeof(CommandHandler))]
+[Module("Show a message of the day to players who join the server", "1.0.0")]
 public class MOTD : BattleBitModule
 {
     public MOTDConfiguration Configuration { get; set; }

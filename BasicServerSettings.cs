@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.7.2
-/// </summary>
-/// 
+[Module("Configure basic server settings", "1.0.0")]
 public class BasicServerSettings : BattleBitModule
 {
     public BasicServerSettingsConfiguration Configuration { get; set; }

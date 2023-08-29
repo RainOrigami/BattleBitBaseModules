@@ -9,11 +9,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
-/// </summary>
-
+[Module("Library for easily using Rich Text", "1.0.0")]
 public class RichText : BattleBitModule
 {
     public string NewLine() => "<br>";

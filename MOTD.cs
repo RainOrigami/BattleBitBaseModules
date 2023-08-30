@@ -1,4 +1,4 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
 using System.Collections.Generic;

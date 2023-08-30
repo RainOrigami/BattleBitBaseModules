@@ -1,4 +1,4 @@
-﻿using BBRAPIModules;
+using BBRAPIModules;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;

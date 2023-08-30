@@ -12,7 +12,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.9
+/// Version: 0.4.10
 /// </summary>
 
 [RequireModule(typeof(CommandHandler))]
@@ -323,6 +323,30 @@ public class ModeratorTools : BattleBitModule
     public void TeleportMeToPos(RunnerPlayer commandSource, int x, int y, int z)
     {
         commandSource.Teleport(new Vector3(x, y, z));
+    }
+
+    [CommandCallback("freeze", Description = "Freezes a player", AllowedRoles = Roles.Moderator)]
+    public void Freeze(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
+    {
+        target.Modifications.Freeze = true;
+        commandSource.Message($"Player {target.Name} frozen", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
+    }
+
+    [CommandCallback("unfreeze", Description = "Unfreezes a player", AllowedRoles = Roles.Moderator)]
+    public void Unfreeze(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
+    {
+        target.Modifications.Freeze = false;
+        commandSource.Message($"Player {target.Name} unfrozen", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
     }
 
     private Dictionary<RunnerPlayer, RunnerPlayer> inspectPlayers = new();

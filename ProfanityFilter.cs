@@ -22,11 +22,11 @@ public class DFAState
     }
 }
 
-public class SensitiveWordsFilter
+public class ProfanityDFAFilter
 {
     private DFAState root;
 
-    public SensitiveWordsFilter()
+    public ProfanityDFAFilter()
     {
         root = new DFAState();
     }
@@ -78,7 +78,7 @@ public class SensitiveWordsFilter
 public class ProfanityFilter : BattleBitModule
 {
     public static ProfanityFilterConfiguration Configuration { get; set; }
-    public static SensitiveWordsFilter filter = new SensitiveWordsFilter();
+    public static ProfanityDFAFilter filter = new();
 
     public override void OnModulesLoaded()
     {

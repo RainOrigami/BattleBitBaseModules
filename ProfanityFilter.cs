@@ -1,8 +1,6 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
 using BBRAPIModules;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
@@ -12,13 +10,85 @@ namespace BattleBitBaseModules;
 /// Version: 0.4.5.1
 /// </summary>
 
+public class DFAState
+{
+    public Dictionary<char, DFAState> Transitions { get; set; }
+    public bool IsEndOfWord { get; set; }
+
+    public DFAState()
+    {
+        Transitions = new Dictionary<char, DFAState>();
+        IsEndOfWord = false;
+    }
+}
+
+public class SensitiveWordsFilter
+{
+    private DFAState root;
+
+    public SensitiveWordsFilter()
+    {
+        root = new DFAState();
+    }
+
+    public void LoadDictionary(string[] words)
+    {
+        root = BuildDFA(words);
+    }
+
+    private DFAState BuildDFA(string[] words)
+    {
+        DFAState root = new DFAState();
+        foreach (string word in words)
+        {
+            DFAState currentState = root;
+            foreach (char c in word)
+            {
+                if (!currentState.Transitions.ContainsKey(c))
+                {
+                    currentState.Transitions.Add(c, new DFAState());
+                }
+                currentState = currentState.Transitions[c];
+            }
+            currentState.IsEndOfWord = true;
+        }
+        return root;
+    }
+
+    public bool ContainsProfanity(string text)
+    {
+        DFAState currentState = root;
+        foreach (char c in text)
+        {
+            if (!currentState.Transitions.ContainsKey(c))
+            {
+                currentState = root;
+                continue;
+            }
+            currentState = currentState.Transitions[c];
+            if (currentState.IsEndOfWord)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 public class ProfanityFilter : BattleBitModule
 {
     public static ProfanityFilterConfiguration Configuration { get; set; }
+    public static SensitiveWordsFilter filter = new SensitiveWordsFilter();
+
+    public override void OnModulesLoaded()
+    {
+        // Load dictionary
+        filter.LoadDictionary(Configuration.Profanity.ToArray());
+    }
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message)
     {
-        if (Configuration.Profanity.Any(x => message.Contains(x, StringComparison.OrdinalIgnoreCase)))
+        if (filter.ContainsProfanity(message))
         {
             player.Message(Configuration.Message, Configuration.MessageTimeout);
             return Task.FromResult(false);

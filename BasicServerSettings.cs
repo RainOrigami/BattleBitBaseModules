@@ -172,9 +172,9 @@ public class BasicServerSettingsConfiguration : ModuleConfiguration
 
     public ReadOnlyDictionary<GameState, RoundSettingsConfiguration> RoundSettings = new(new Dictionary<GameState, RoundSettingsConfiguration>()
     {
-        { GameState.WaitingForPlayers, new(){ PlayersToStart = 1} },
-        { GameState.CountingDown, new(){ SecondsLeft = 5 } },
-        { GameState.Playing, new(){ MaxTickets= 5000, SecondsLeft= 1800, TeamATickets= 3000, TeamBTickets= 3000 } },
+        { GameState.WaitingForPlayers, new() },
+        { GameState.CountingDown, new() },
+        { GameState.Playing, new() },
         { GameState.EndingGame, new() }
     });
 }

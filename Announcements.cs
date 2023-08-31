@@ -1,4 +1,4 @@
-using BBRAPIModules;
+﻿using BBRAPIModules;
 using System;
 using System.Collections.Generic;
 using System.Linq;

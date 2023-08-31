@@ -16,17 +16,6 @@ public class PlayerPermissions : BattleBitModule
 {
     public static PlayerPermissionsConfiguration Configuration { get; set; }
 
-    public override void OnModulesLoaded()
-    {
-        foreach (var kvp in Configuration.PlayerRoles)
-        {
-            var permissions = Enum.GetValues<Roles>()
-                .Where(v => (kvp.Value & v) == v)
-                .Select(v => v.ToString());
-            Console.Write($"Player permission add: {kvp.Key}({string.Join(',', permissions)})\n");
-        }
-    }
-
     public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
     {
         args.Stats.Roles = this.GetPlayerRoles(steamID);

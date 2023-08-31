@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 /// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
+/// Author: @RainOrigami, @Gunslinger
+/// Version: 0.4.11
 /// </summary>
 
 public class DFAState

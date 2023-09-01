@@ -12,7 +12,7 @@ namespace BattleBitDiscordWebhooks;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.7
+/// Version: 0.4.11
 /// </summary>
 
 public class DiscordWebhooks : BattleBitModule
@@ -48,18 +48,6 @@ public class DiscordWebhooks : BattleBitModule
         discordMessageQueue.Enqueue(new ChatMessage(player.Name, player.SteamID, channel, msg));
 
         return Task.FromResult(true);
-    }
-
-    public override Task OnPlayerConnected(RunnerPlayer player)
-    {
-        this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, true));
-        return Task.CompletedTask;
-    }
-
-    public override Task OnPlayerDisconnected(RunnerPlayer player)
-    {
-        this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, false));
-        return Task.CompletedTask;
     }
 
     public override Task OnPlayerReported(RunnerPlayer from, RunnerPlayer to, ReportReason reason, string additional)
@@ -114,7 +102,7 @@ public class DiscordWebhooks : BattleBitModule
                 }
             } while (messages.Count > 0);
 
-            await Task.Delay(250);
+            await Task.Delay(500);
         } while (this.Server?.IsConnected == true);
     }
 

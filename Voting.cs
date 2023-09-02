@@ -68,11 +68,11 @@ public class Voting : BattleBitModule
             messageText.AppendLine($"Type {i + 1} in chat for {this.RichText?.FromColorName("yellow")}{this.voteOptions[i]}{this.RichText?.Color()}");
         }
 
-        messageText.AppendLine($"{this.RichText?.Size(125)}{Environment.NewLine}You have {this.Configuration.VoteDuration} seconds to vote.");
+        messageText.AppendLine($"{this.RichText?.Size(125)}You have {this.Configuration.VoteDuration} seconds to vote.");
 
         foreach (RunnerPlayer player in this.Server.AllPlayers)
         {
-            player.Message($"{this.RichText?.Size(125)}{messageText}");
+            player.Message($"{this.RichText?.Size(125)}{messageText}", this.Configuration.VoteDuration);
         }
 
         this.Server.SayToAllChat(messageText.ToString());
@@ -86,7 +86,6 @@ public class Voting : BattleBitModule
         {
             if (DateTime.Now > this.endOfVote)
             {
-                this.activeVote = false;
                 break;
             }
 
@@ -97,6 +96,8 @@ public class Voting : BattleBitModule
         {
             return;
         }
+
+        this.activeVote = false;
 
         if (this.votes.Count == 0)
         {
@@ -129,7 +130,7 @@ public class Voting : BattleBitModule
             return true;
         }
 
-        if (msg.Length > 0)
+        if (msg.Length > 1)
         {
             player.SayToChat("Could not find a unique vote option in your message.");
             return true;
@@ -147,13 +148,12 @@ public class Voting : BattleBitModule
 
         if (this.votes.ContainsKey(player.SteamID))
         {
-            this.votes[player.SteamID] = vote;
-            return true;
+            this.votes.Remove(player.SteamID);
         }
 
         this.votes.Add(player.SteamID, vote);
 
-        player.Message($"You voted for {this.RichText?.FromColorName("yellow")}{this.voteOptions[vote - 1]}{this.RichText?.Color()}. You can change your vote any time.");
+        player.SayToChat($"You voted for {this.RichText?.FromColorName("yellow")}{this.voteOptions[vote - 1]}{this.RichText?.Color()}. You can change your vote any time.");
 
         await Task.CompletedTask;
 

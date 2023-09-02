@@ -9,7 +9,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.8
+/// Version: 0.4.11
 /// </summary>
 
 [RequireModule(typeof(CommandHandler))]
@@ -61,11 +61,12 @@ public class MOTD : BattleBitModule
     [CommandCallback("motd", Description = "Shows the MOTD")]
     public void ShowMOTD(RunnerPlayer commandSource)
     {
-        commandSource.Message(string.Format(this.Configuration.MOTD, commandSource.Name, commandSource.PingMs, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount));
+        commandSource.Message(string.Format(this.Configuration.MOTD, commandSource.Name, commandSource.PingMs, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount), this.Configuration.MessageTimeout);
     }
 }
 
 public class MOTDConfiguration : ModuleConfiguration
 {
     public string MOTD { get; set; } = "Welcome!";
+    public int MessageTimeout { get; set; } = 30;
 }

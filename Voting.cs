@@ -61,19 +61,18 @@ public class Voting : BattleBitModule
         this.endOfVote = DateTime.Now.AddSeconds(this.Configuration.VoteDuration);
 
         this.Server.SayToAllChat($"{this.RichText?.Size(125)}A vote has been started!");
-        this.Server.SayToAllChat($"Vote: {this.voteText}");
 
         StringBuilder messageText = new($"{this.RichText?.Size(125)}{this.voteText}{this.RichText?.Size(100)}{Environment.NewLine}");
         for (int i = 0; i < this.voteOptions.Length; i++)
         {
-            messageText.AppendLine($"Type {i + 1} in chat for {this.RichText?.FromColorName("yellow")}{this.voteOptions[i]}");
+            messageText.AppendLine($"Type {i + 1} in chat for {this.RichText?.FromColorName("yellow")}{this.voteOptions[i]}{this.RichText?.Color()}");
         }
 
         messageText.AppendLine($"{this.RichText?.Size(125)}{Environment.NewLine}You have {this.Configuration.VoteDuration} seconds to vote.");
 
         foreach (RunnerPlayer player in this.Server.AllPlayers)
         {
-            player.Message($"{this.RichText?.Size(125)}{this.voteText}{Environment.NewLine}");
+            player.Message($"{this.RichText?.Size(125)}{messageText}");
         }
 
         this.Server.SayToAllChat(messageText.ToString());
@@ -92,6 +91,11 @@ public class Voting : BattleBitModule
             }
 
             Task.Delay(1000).Wait();
+        }
+
+        if (!this.IsLoaded || !this.Server.IsConnected || !this.activeVote)
+        {
+            return;
         }
 
         if (this.votes.Count == 0)

@@ -1,5 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
+using Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace BattleBitBaseModules;
 /// </summary>
 /// 
 
+[RequireModule(typeof(CommandHandler))]
 public class Voting : BattleBitModule
 {
     private bool activeVote = false;
@@ -27,6 +29,15 @@ public class Voting : BattleBitModule
     [ModuleReference]
     public dynamic? RichText { get; set; }
 
+    [ModuleReference]
+    public CommandHandler CommandHandler { get; set; }
+
+    public override void OnModulesLoaded()
+    {
+        this.CommandHandler.Register(this);
+    }
+
+    [CommandCallback("vote", Description = "Votes for an option", AllowedRoles = Roles.Moderator)]
     public void StartVoteCommand(RunnerPlayer commandSource, string text, string options)
     {
         if (this.activeVote)

@@ -2,6 +2,7 @@
 using BBRAPIModules;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -270,7 +271,13 @@ public class CommandHandler : BattleBitModule
         {
             if (!insideQuotes)
             {
-                if (token.StartsWith("\""))
+                if (token.StartsWith("\"") && token.EndsWith("\""))
+                {
+                    insideQuotes = false;
+                    currentValue.Clear();
+                    parameterValues.Add(token.Substring(1, token.Length - 2));
+                }
+                else if (token.StartsWith("\""))
                 {
                     insideQuotes = true;
                     currentValue.Append(token.Substring(1));

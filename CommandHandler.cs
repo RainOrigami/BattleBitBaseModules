@@ -13,7 +13,7 @@ namespace Commands;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.9
+/// Version: 0.4.12
 /// </summary>
 
 public class CommandConfiguration : ModuleConfiguration

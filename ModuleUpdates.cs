@@ -177,6 +177,20 @@ public class ModuleUpdates : BattleBitModule
         {
             return;
         }
+
+        string[] args = command.Split(' ');
+        if (command.ToLower() == "update" || args.Length < 2)
+        {
+            Console.WriteLine("Usage: update <module name or all>");
+            return;
+        }
+
+        if (args[1].ToLower() == "all")
+        {
+            Task.Run(() => doUpdate());
+            return;
+        }
+        Task.Run(() => doUpdate(args[1]));
     }
 }
 

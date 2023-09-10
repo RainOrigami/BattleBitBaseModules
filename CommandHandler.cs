@@ -13,7 +13,7 @@ namespace Commands;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.12
+/// Version: 0.4.13
 /// </summary>
 
 public class CommandConfiguration : ModuleConfiguration
@@ -29,9 +29,9 @@ public class CommandHandler : BattleBitModule
     private Dictionary<string, (BattleBitModule Module, MethodInfo Method)> commandCallbacks = new();
 
     [ModuleReference]
-    public BattleBitModule? PlayerFinder { get; set; }
+    public dynamic? PlayerFinder { get; set; }
     [ModuleReference]
-    public BattleBitModule? PlayerPermissions { get; set; }
+    public dynamic? PlayerPermissions { get; set; }
 
     public override void OnModulesLoaded()
     {
@@ -133,7 +133,7 @@ public class CommandHandler : BattleBitModule
         // Permissions
         if (this.PlayerPermissions is not null)
         {
-            if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.Call<Roles>("GetPlayerRoles", player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+            if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.GetPlayerRoles(player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
             {
                 player.Message($"You don't have permission to use this command.");
                 return;
@@ -182,7 +182,7 @@ public class CommandHandler : BattleBitModule
                 {
                     try
                     {
-                        targetPlayer = this.PlayerFinder.Call<RunnerPlayer?>("ByNamePart", argument);
+                        targetPlayer = this.PlayerFinder.ByNamePart(argument);
                     }
                     catch (Exception ex)
                     {
@@ -322,7 +322,7 @@ public class CommandHandler : BattleBitModule
 
             if (this.PlayerPermissions is not null)
             {
-                if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.Call<Roles>("GetPlayerRoles", player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
+                if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.GetPlayerRoles(player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
                 {
                     continue;
                 }

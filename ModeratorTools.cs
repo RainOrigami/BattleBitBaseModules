@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -288,6 +289,60 @@ public class ModeratorTools : BattleBitModule
             {
                 target.Message(message);
             }
+        }
+    }
+
+    [CommandCallback("tp2me", Description = "Teleports a player to you", AllowedRoles = Roles.Moderator)]
+    public void TeleportPlayerToMe(RunnerPlayer commandSource, RunnerPlayer target)
+    {
+        target.Teleport(new Vector3((int)commandSource.Position.X, (int)commandSource.Position.Y, (int)commandSource.Position.Z));
+    }
+
+    [CommandCallback("tpme2", Description = "Teleports you to a player", AllowedRoles = Roles.Moderator)]
+    public void TeleportMeToPlayer(RunnerPlayer commandSource, RunnerPlayer target)
+    {
+        commandSource.Teleport(new Vector3((int)target.Position.X, (int)target.Position.Y, (int)target.Position.Z));
+    }
+
+    [CommandCallback("tp", Description = "Teleports a player to another player", AllowedRoles = Roles.Moderator)]
+    public void TeleportPlayerToPlayer(RunnerPlayer commandSource, RunnerPlayer target, RunnerPlayer destination)
+    {
+        target.Teleport(new Vector3((int)destination.Position.X, (int)destination.Position.Y, (int)destination.Position.Z));
+    }
+
+    [CommandCallback("tp2pos", Description = "Teleports a player to a position", AllowedRoles = Roles.Moderator)]
+    public void TeleportPlayerToPos(RunnerPlayer commandSource, RunnerPlayer target, int x, int y, int z)
+    {
+        target.Teleport(new Vector3(x, y, z));
+    }
+
+    [CommandCallback("tpme2pos", Description = "Teleports you to a position", AllowedRoles = Roles.Moderator)]
+    public void TeleportMeToPos(RunnerPlayer commandSource, int x, int y, int z)
+    {
+        commandSource.Teleport(new Vector3(x, y, z));
+    }
+
+    [CommandCallback("freeze", Description = "Freezes a player", AllowedRoles = Roles.Moderator)]
+    public void Freeze(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
+    {
+        target.Modifications.Freeze = true;
+        commandSource.Message($"Player {target.Name} frozen", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
+        }
+    }
+
+    [CommandCallback("unfreeze", Description = "Unfreezes a player", AllowedRoles = Roles.Moderator)]
+    public void Unfreeze(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
+    {
+        target.Modifications.Freeze = false;
+        commandSource.Message($"Player {target.Name} unfrozen", 10);
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            target.Message(message);
         }
     }
 

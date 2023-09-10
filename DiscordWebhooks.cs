@@ -46,18 +46,6 @@ public class DiscordWebhooks : BattleBitModule
         return Task.FromResult(true);
     }
 
-    public override Task OnPlayerConnected(RunnerPlayer player)
-    {
-        this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, true));
-        return Task.CompletedTask;
-    }
-
-    public override Task OnPlayerDisconnected(RunnerPlayer player)
-    {
-        this.discordMessageQueue.Enqueue(new JoinAndLeaveMessage(this.Server.AllPlayers.Count(), player.Name, player.SteamID, false));
-        return Task.CompletedTask;
-    }
-
     public override Task OnPlayerReported(RunnerPlayer from, RunnerPlayer to, ReportReason reason, string additional)
     {
         this.discordMessageQueue.Enqueue(new WarningMessage($"{from.Name} ({from.SteamID}) reported {to.Name} ({to.SteamID}) for {reason}:{Environment.NewLine}> {additional}"));
@@ -110,7 +98,7 @@ public class DiscordWebhooks : BattleBitModule
                 }
             } while (messages.Count > 0);
 
-            await Task.Delay(250);
+            await Task.Delay(500);
         } while (this.Server?.IsConnected == true);
     }
 

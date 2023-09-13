@@ -12,7 +12,7 @@ namespace BattleBitBaseModules;
 
 /// <summary>
 /// Author: @RainOrigami
-/// Version: 0.4.10
+/// Version: 0.4.11
 /// </summary>
 
 [RequireModule(typeof(CommandHandler))]
@@ -285,6 +285,8 @@ public class ModeratorTools : BattleBitModule
                 commandSource.Message($"Spawn already unlocked for {target.Name}", 10);
                 return;
             }
+
+            target.Modifications.CanDeploy = true;
             this.lockedSpawns.Remove(target.SteamID);
             commandSource.Message($"Spawn unlocked for {target.Name}", 10);
 

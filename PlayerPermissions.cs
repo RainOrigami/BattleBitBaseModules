@@ -14,7 +14,15 @@ public class PlayerPermissions : BattleBitModule
 
     public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
     {
-        args.Stats.Roles = this.GetPlayerRoles(steamID);
+        if (Configuration.OverrideRoles)
+        {
+            args.Stats.Roles = this.GetPlayerRoles(steamID);
+        }
+        else
+        {
+            args.Stats.Roles |= this.GetPlayerRoles(steamID);
+        }
+
         return Task.CompletedTask;
     }
 
@@ -79,5 +87,6 @@ public class PlayerPermissions : BattleBitModule
 
 public class PlayerPermissionsConfiguration : ModuleConfiguration
 {
+    public bool OverrideRoles { get; set; } = true;
     public Dictionary<ulong, Roles> PlayerRoles { get; set; } = new();
 }

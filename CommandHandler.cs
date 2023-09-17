@@ -354,6 +354,17 @@ public class CommandHandler : BattleBitModule
     }
 }
 
+[CommandCallback("modules", Description = "Lists all loaded modules", AllowedRoles = Roles.Admin)]
+public void ListModules(RunnerPlayer commandSource) {
+
+    var moduleType = Assembly.GetEntryAssembly().GetType("BattleBitAPIRunner.Module");
+    var moduleListField = moduleType.GetField("Modules", BindingFlags.Static | BindingFlags.Public);
+    if (moduleListField is null) return;
+
+    IReadOnlyList<Module> modules = (IReadOnlyList<Module>)moduleListField.GetValue(null);
+    commandSource.Message(string.Join(", ", modules.Select(m => m.Name)));
+}
+
 public class CommandCallbackAttribute : Attribute
 {
     public string Name { get; set; }

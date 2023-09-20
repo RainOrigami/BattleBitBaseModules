@@ -11,17 +11,13 @@ using System.Threading.Tasks;
 
 namespace Commands;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.12.1
-/// </summary>
-
 public class CommandConfiguration : ModuleConfiguration
 {
     public string CommandPrefix { get; set; } = "!";
     public int CommandsPerPage { get; set; } = 10;
 }
 
+[Module("Basic in-game chat command handler library", "1.0.0")]
 public class CommandHandler : BattleBitModule
 {
     public static CommandConfiguration CommandConfiguration { get; set; }

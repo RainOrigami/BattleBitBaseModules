@@ -7,11 +7,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.7.1
-/// </summary>
-
+[Module("Periodically execute announcements and messages based on configurable delays and conditions", "1.0.0")]
 public class Announcements : BattleBitModule
 {
     public AnnouncementsConfiguration Configuration { get; set; }

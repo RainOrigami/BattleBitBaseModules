@@ -9,13 +9,9 @@ using System.Text;
 
 namespace PermissionsManager;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.2
-/// </summary>
-
 [RequireModule(typeof(PlayerPermissions))]
 [RequireModule(typeof(CommandHandler))]
+[Module("Provide addperm and removeperm commands for PlayerPermissions", "1.0.0")]
 public class PermissionsCommands : BattleBitModule
 {
     [ModuleReference]

@@ -9,12 +9,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.11
-/// </summary>
-/// 
-
+[Module("Simple chat voting system", "1.0.0")]
 [RequireModule(typeof(CommandHandler))]
 public class Voting : BattleBitModule
 {

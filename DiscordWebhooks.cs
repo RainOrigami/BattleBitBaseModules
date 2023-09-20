@@ -10,11 +10,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitDiscordWebhooks;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.11
-/// </summary>
-
+[Module("Send some basic events to Discord and allow for other modules to send messages to Discord", "1.0.0")]
 public class DiscordWebhooks : BattleBitModule
 {
     private Queue<DiscordMessage> discordMessageQueue = new();

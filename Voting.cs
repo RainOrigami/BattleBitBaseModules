@@ -77,7 +77,7 @@ public class Voting : BattleBitModule
 
     private void voteHandler()
     {
-        while (this.IsLoaded && this.Server.IsConnected && this.activeVote)
+        while (this.IsLoaded && this.Server?.IsConnected == true && this.activeVote)
         {
             if (DateTime.Now > this.endOfVote)
             {
@@ -87,7 +87,7 @@ public class Voting : BattleBitModule
             Task.Delay(1000).Wait();
         }
 
-        if (!this.IsLoaded || !this.Server.IsConnected || !this.activeVote)
+        if (!this.IsLoaded || this.Server?.IsConnected != true || !this.activeVote)
         {
             return;
         }

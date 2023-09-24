@@ -359,17 +359,19 @@ public class CommandHandler : BattleBitModule
         bool hasOptional = commandCallback.Method.GetParameters().Any(p => p.IsOptional);
         player.Message($"<size=120%>{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}<size=100%><br>{commandCallbackAttribute.Description}<br><#F5F5F5>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><color=\"white\"><size=80%>* Parameter is optional." : "")}");
     }
-}
 
-[CommandCallback("modules", Description = "Lists all loaded modules", AllowedRoles = Roles.Admin)]
-public void ListModules(RunnerPlayer commandSource) {
 
-    var moduleType = Assembly.GetEntryAssembly().GetType("BattleBitAPIRunner.Module");
-    var moduleListField = moduleType.GetField("Modules", BindingFlags.Static | BindingFlags.Public);
-    if (moduleListField is null) return;
+    [CommandCallback("modules", Description = "Lists all loaded modules", AllowedRoles = Roles.Admin)]
+    public void ListModules(RunnerPlayer commandSource)
+    {
 
-    IReadOnlyList<Module> modules = (IReadOnlyList<Module>)moduleListField.GetValue(null);
-    commandSource.Message(string.Join(", ", modules.Select(m => m.Name)));
+        var moduleType = Assembly.GetEntryAssembly().GetType("BattleBitAPIRunner.Module");
+        var moduleListField = moduleType.GetField("Modules", BindingFlags.Static | BindingFlags.Public);
+        if (moduleListField is null) return;
+
+        IReadOnlyList<Module> modules = (IReadOnlyList<Module>)moduleListField.GetValue(null);
+        commandSource.Message(string.Join(", ", modules.Select(m => m.Name)));
+    }
 }
 
 public class CommandCallbackAttribute : Attribute

@@ -9,12 +9,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.11
-/// </summary>
-/// 
-
+[Module("Simple chat voting system", "1.0.0")]
 [RequireModule(typeof(CommandHandler))]
 public class Voting : BattleBitModule
 {
@@ -82,7 +77,7 @@ public class Voting : BattleBitModule
 
     private void voteHandler()
     {
-        while (this.IsLoaded && this.Server.IsConnected && this.activeVote)
+        while (this.IsLoaded && this.Server?.IsConnected == true && this.activeVote)
         {
             if (DateTime.Now > this.endOfVote)
             {
@@ -92,7 +87,7 @@ public class Voting : BattleBitModule
             Task.Delay(1000).Wait();
         }
 
-        if (!this.IsLoaded || !this.Server.IsConnected || !this.activeVote)
+        if (!this.IsLoaded || this.Server?.IsConnected != true || !this.activeVote)
         {
             return;
         }

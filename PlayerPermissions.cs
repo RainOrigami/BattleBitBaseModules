@@ -7,18 +7,22 @@ using System.Threading.Tasks;
 
 namespace Permissions;
 
-/// <summary>
-/// Author: @RainOrigami
-/// Version: 0.4.5.1
-/// </summary>
-
+[Module("Library for persistent server roles for players", "1.0.0")]
 public class PlayerPermissions : BattleBitModule
 {
     public static PlayerPermissionsConfiguration Configuration { get; set; }
 
     public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
     {
-        args.Stats.Roles = this.GetPlayerRoles(steamID);
+        if (Configuration.OverrideRoles)
+        {
+            args.Stats.Roles = this.GetPlayerRoles(steamID);
+        }
+        else
+        {
+            args.Stats.Roles |= this.GetPlayerRoles(steamID);
+        }
+
         return Task.CompletedTask;
     }
 
@@ -83,5 +87,6 @@ public class PlayerPermissions : BattleBitModule
 
 public class PlayerPermissionsConfiguration : ModuleConfiguration
 {
+    public bool OverrideRoles { get; set; } = true;
     public Dictionary<ulong, Roles> PlayerRoles { get; set; } = new();
 }

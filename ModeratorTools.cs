@@ -1,4 +1,4 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
 using System;
@@ -282,6 +282,8 @@ public class ModeratorTools : BattleBitModule
                 commandSource.Message($"Spawn already unlocked for {target.Name}", 10);
                 return;
             }
+
+            target.Modifications.CanDeploy = true;
             this.lockedSpawns.Remove(target.SteamID);
             commandSource.Message($"Spawn unlocked for {target.Name}", 10);
 

@@ -1,4 +1,4 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
 using BBRAPIModules;
 using System;
 using System.Collections.Generic;
@@ -58,7 +58,14 @@ public class CommandHandler : BattleBitModule
                         continue;
                     }
 
-                    throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has the same name as another command callback method in the same module.");
+                    if (this.commandCallbacks[command].Module.GetType().Name == module.GetType().Name)
+                    {
+                        throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as another command callback method {this.commandCallbacks[command].Method.Name} in the same module.");
+                    }
+                    else
+                    {
+                        throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as command callback method {this.commandCallbacks[command].Method.Name} in module {this.commandCallbacks[command].Module.GetType().Name}.");
+                    }
                 }
 
                 // Prevent parent commands of subcommands (!perm command does not allow !perm add and !perm remove)

@@ -1,0 +1,8 @@
+namespace GranularPermissions;
+
+[RequireModule(typeof(Permissions))]
+public class PlayerRoles : BattleBitModule
+{
+    [ModuleReference]
+    public Permissions Permissions { get; set; } = null!;
+}

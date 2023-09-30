@@ -46,7 +46,7 @@ public class MOTD : BattleBitModule
         return Task.CompletedTask;
     }
 
-    [CommandCallback("setmotd", Description = "Sets the MOTD", AllowedRoles = Roles.Admin)]
+    [CommandCallback("setmotd", Description = "Sets the MOTD", Permission = "MOTD.Set")]
     public void SetMOTD(RunnerPlayer commandSource, string motd)
     {
         this.Configuration.MOTD = motd;

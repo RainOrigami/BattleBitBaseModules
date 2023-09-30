@@ -1,6 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using Microsoft.Win32.SafeHandles;
+using GranularPermissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +9,17 @@ using System.Threading.Tasks;
 
 namespace ChatOverwrite;
 
+[RequireModule(typeof(GranularPermissions.Permissions))]
 [Module("Overwrite chat messages", "1.0.0")]
 public class ChatOverwrite : BattleBitModule
 {
     public ChatOverwriteConfiguration Configuration { get; set; } = null!;
 
     [ModuleReference]
-    public dynamic? CommandHandler { get; set; } = null!;
+    public dynamic? CommandHandler { get; set; }
+
+    [ModuleReference]
+    public dynamic? Permissions { get; set; }
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string msg)
     {

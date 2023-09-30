@@ -24,21 +24,21 @@ public class PermissionsCommands : BattleBitModule
         this.CommandHandler.Register(this);
     }
 
-    [CommandCallback("addperm", Description = "Adds a permission to a player", AllowedRoles = Roles.Admin)]
+    [CommandCallback("addperm", Description = "Adds a permission to a player", Permission = "Permissions.Add")]
     public void AddPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, Roles permission)
     {
         this.PlayerPermissions.AddPlayerRoles(player.SteamID, permission);
         commandSource.Message($"Added permission {permission} to {player.Name}");
     }
 
-    [CommandCallback("removeperm", Description = "Removes a permission from a player", AllowedRoles = Roles.Admin)]
+    [CommandCallback("removeperm", Description = "Removes a permission from a player", Permission = "Permissions.Remove")]
     public void RemovePermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, Roles permission)
     {
         this.PlayerPermissions.RemovePlayerRoles(player.SteamID, permission);
         commandSource.Message($"Removed permission {permission} from {player.Name}");
     }
 
-    [CommandCallback("clearperms", Description = "Removes all permission from a player", AllowedRoles = Roles.Admin)]
+    [CommandCallback("clearperms", Description = "Removes all permission from a player", Permission = "Permissions.Clear")]
     public void ClearPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player)
     {
         foreach (Roles role in Enum.GetValues<Roles>())
@@ -49,7 +49,7 @@ public class PermissionsCommands : BattleBitModule
         commandSource.Message($"Cleared permissions from {player.Name}");
     }
 
-    [CommandCallback("listperms", Description = "Lists player permissions", AllowedRoles = Roles.Admin | Roles.Moderator)]
+    [CommandCallback("listperms", Description = "Lists player permissions", Permission = "Permissions.List")]
     public void ListPermissionCommand(RunnerPlayer commandSource, RunnerPlayer? targetPlayer = null)
     {
         StringBuilder response = new();

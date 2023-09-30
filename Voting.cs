@@ -32,7 +32,7 @@ public class Voting : BattleBitModule
         this.CommandHandler.Register(this);
     }
 
-    [CommandCallback("vote", Description = "Votes for an option", AllowedRoles = Roles.Moderator)]
+    [CommandCallback("vote", Description = "Votes for an option", Permission = "Vote.Vote")]
     public void StartVoteCommand(RunnerPlayer commandSource, string text, string options)
     {
         if (this.activeVote)

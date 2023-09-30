@@ -11,12 +11,6 @@ using System.Threading.Tasks;
 
 namespace Commands;
 
-public class CommandConfiguration : ModuleConfiguration
-{
-    public string CommandPrefix { get; set; } = "!";
-    public int CommandsPerPage { get; set; } = 6;
-}
-
 [Module("Basic in-game chat command handler library", "1.0.1")]
 public class CommandHandler : BattleBitModule
 {
@@ -26,6 +20,12 @@ public class CommandHandler : BattleBitModule
 
     [ModuleReference]
     public dynamic? PlayerFinder { get; set; }
+
+    [ModuleReference]
+    public dynamic? Permissions { get; set; }
+
+    [ModuleReference]
+    public dynamic? PlayerPermissions { get; set; }
 
     public override void OnModulesLoaded()
     {
@@ -384,4 +384,14 @@ public class CommandCallbackAttribute : Attribute
     {
         this.Name = name;
     }
+}
+
+public class CommandConfiguration : ModuleConfiguration
+{
+    public string CommandPrefix { get; set; } = "!";
+    public int CommandsPerPage { get; set; } = 6;
+}
+
+public class CommandPermissions : ModuleConfiguration {
+    public Dictionary<string, string[]> Permissions { get; set; } = new();
 }

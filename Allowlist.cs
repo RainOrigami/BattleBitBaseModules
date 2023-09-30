@@ -36,7 +36,7 @@ public class Allowlist : BattleBitModule
     //    return Task.CompletedTask;
     //}
 
-    [CommandCallback("allow add", Description = "Adds a player to the allowlist", AllowedRoles = Roles.Moderator)]
+    [CommandCallback("allow add", Description = "Adds a player to the allowlist", Permission = "Allowlist.Allow.Add")]
     public void AllowAdd(RunnerPlayer commandSource, ulong steamID)
     {
         if (this.AllowedPlayers.AllowedPlayers.Contains(steamID))
@@ -51,7 +51,7 @@ public class Allowlist : BattleBitModule
         commandSource.Message("Player added to the allowlist.", 10);
     }
 
-    [CommandCallback("allow remove", Description = "Removes a player from the allowlist", AllowedRoles = Roles.Moderator)]
+    [CommandCallback("allow remove", Description = "Removes a player from the allowlist", Permission = "Allowlist.Allow.Remove")]
     public void AllowRemove(RunnerPlayer commandSource, ulong steamID)
     {
         if (!this.AllowedPlayers.AllowedPlayers.Contains(steamID))

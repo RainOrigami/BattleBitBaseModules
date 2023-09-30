@@ -14,10 +14,10 @@ namespace Commands;
 public class CommandConfiguration : ModuleConfiguration
 {
     public string CommandPrefix { get; set; } = "!";
-    public int CommandsPerPage { get; set; } = 10;
+    public int CommandsPerPage { get; set; } = 6;
 }
 
-[Module("Basic in-game chat command handler library", "1.0.0")]
+[Module("Basic in-game chat command handler library", "1.0.1")]
 public class CommandHandler : BattleBitModule
 {
     public static CommandConfiguration CommandConfiguration { get; set; }
@@ -26,8 +26,6 @@ public class CommandHandler : BattleBitModule
 
     [ModuleReference]
     public dynamic? PlayerFinder { get; set; }
-    [ModuleReference]
-    public dynamic? PlayerPermissions { get; set; }
 
     public override void OnModulesLoaded()
     {
@@ -101,7 +99,7 @@ public class CommandHandler : BattleBitModule
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message)
     {
-        if (!message.StartsWith(CommandConfiguration.CommandPrefix) || (message.StartsWith(CommandConfiguration.CommandPrefix) && message.Length <= CommandConfiguration.CommandPrefix.Length))
+        if (!IsCommand(message))
         {
             return Task.FromResult(true);
         }
@@ -109,6 +107,11 @@ public class CommandHandler : BattleBitModule
         Task.Run(() => this.handleCommand(player, message));
 
         return Task.FromResult(false);
+    }
+
+    public bool IsCommand(string message)
+    {
+        return message.StartsWith(CommandConfiguration.CommandPrefix) && message.Length > CommandConfiguration.CommandPrefix.Length;
     }
 
     private void handleCommand(RunnerPlayer player, string message)
@@ -124,7 +127,7 @@ public class CommandHandler : BattleBitModule
 
         if (!this.commandCallbacks.ContainsKey(command))
         {
-            player.Message("Command not found");
+            player.Message("<color=\"red\">Command not found");
             return;
         }
 
@@ -134,13 +137,10 @@ public class CommandHandler : BattleBitModule
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
         // Permissions
-        if (this.PlayerPermissions is not null)
+        if (!this.Permissions.HasPermission(player.SteamID, commandCallbackAttribute.Permission))
         {
-            if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.GetPlayerRoles(player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
-            {
-                player.Message($"You don't have permission to use this command.");
-                return;
-            }
+            player.Message($"<color=\"red\">You don't have permission to use this command.{Environment.NewLine}<color=\"white\">Required permission: {commandCallbackAttribute.Permission}");
+            return;
         }
 
         ParameterInfo[] parameters = method.GetParameters();
@@ -314,7 +314,7 @@ public class CommandHandler : BattleBitModule
         return input.Replace("\\\"", "\"");
     }
 
-    [CommandCallback("help", Description = "Shows this help message")]
+    [CommandCallback("help", Description = "Shows this help message", Permission = "CommandHandler.Help")]
     public void HelpCommand(RunnerPlayer player, int page = 1)
     {
         List<string> helpLines = new();
@@ -323,12 +323,9 @@ public class CommandHandler : BattleBitModule
         {
             CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-            if (this.PlayerPermissions is not null)
+            if (!this.Permissions.HasPermission(player.SteamID, commandCallbackAttribute.Permission))
             {
-                if (commandCallbackAttribute.AllowedRoles != Roles.None && (this.PlayerPermissions.GetPlayerRoles(player.SteamID) & commandCallbackAttribute.AllowedRoles) == 0)
-                {
-                    continue;
-                }
+                continue;
             }
 
             helpLines.Add($"<b>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}</b>{(string.IsNullOrEmpty(commandCallbackAttribute.Description) ? "" : $": {commandCallbackAttribute.Description}")}");
@@ -345,7 +342,7 @@ public class CommandHandler : BattleBitModule
         player.Message($"<#FFA500>Available commands<br><color=\"white\">{Environment.NewLine}{string.Join(Environment.NewLine, helpLines.Skip((page - 1) * CommandConfiguration.CommandsPerPage).Take(CommandConfiguration.CommandsPerPage))}{(pages > 1 ? $"{Environment.NewLine}Page {page} of {pages}{(page < pages ? $" - type !help {page + 1} for next page" : "")}" : "")}");
     }
 
-    [CommandCallback("cmdhelp", Description = "Shows help for a specific command")]
+    [CommandCallback("cmdhelp", Description = "Shows help for a specific command", Permission = "CommandHandler.CommandHelp")]
     public void CommandHelpCommand(RunnerPlayer player, string command)
     {
         if (!this.commandCallbacks.TryGetValue(command, out var commandCallback))
@@ -356,20 +353,22 @@ public class CommandHandler : BattleBitModule
 
         CommandCallbackAttribute commandCallbackAttribute = commandCallback.Method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
+        if (!this.Permissions.HasPermission(player.SteamID, commandCallbackAttribute.Permission))
+        {
+            player.Message($"<color=\"red\">You don't have permission to see help about this command.");
+            return;
+        }
+
         bool hasOptional = commandCallback.Method.GetParameters().Any(p => p.IsOptional);
         player.Message($"<size=120%>{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}<size=100%><br>{commandCallbackAttribute.Description}<br><#F5F5F5>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><color=\"white\"><size=80%>* Parameter is optional." : "")}");
     }
 
-
-    [CommandCallback("modules", Description = "Lists all loaded modules", AllowedRoles = Roles.Admin)]
+    [CommandCallback("modules", Description = "Lists all loaded modules", Permission = "CommandHandler.ListModules")]
     public void ListModules(RunnerPlayer commandSource)
     {
-
-        var moduleType = Assembly.GetEntryAssembly().GetType("BattleBitAPIRunner.Module");
-        var moduleListField = moduleType.GetField("Modules", BindingFlags.Static | BindingFlags.Public);
-        if (moduleListField is null) return;
-
-        IReadOnlyList<Module> modules = (IReadOnlyList<Module>)moduleListField.GetValue(null);
+        Type moduleType = Assembly.GetEntryAssembly()!.GetType("BattleBitAPIRunner.Module")!;
+        FieldInfo moduleListField = moduleType.GetField("Modules", BindingFlags.Static | BindingFlags.Public)!;
+        IReadOnlyList<Module> modules = (IReadOnlyList<Module>)moduleListField.GetValue(null)!;
         commandSource.Message(string.Join(", ", modules.Select(m => m.Name)));
     }
 }
@@ -379,7 +378,7 @@ public class CommandCallbackAttribute : Attribute
     public string Name { get; set; }
 
     public string Description { get; set; } = string.Empty;
-    public Roles AllowedRoles { get; set; }
+    public string Permission { get; set; } = "*";
 
     public CommandCallbackAttribute(string name)
     {

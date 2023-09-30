@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GeoLimiter;
 
-[Module("Kick users based on their country of origin", "1.0.0")]
+[Module("Kick users based on their country of origin", "1.1.0")]
 public class GeoLimiter : BattleBitModule
 {
     public static GeoLimiterConfiguration Configuration { get; set; } = null!;

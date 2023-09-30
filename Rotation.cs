@@ -11,8 +11,12 @@ public class Rotation : BattleBitModule
 
     public override Task OnConnected()
     {
+        this.Logger.Info($"Setting up game mode rotation to {string.Join(", ", this.Configuration.GameModes)}");
         this.Server.GamemodeRotation.SetRotation(this.Configuration.GameModes);
+        this.Logger.Debug($"New game mode rotation: {string.Join(", ", this.Server.GamemodeRotation.GetGamemodeRotation())}");
+        this.Logger.Info($"Setting up map rotation to {string.Join(", ", this.Configuration.Maps)}");
         this.Server.MapRotation.SetRotation(this.Configuration.Maps);
+        this.Logger.Debug($"New map rotation: {string.Join(", ", this.Server.MapRotation.GetMapRotation())}");
 
         return Task.CompletedTask;
     }

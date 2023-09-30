@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace VacLimiter;
 
-[Module("Kick users with VAC bans", "1.0.0")]
+[Module("Kick users with VAC bans", "1.1.0")]
 public class VacLimiter : BattleBitModule
 {
     public static VacLimiterConfiguration Configuration { get; set; } = null!;
@@ -178,6 +178,12 @@ public class VacLimiter : BattleBitModule
             return;
         }
 
+        if (this.ServerConfiguration.ExcludedPlayers.Contains(player.SteamID))
+        {
+            this.Logger.Info($"Player {player.Name} ({player.SteamID}) is excluded from VAC ban check.");
+            return;
+        }
+
         if (playerBans.DaysSinceLastBan >= this.ServerConfiguration.VACAgeThreshold)
         {
             this.Logger.Info($"Player {player.Name} ({player.SteamID}) has a VAC ban from {playerBans.DaysSinceLastBan} days ago on record, but it is older than the threshold of {this.ServerConfiguration.VACAgeThreshold} days.");
@@ -212,6 +218,7 @@ public class VacLimiterServerConfiguration : ModuleConfiguration
     public bool Ban { get; set; } = false;
     public int CacheAge { get; set; } = 7;
     public string KickMessage { get; set; } = "You have a VAC ban from {0} days ago on record. You are not allowed to play on this server with VAC bans less than {1} days old.";
+    public ulong[] ExcludedPlayers { get; set; } = Array.Empty<ulong>();
 }
 
 public class VacLimiterCache : ModuleConfiguration

@@ -1,11 +1,11 @@
 ﻿using BBRAPIModules;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
@@ -103,7 +103,10 @@ public class ModuleUpdates : BattleBitModule
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "BattleBitAPIRunner");
                 string response = await client.GetStringAsync($"{Configuration.APIEndpoint}/Modules/GetModule/{moduleName}");
-                latestVersion = JsonConvert.DeserializeObject<dynamic>(response)!.versions[0].Version_v_number.ToString();
+                using (JsonDocument responseDocument = JsonDocument.Parse(response))
+                {
+                    latestVersion = responseDocument.RootElement.GetProperty("versions").EnumerateArray().First().GetProperty("Version_v_number").GetString();
+                }
             }
             catch (Exception ex)
             {

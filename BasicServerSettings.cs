@@ -9,7 +9,7 @@ namespace BattleBitBaseModules;
 [Module("Configure basic server settings", "1.0.0")]
 public class BasicServerSettings : BattleBitModule
 {
-    public BasicServerSettingsConfiguration Configuration { get; set; }
+    public BasicServerSettingsConfiguration Configuration { get; set; } = null!;
 
     public override Task OnConnected()
     {

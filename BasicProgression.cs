@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-[Module("Provide basic persistent progression for players", "1.0.0")]
+[Module("Provide basic persistent progression for players", "1.1.0")]
 public class BasicProgression : BattleBitModule
 {
-    public BasicProgressionConfiguration Configuration { get; set; }
+    public BasicProgressionConfiguration Configuration { get; set; } = null!;
 
     private string dataDir => this.Configuration.PerServer ? Path.Combine(this.Configuration.DataDirectory, $"{this.Server.GameIP}:{this.Server.GamePort}") : this.Configuration.DataDirectory;
 
@@ -41,10 +41,11 @@ public class BasicProgression : BattleBitModule
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Tried {i} times to read from file {playerFileName} but failed:{ex}");
+                this.Logger.Error($"Tried {i} times to read from file {playerFileName} but failed:{ex}");
             }
             await Task.Delay(250);
         }
+        this.Logger.Error("Giving up trying to read.");
     }
 
     public override async Task OnSavePlayerStats(ulong steamID, PlayerStats stats)
@@ -58,11 +59,11 @@ public class BasicProgression : BattleBitModule
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Tried {i} times to write to file {getPlayerFileName(steamID)} but failed:{ex}");
+                this.Logger.Error($"Tried {i} times to write to file {getPlayerFileName(steamID)} but failed:{ex}");
             }
             await Task.Delay(250);
         }
-        Console.WriteLine("Giving up trying to save.");
+        this.Logger.Error("Giving up trying to save.");
     }
 
     private string getPlayerFileName(ulong steamId)

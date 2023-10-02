@@ -1,15 +1,11 @@
 ﻿using BBRAPIModules;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-[Module("Library for easily using Rich Text", "1.0.0")]
+[Module("Library for easily using Rich Text", "1.1.0")]
 public class RichText : BattleBitModule
 {
     public string NewLine() => "<br>";
@@ -29,11 +25,11 @@ public class RichText : BattleBitModule
         FieldInfo? color = typeof(Colors).GetFields().FirstOrDefault(x => x.Name.ToLower() == colorName.ToLower());
         if (color == null)
         {
-            Console.WriteLine($"No color found with name {colorName}");
+            this.Logger.Error($"No color found with name {colorName}");
             return "<#FFFFFF>";
         }
 
-        return color.GetValue(null)!.ToString();
+        return color.GetValue(null)!.ToString()!;
     }
 
     public string Align(string? alignment = null)
@@ -51,11 +47,11 @@ public class RichText : BattleBitModule
         FieldInfo? alignment = typeof(Alignments).GetFields().FirstOrDefault(x => x.Name.ToLower() == alignmentName.ToLower());
         if (alignment == null)
         {
-            Console.WriteLine($"No alignment found with name {alignmentName}");
+            this.Logger.Error($"No alignment found with name {alignmentName}");
             return Alignments.None;
         }
 
-        return alignment.GetValue(null)!.ToString();
+        return alignment.GetValue(null)!.ToString()!;
     }
 
     public string Alpha(string? alpha = null)
@@ -124,11 +120,11 @@ public class RichText : BattleBitModule
         FieldInfo? sprite = typeof(Sprites).GetFields().FirstOrDefault(x => x.Name.ToLower() == spriteName.ToLower());
         if (sprite == null)
         {
-            Console.WriteLine($"No sprite found with name {spriteName}");
+            this.Logger.Error($"No sprite found with name {spriteName}");
             return string.Empty;
         }
 
-        string spriteText = sprite.GetValue(null)!.ToString();
+        string spriteText = sprite.GetValue(null)!.ToString()!;
         if (!string.IsNullOrEmpty(color))
         {
             spriteText = spriteText.Replace("<sprite ", $"<sprite color={color} ");

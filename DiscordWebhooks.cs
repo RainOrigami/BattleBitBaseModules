@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace BattleBitDiscordWebhooks;
 
-[Module("Send some basic events to Discord and allow for other modules to send messages to Discord", "1.0.0")]
+[Module("Send some basic events to Discord and allow for other modules to send messages to Discord", "1.1.0")]
 public class DiscordWebhooks : BattleBitModule
 {
     private Queue<DiscordMessage> discordMessageQueue = new();
     private HttpClient httpClient = new HttpClient();
-    public WebhookConfiguration Configuration { get; set; }
+    public WebhookConfiguration Configuration { get; set; } = null!;
 
     public override void OnModulesLoaded()
     {
@@ -93,7 +93,7 @@ public class DiscordWebhooks : BattleBitModule
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"EXCEPTION IN DISCORD MESSAGE QUEUING:{Environment.NewLine}{ex}");
+                    this.Logger.Error($"Failed to process message queue.", ex);
                     await Task.Delay(500);
                 }
             } while (messages.Count > 0);
@@ -119,7 +119,7 @@ public class DiscordWebhooks : BattleBitModule
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Error sending webhook message. Status Code: {response.StatusCode}");
+                this.Logger.Error($"Error sending webhook message. Status Code: {response.StatusCode}");
             }
 
             success = response.IsSuccessStatusCode;

@@ -1,8 +1,5 @@
 ﻿using BBRAPIModules;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
@@ -10,8 +7,8 @@ namespace BattleBitBaseModules;
 [Module("Periodically execute announcements and messages based on configurable delays and conditions", "1.0.0")]
 public class Announcements : BattleBitModule
 {
-    public AnnouncementsConfiguration Configuration { get; set; }
-    public AnnouncementStore Store { get; set; }
+    public AnnouncementsConfiguration Configuration { get; set; } = null!;
+    public AnnouncementStore Store { get; set; } = null!;
 
     public override Task OnConnected()
     {

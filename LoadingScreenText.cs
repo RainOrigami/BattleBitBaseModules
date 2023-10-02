@@ -6,7 +6,7 @@ namespace BattleBitBaseModules;
 [Module("Configure the loading screen text of your server", "1.0.0")]
 public class LoadingScreenText : BattleBitModule
 {
-    public LoadingScreenTextConfiguration Configuration { get; set; }
+    public LoadingScreenTextConfiguration Configuration { get; set; } = null!;
 
     public override Task OnConnected()
     {

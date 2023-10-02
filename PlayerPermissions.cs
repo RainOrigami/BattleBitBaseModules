@@ -1,16 +1,14 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Permissions;
 
-[Module("Library for persistent server roles for players", "1.0.0")]
+[Module("Library for persistent server roles for players", "1.1.0")]
 public class PlayerPermissions : BattleBitModule
 {
-    public static PlayerPermissionsConfiguration Configuration { get; set; }
+    public static PlayerPermissionsConfiguration Configuration { get; set; } = null!;
 
     public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args)
     {

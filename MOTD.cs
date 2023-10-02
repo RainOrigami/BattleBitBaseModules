@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 [RequireModule(typeof(CommandHandler))]
-[Module("Show a message of the day to players who join the server", "1.0.0")]
+[Module("Show a message of the day to players who join the server", "1.1.0")]
 public class MOTD : BattleBitModule
 {
-    public MOTDConfiguration Configuration { get; set; }
+    public MOTDConfiguration Configuration { get; set; } = null!;
 
     [ModuleReference]
-    public CommandHandler CommandHandler { get; set; }
-    
+    public CommandHandler CommandHandler { get; set; } = null!;
+
     public override void OnModulesLoaded()
     {
         this.CommandHandler.Register(this);
@@ -46,7 +46,7 @@ public class MOTD : BattleBitModule
         return Task.CompletedTask;
     }
 
-    [CommandCallback("setmotd", Description = "Sets the MOTD", AllowedRoles = Roles.Admin)]
+    [CommandCallback("setmotd", Description = "Sets the MOTD", Permissions = new[] { "MOTD.Set" })]
     public void SetMOTD(RunnerPlayer commandSource, string motd)
     {
         this.Configuration.MOTD = motd;

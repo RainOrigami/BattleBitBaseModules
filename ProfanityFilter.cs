@@ -1,8 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
@@ -75,7 +73,7 @@ public class ProfanityDFAFilter
 [Module("Bad word filter to remove chat messages", "1.0.0")]
 public class ProfanityFilter : BattleBitModule
 {
-    public static ProfanityFilterConfiguration Configuration { get; set; }
+    public static ProfanityFilterConfiguration Configuration { get; set; } = null!;
     public static ProfanityDFAFilter filter = new();
 
     public override void OnModulesLoaded()

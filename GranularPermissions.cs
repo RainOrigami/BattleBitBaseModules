@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GranularPermissions;
+namespace Permissions;
 
 [Module("Granular permissions for players and groups.", "1.0.0")]
-public class Permissions : BattleBitModule
+public class GranularPermissions : BattleBitModule
 {
     public const string CatchAll = "*";
     public const string RevokePrefix = "-";
@@ -15,7 +15,8 @@ public class Permissions : BattleBitModule
     public static PermissionsConfiguration Configuration { get; set; } = null!;
     public PermissionsServerConfiguration ServerConfiguration { get; set; } = null!;
 
-    public void Save() {
+    public void Save()
+    {
         this.Logger.Debug("Saving permissions configuration.");
         this.ServerConfiguration.Save();
         Configuration.Save();
@@ -36,8 +37,6 @@ public class Permissions : BattleBitModule
         {
             playerGroups = playerGroups.Append(CatchAll).ToArray();
         }
-
-        string[] permissionPath = permission.Split(PermissionSeparator);
 
         bool permitted = false;
 
@@ -85,6 +84,7 @@ public class Permissions : BattleBitModule
         }
 
         // Partial permissions with catch-all
+        string[] permissionPath = permission.Split(PermissionSeparator);
         string partialPermissionPath = string.Empty;
         foreach (string permissionPart in permissionPath)
         {
@@ -162,6 +162,28 @@ public class Permissions : BattleBitModule
         Configuration.Groups.Remove(group);
     }
 
+    public string[] GetGroups()
+    {
+        return Configuration.Groups.Keys.ToArray();
+    }
+
+    public string[] GetPlayerGroups(ulong steamId)
+    {
+        if (!ServerConfiguration.PlayerGroups.ContainsKey(steamId))
+        {
+            if (Configuration.Groups.ContainsKey(CatchAll))
+            {
+                return new[] { CatchAll };
+            }
+            else
+            {
+                return Array.Empty<string>();
+            }
+        }
+
+        return ServerConfiguration.PlayerGroups[steamId].ToArray();
+    }
+
     public void AddGroupPermission(string group, string permission)
     {
         this.Logger.Debug($"Adding permission {permission} to group {group}.");
@@ -212,6 +234,17 @@ public class Permissions : BattleBitModule
         this.Logger.Debug($"Removing revoked permission {permission} from group {group}.");
 
         this.RemoveGroupPermission(group, $"{RevokePrefix}{permission}");
+    }
+
+    public string[] GetGroupPermissions(string group)
+    {
+        if (!Configuration.Groups.ContainsKey(group))
+        {
+            this.Logger.Error($"Group {group} does not exist.");
+            return Array.Empty<string>();
+        }
+
+        return Configuration.Groups[group].ToArray();
     }
 
     public void AddPlayerGroup(ulong steamId, string group)
@@ -303,12 +336,40 @@ public class Permissions : BattleBitModule
 
         this.RemovePlayerPermission(steamId, $"{RevokePrefix}{permission}");
     }
+
+    public string[] GetPlayerPermissions(ulong steamId)
+    {
+        if (!this.ServerConfiguration.PlayerPermissions.ContainsKey(steamId))
+        {
+            this.Logger.Error($"Player {steamId} does not have any permissions.");
+            return Array.Empty<string>();
+        }
+
+        return this.ServerConfiguration.PlayerPermissions[steamId].ToArray();
+    }
+
+    public string[] GetAllPlayerPermissions(ulong steamId)
+    {
+        List<string> permissions = new();
+
+        if (this.ServerConfiguration.PlayerPermissions.ContainsKey(steamId))
+        {
+            permissions.AddRange(this.ServerConfiguration.PlayerPermissions[steamId]);
+        }
+
+        foreach (string group in this.GetPlayerGroups(steamId))
+        {
+            permissions.AddRange(this.GetGroupPermissions(group));
+        }
+
+        return permissions.Distinct().ToArray();
+    }
 }
 
 public class PermissionsConfiguration : ModuleConfiguration
 {
     public Dictionary<string, List<string>> Groups { get; set; } = new() {
-        { Permissions.CatchAll, new() }
+        { GranularPermissions.CatchAll, new() }
     };
 }
 

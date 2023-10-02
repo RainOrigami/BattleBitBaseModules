@@ -1,5 +1,4 @@
 ﻿using BBRAPIModules;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
@@ -7,7 +6,7 @@ namespace BattleBitBaseModules;
 [Module("Configure the map and game mode rotation of the server", "1.0.0")]
 public class Rotation : BattleBitModule
 {
-    public RotationConfiguration Configuration { get; set; }
+    public RotationConfiguration Configuration { get; set; } = null!;
 
     public override Task OnConnected()
     {

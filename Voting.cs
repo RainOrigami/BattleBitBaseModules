@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-[Module("Simple chat voting system", "1.0.0")]
+[Module("Simple chat voting system", "1.1.0")]
 [RequireModule(typeof(CommandHandler))]
 public class Voting : BattleBitModule
 {
@@ -19,20 +19,20 @@ public class Voting : BattleBitModule
     private Dictionary<ulong, int> votes = new();
     private DateTime endOfVote = DateTime.MinValue;
 
-    public VoteConfiguration Configuration { get; set; }
+    public VoteConfiguration Configuration { get; set; } = null!;
 
     [ModuleReference]
     public dynamic? RichText { get; set; }
 
     [ModuleReference]
-    public CommandHandler CommandHandler { get; set; }
+    public CommandHandler CommandHandler { get; set; } = null!;
 
     public override void OnModulesLoaded()
     {
         this.CommandHandler.Register(this);
     }
 
-    [CommandCallback("vote", Description = "Votes for an option", Permission = "Vote.Vote")]
+    [CommandCallback("vote", Description = "Votes for an option", Permissions = new[] { "Vote.Vote" })]
     public void StartVoteCommand(RunnerPlayer commandSource, string text, string options)
     {
         if (this.activeVote)

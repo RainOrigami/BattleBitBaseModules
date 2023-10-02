@@ -1,5 +1,6 @@
 ﻿using BBRAPIModules;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,9 @@ public class GeoLimiter : BattleBitModule
 {
     public static GeoLimiterConfiguration Configuration { get; set; } = null!;
     public GeoLimiterServerConfiguration ServerConfiguration { get; set; } = null!;
+
+    [ModuleReference]
+    public dynamic? GranularPermissions { get; set; }
 
     private static Geolocation[] database = null!;
 
@@ -40,6 +44,12 @@ public class GeoLimiter : BattleBitModule
 
     public override Task OnPlayerConnected(RunnerPlayer player)
     {
+        if (this.GranularPermissions is not null && ServerConfiguration.IgnoredPermissions?.Any(p => this.GranularPermissions.HasPermission(player.SteamID, p)) == true)
+        {
+            this.Logger.Info($"Player {player.SteamID} has an ignored permission, skipping...");
+            return Task.CompletedTask;
+        }
+
         byte[] ipBytes = player.IP.GetAddressBytes();
         if (BitConverter.IsLittleEndian)
         {
@@ -47,7 +57,7 @@ public class GeoLimiter : BattleBitModule
         }
 
         int ipNumber = BitConverter.ToInt32(ipBytes, 0);
-        Console.WriteLine($"IP address {player.IP} as integer: {ipNumber}");
+        this.Logger.Debug($"IP address {player.IP} as integer: {ipNumber}");
 
         Geolocation? geolocation = database.FirstOrDefault(x => x.FromIP <= ipNumber && x.ToIP >= ipNumber);
         if (geolocation == null)
@@ -89,6 +99,8 @@ public class GeoLimiterServerConfiguration : ModuleConfiguration
     public string[]? DisallowedCountries { get; set; } = new string[] { "US", "RU", "CN" };
 
     public string KickMessage { get; set; } = "Your country {0} is not allowed on this server.";
+
+    public string[] IgnoredPermissions { get; set; } = Array.Empty<string>();
 }
 
 public class Geolocation

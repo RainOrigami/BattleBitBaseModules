@@ -1,22 +1,24 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using Permissions;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-[RequireModule(typeof(PlayerPermissions))]
-[Module("Allow only specific Roles to spectate", "1.0.0")]
+[RequireModule(typeof(GranularPermissions))]
+[Module("Allow only specific Roles to spectate", "1.1.0")]
 public class SpectateControl : BattleBitModule
 {
-    public static SpectateControlConfiguration Configuration { get; set; }
+    public static SpectateControlConfiguration Configuration { get; set; } = null!;
 
     [ModuleReference]
-    public PlayerPermissions PlayerPermissions { get; set; }
+    public GranularPermissions GranularPermissions { get; set; } = null!;
 
     public override Task OnPlayerConnected(RunnerPlayer player)
     {
-        player.Modifications.CanSpectate = Configuration.SpectatorRoles == 0 || (PlayerPermissions.GetPlayerRoles(player.SteamID) & (Roles)Configuration.SpectatorRoles) > 0;
+        player.Modifications.CanSpectate = Configuration.SpectatorPermissions.Any(p => this.GranularPermissions.HasPermission(player.SteamID, p));
 
         return Task.CompletedTask;
     }
@@ -24,5 +26,5 @@ public class SpectateControl : BattleBitModule
 
 public class SpectateControlConfiguration : ModuleConfiguration
 {
-    public ulong SpectatorRoles { get; set; } = (ulong)(Roles.Admin | Roles.Moderator);
+    public List<string> SpectatorPermissions { get; set; } = new();
 }

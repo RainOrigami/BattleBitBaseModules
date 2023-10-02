@@ -18,6 +18,9 @@ public class VacLimiter : BattleBitModule
 
     public VacLimiterServerConfiguration ServerConfiguration { get; set; } = null!;
 
+    [ModuleReference]
+    public dynamic? GranularPermissions { get; set; }
+
     private static ConcurrentBag<CacheRequest> playersToCheck = new();
     private static bool isLoaded = false;
     private static HttpClient httpClient = null!;
@@ -178,9 +181,9 @@ public class VacLimiter : BattleBitModule
             return;
         }
 
-        if (this.ServerConfiguration.ExcludedPlayers.Contains(player.SteamID))
+        if (this.GranularPermissions is not null && ServerConfiguration.IgnoredPermissions?.Any(p => this.GranularPermissions.HasPermission(player.SteamID, p)) == true)
         {
-            this.Logger.Info($"Player {player.Name} ({player.SteamID}) is excluded from VAC ban check.");
+            this.Logger.Info($"Player {player.Name} ({player.SteamID}) has an ignored permission, skipping...");
             return;
         }
 
@@ -218,7 +221,7 @@ public class VacLimiterServerConfiguration : ModuleConfiguration
     public bool Ban { get; set; } = false;
     public int CacheAge { get; set; } = 7;
     public string KickMessage { get; set; } = "You have a VAC ban from {0} days ago on record. You are not allowed to play on this server with VAC bans less than {1} days old.";
-    public ulong[] ExcludedPlayers { get; set; } = Array.Empty<ulong>();
+    public string[] IgnoredPermissions { get; set; } = Array.Empty<string>();
 }
 
 public class VacLimiterCache : ModuleConfiguration

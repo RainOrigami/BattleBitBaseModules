@@ -1,69 +1,154 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
-using Permissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PermissionsManager;
 
-[RequireModule(typeof(PlayerPermissions))]
 [RequireModule(typeof(CommandHandler))]
-[Module("Provide addperm and removeperm commands for PlayerPermissions", "1.0.0")]
+[Module("Provide addperm and removeperm commands for PlayerPermissions", "1.1.0")]
 public class PermissionsCommands : BattleBitModule
 {
     [ModuleReference]
-    public PlayerPermissions PlayerPermissions { get; set; }
+    public dynamic? PlayerPermissions { get; set; }
     [ModuleReference]
-    public CommandHandler CommandHandler { get; set; }
+    public dynamic? GranularPermissions { get; set; }
+    [ModuleReference]
+    public CommandHandler CommandHandler { get; set; } = null!;
+
+    public PermissionsCommandsConfiguration Configuration { get; set; } = null!;
 
     public override void OnModulesLoaded()
     {
         this.CommandHandler.Register(this);
     }
 
-    [CommandCallback("addperm", Description = "Adds a permission to a player", Permission = "Permissions.Add")]
-    public void AddPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, Roles permission)
+    [CommandCallback("addperm", Description = "Adds a permission to a player", Permissions = new[] { "Permissions.Add" })]
+    public void AddPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, string permission)
     {
-        this.PlayerPermissions.AddPlayerRoles(player.SteamID, permission);
-        commandSource.Message($"Added permission {permission} to {player.Name}");
+        bool success = false;
+
+        if (this.PlayerPermissions is not null)
+        {
+            if (!Enum.TryParse(permission, out Roles roles))
+            {
+                this.Logger.Error($"Could not parse {permission} to a role");
+            }
+            else
+            {
+                this.PlayerPermissions.AddPlayerRoles(player.SteamID, roles);
+                success = true;
+            }
+        }
+
+        if (this.GranularPermissions is not null)
+        {
+            this.GranularPermissions.AddPlayerPermission(player.SteamID, permission);
+            success = true;
+        }
+
+        if (success)
+        {
+            commandSource.Message($"Added permission {permission} to {player.Name}");
+        }
+        else
+        {
+            this.Logger.Error($"Could not add permission {permission} to {player.Name}");
+            commandSource.Message($"Could not add permission {permission} to {player.Name}");
+        }
     }
 
-    [CommandCallback("removeperm", Description = "Removes a permission from a player", Permission = "Permissions.Remove")]
-    public void RemovePermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, Roles permission)
+    [CommandCallback("removeperm", Description = "Removes a permission from a player", Permissions = new[] { "Permissions.Remove" })]
+    public void RemovePermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, string permission)
     {
-        this.PlayerPermissions.RemovePlayerRoles(player.SteamID, permission);
-        commandSource.Message($"Removed permission {permission} from {player.Name}");
+        bool success = false;
+
+        if (this.PlayerPermissions is not null)
+        {
+            if (!Enum.TryParse(permission, out Roles roles))
+            {
+                this.Logger.Error($"Colud not parse {permission} to a role");
+            }
+            else
+            {
+                this.PlayerPermissions.RemovePlayerRoles(player.SteamID, roles);
+                success = true;
+            }
+        }
+
+        if (this.GranularPermissions is not null)
+        {
+            this.GranularPermissions.RemovePlayerPermission(player.SteamID, permission);
+            success = true;
+        }
+
+        if (success)
+        {
+            commandSource.Message($"Removed permission {permission} from {player.Name}");
+        }
+        else
+        {
+            this.Logger.Error($"Could not remove permission {permission} from {player.Name}");
+            commandSource.Message($"Could not remove permission {permission} from {player.Name}");
+        }
     }
 
-    [CommandCallback("clearperms", Description = "Removes all permission from a player", Permission = "Permissions.Clear")]
+    [CommandCallback("clearperms", Description = "Clears all permissions and groups from a player", Permissions = new[] { "Permissions.Clear" })]
     public void ClearPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player)
     {
-        foreach (Roles role in Enum.GetValues<Roles>())
+        if (this.GranularPermissions is not null)
         {
-            this.PlayerPermissions.RemovePlayerRoles(player.SteamID, role);
+            foreach (string group in this.GranularPermissions.GetPlayerGroups(player.SteamID))
+            {
+                this.GranularPermissions.RemovePlayerGroup(player.SteamID, group);
+            }
+
+            foreach (string permission in this.GranularPermissions.GetPlayerPermissions(player.SteamID))
+            {
+                this.GranularPermissions.RemovePlayerPermission(player.SteamID, permission);
+            }
+        }
+
+        if (this.PlayerPermissions is not null)
+        {
+            foreach (Roles role in Enum.GetValues<Roles>())
+            {
+                this.PlayerPermissions.RemovePlayerRoles(player.SteamID, role);
+            }
         }
 
         commandSource.Message($"Cleared permissions from {player.Name}");
     }
 
-    [CommandCallback("listperms", Description = "Lists player permissions", Permission = "Permissions.List")]
-    public void ListPermissionCommand(RunnerPlayer commandSource, RunnerPlayer? targetPlayer = null)
+    [CommandCallback("listperms", Description = "Lists player permissions", Permissions = new[] { "Permissions.List" })]
+    public void ListPermissionCommand(RunnerPlayer commandSource, RunnerPlayer targetPlayer, int page = 1)
     {
-        StringBuilder response = new();
-        List<ulong> targetSteamIds = targetPlayer is null ? PlayerPermissions.Configuration.PlayerRoles.Keys.ToList() : new() { targetPlayer.SteamID };
+        List<string> permissions = new();
 
-        foreach (ulong playerSteamId in targetSteamIds)
+        if (this.GranularPermissions is not null)
         {
-            string playerName = this.Server.AllPlayers.FirstOrDefault(p => p.SteamID == playerSteamId)?.Name ?? playerSteamId.ToString();
-            Roles playerRoles = PlayerPermissions.Configuration.PlayerRoles.GetValueOrDefault(playerSteamId);
-            Roles[] individualRoles = Enum.GetValues<Roles>().Where(r => (r & playerRoles) > 0).ToArray();
-
-            response.AppendLine($"{playerName}: {string.Join(targetSteamIds.Count == 1 ? "\n" : ", ", individualRoles)}");
+            permissions.AddRange(this.GranularPermissions.GetPlayerPermissions(targetPlayer.SteamID));
+            foreach (string group in this.GranularPermissions.GetPlayerGroups(targetPlayer.SteamID))
+            {
+                permissions.AddRange(((string[])this.GranularPermissions.GetGroupPermissions(group)).Select(p => $"{p} from {group}"));
+            }
         }
 
-        commandSource.Message(response.ToString());
+        if (this.PlayerPermissions is not null)
+        {
+            Roles playerRoles = PlayerPermissions.Configuration.PlayerRoles.GetValueOrDefault(targetPlayer.SteamID);
+            permissions.AddRange(Enum.GetValues<Roles>().Where(r => (r & playerRoles) > 0).Select(r => r.ToString()));
+        }
+
+        int pageCount = (int)Math.Ceiling(permissions.Count / (double)this.Configuration.PermissionsPerPage);
+
+        commandSource.Message($"{targetPlayer.Name}: {string.Join("\n", permissions.Skip(page * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}");
     }
+}
+
+public class PermissionsCommandsConfiguration : ModuleConfiguration
+{
+    public int PermissionsPerPage { get; set; } = 6;
 }

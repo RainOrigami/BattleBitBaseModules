@@ -1,6 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using GranularPermissions;
+using Permissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ChatOverwrite;
 
-[RequireModule(typeof(GranularPermissions.Permissions))]
+[RequireModule(typeof(GranularPermissions))]
 [Module("Overwrite chat messages", "1.0.0")]
 public class ChatOverwrite : BattleBitModule
 {
@@ -19,7 +19,7 @@ public class ChatOverwrite : BattleBitModule
     public dynamic? CommandHandler { get; set; }
 
     [ModuleReference]
-    public dynamic? Permissions { get; set; }
+    public GranularPermissions GranularPermissions { get; set; } = null!;
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string msg)
     {
@@ -29,13 +29,13 @@ public class ChatOverwrite : BattleBitModule
             return Task.FromResult(true);
         }
 
-        if (this.Permissions.HasPermission(player.SteamID, "ChatOverwrite.Bypass"))
+        if (this.GranularPermissions.HasPermission(player.SteamID, "ChatOverwrite.Bypass"))
         {
             this.Logger.Debug($"Ignoring message {msg} from {player.Name} because they have the ChatOverwrite.Bypass permission");
             return Task.FromResult(true);
         }
 
-        string? permission = this.Configuration.Overwrites.Keys.FirstOrDefault(k => this.Permissions.HasPermission(player.SteamID, k));
+        string? permission = this.Configuration.Overwrites.Keys.FirstOrDefault(k => this.GranularPermissions.HasPermission(player.SteamID, k));
 
         if (String.IsNullOrEmpty(permission))
         {
@@ -74,7 +74,7 @@ public class ChatOverwrite : BattleBitModule
 
             string textColor = channel == ChatChannel.TeamChat ? "blue" : (channel == ChatChannel.SquadChat ? "green" : "white");
 
-            chatTarget.SayToChat(String.Format(overwriteMessage.Text, nameColor, player.Name, teamAndSquadIndicator, textColor, msg, gradientName));
+            chatTarget.SayToChat(string.Format(overwriteMessage.Text, nameColor, player.Name, teamAndSquadIndicator, textColor, msg, gradientName));
         }
 
         return Task.FromResult(false);

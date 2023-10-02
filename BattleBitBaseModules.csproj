@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="BBRAPIModules" Version="1.1.0" />
-    <PackageReference Include="Newtonsoft.Json" PrivateAssets="all" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

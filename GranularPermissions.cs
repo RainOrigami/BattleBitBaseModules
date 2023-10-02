@@ -1,4 +1,4 @@
-﻿using BBRAPIModules;
+using BBRAPIModules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +54,12 @@ public class GranularPermissions : BattleBitModule
                 this.Logger.Debug($"Player {steamId} has permission {permission} because they have permission {permission}.");
                 permitted = true;
             }
+
+            if (this.ServerConfiguration.PlayerPermissions[steamId].Any(p => p.Equals(CatchAll, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                this.Logger.Debug($"Player {steamId} has permission {permission} because they have catch-all permission *.");
+                permitted = true;
+            }
         }
 
         // Group permissions
@@ -79,6 +85,12 @@ public class GranularPermissions : BattleBitModule
 
             if (Configuration.Groups[group].Any(p => p.Equals(permission, StringComparison.InvariantCultureIgnoreCase)))
             {
+                permitted = true;
+            }
+
+            if (Configuration.Groups[group].Any(p => p.Equals(CatchAll, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                this.Logger.Debug($"Player {steamId} has permission {permission} because group {group} has catch-all permission *.");
                 permitted = true;
             }
         }
@@ -341,7 +353,7 @@ public class GranularPermissions : BattleBitModule
     {
         if (!this.ServerConfiguration.PlayerPermissions.ContainsKey(steamId))
         {
-            this.Logger.Error($"Player {steamId} does not have any permissions.");
+            this.Logger.Debug($"Player {steamId} does not have any player-specific permissions.");
             return Array.Empty<string>();
         }
 

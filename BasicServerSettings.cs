@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-[Module("Configure basic server settings", "1.0.1")]
+[Module("Configure basic server settings", "1.0.2")]
 public class BasicServerSettings : BattleBitModule
 {
     public BasicServerSettingsConfiguration Configuration { get; set; } = null!;
@@ -166,7 +166,7 @@ public class BasicServerSettingsConfiguration : ModuleConfiguration
     public bool? Freeze { get; set; } = null;
     public float? ReviveHP { get; set; } = null;
 
-    public ReadOnlyDictionary<GameState, RoundSettingsConfiguration> RoundSettings { get; set; } = new(new Dictionary<GameState, RoundSettingsConfiguration>()
+    public Dictionary<GameState, RoundSettingsConfiguration> RoundSettings { get; set; } = new(new Dictionary<GameState, RoundSettingsConfiguration>()
     {
         { GameState.WaitingForPlayers, new() },
         { GameState.CountingDown, new() },

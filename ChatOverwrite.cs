@@ -1,8 +1,10 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
+using Bluscream;
 using Permissions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +13,14 @@ namespace ChatOverwrite;
 
 [RequireModule(typeof(GranularPermissions))]
 [Module("Overwrite chat messages", "1.0.0")]
-public class ChatOverwrite : BattleBitModule
-{
+public class ChatOverwrite : BattleBitModule {
+
+    [ModuleReference]
+#if DEBUG
+        public SteamApi? SteamApi { get; set; } = null!;
+#else
+        public SteamApi? SteamApi { get; set; }
+#endif
     public ChatOverwriteConfiguration Configuration { get; set; } = null!;
 
     [ModuleReference]
@@ -74,10 +82,23 @@ public class ChatOverwrite : BattleBitModule
 
             string textColor = channel == ChatChannel.TeamChat ? "blue" : (channel == ChatChannel.SquadChat ? "green" : "white");
 
-            chatTarget.SayToChat(string.Format(overwriteMessage.Text, nameColor, player.Name, teamAndSquadIndicator, textColor, msg, gradientName));
+            var playerName = GetPlayerName(player);
+
+            chatTarget.SayToChat(string.Format(overwriteMessage.Text, nameColor, playerName, teamAndSquadIndicator, textColor, msg, gradientName));
         }
 
         return Task.FromResult(false);
+    }
+
+    public string GetPlayerName(RunnerPlayer player) {
+        if (SteamApi is not null) {
+            var steam = SteamApi.GetData(player)?.Result;
+            if (steam is not null && steam.Summary is not null) {
+                if (!string.IsNullOrWhiteSpace(steam.Summary.RealName)) return steam.Summary.RealName;
+                else if (!string.IsNullOrWhiteSpace(steam.Summary.PersonaName)) return steam.Summary.PersonaName;
+            }
+        } 
+        return player.Name ?? player.SteamID.ToString();
     }
 
     private static string FormatTextWithGradient(string text, string[] gradientColors)

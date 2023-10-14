@@ -320,6 +320,11 @@ public class CommandHandler : BattleBitModule
             {
                 RunnerPlayer? targetPlayer = null;
 
+                if (ulong.TryParse(argument, out ulong steamId) && this.Server.AllPlayers.FirstOrDefault(p => p.SteamID == steamId) is RunnerPlayer playerBySteamId) {
+                    args[i] = targetPlayer;
+                    continue;
+                }
+
                 if (this.PlayerFinder is not null)
                 {
                     try

@@ -98,7 +98,7 @@ public class ChatOverwrite : BattleBitModule {
                 else if (!string.IsNullOrWhiteSpace(steam.Summary.PersonaName)) return steam.Summary.PersonaName;
             }
         } 
-        return player.Name ?? player.SteamID.ToString();
+        return string.IsNullOrWhiteSpace(player.Name) ? player.SteamID.ToString() : player.Name;
     }
 
     private static string FormatTextWithGradient(string text, string[] gradientColors)

@@ -8,6 +8,7 @@ using System.Linq;
 namespace PermissionsManager;
 
 [RequireModule(typeof(CommandHandler))]
+[RequireModule(typeof(GranularPermissions))]
 [Module("Provide commands for managing GranularPermissions", "1.0.0")]
 public class GranularPermissionsCommands : BattleBitModule
 {

@@ -93,7 +93,7 @@ public class ChatOverwrite : BattleBitModule {
     public string GetPlayerName(RunnerPlayer player) {
         if (SteamApi is not null) {
             var steam = SteamApi.GetData(player)?.Result;
-            if (steam is not null && steam.Summary is not null) {
+            if (steam?.Summary is not null) {
                 if (!string.IsNullOrWhiteSpace(steam.Summary.RealName)) return steam.Summary.RealName;
                 else if (!string.IsNullOrWhiteSpace(steam.Summary.PersonaName)) return steam.Summary.PersonaName;
             }
@@ -133,6 +133,7 @@ public class ChatOverwriteConfiguration : ModuleConfiguration
 {
     public Dictionary<string, OverwriteMessage> Overwrites { get; set; } = new()
     {
+        { "ChatOverwrite.Normal", new("<color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },
         { "ChatOverwrite.Rainbow", new("{5}{2} : <color=\"{3}\">{4}", new string[] { "red", "orange", "yellow", "green", "blue", "purple" }) },
         { "ChatOverwrite.Large", new("<size=150%><color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },
         { "ChatOverwrite.Sus", new("<color=\"{0}\">{1}</color>{2} : <color=\"{3}\">I am an idiot and cheat in online games. Please go to my Steam profile and report me!") },

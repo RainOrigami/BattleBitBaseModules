@@ -158,8 +158,9 @@ public static class Alignments
     public static readonly string None = "</align>";
 }
 
-public static class Colors
-{
+public static class Colors {
+    public static readonly string None = "</color>";
+    public static readonly string Reset = "</color>";
     public static readonly string Black = "<color=\"black\">";
     public static readonly string Blue = "<color=\"blue\">";
     public static readonly string Brown = "<color=\"brown\">";

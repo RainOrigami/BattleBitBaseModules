@@ -1,8 +1,10 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
+using Bluscream;
 using Permissions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +13,14 @@ namespace ChatOverwrite;
 
 [RequireModule(typeof(GranularPermissions))]
 [Module("Overwrite chat messages", "1.0.0")]
-public class ChatOverwrite : BattleBitModule
-{
+public class ChatOverwrite : BattleBitModule {
+
+    [ModuleReference]
+#if DEBUG
+        public SteamApi? SteamApi { get; set; } = null!;
+#else
+        public SteamApi? SteamApi { get; set; }
+#endif
     public ChatOverwriteConfiguration Configuration { get; set; } = null!;
 
     [ModuleReference]
@@ -74,10 +82,23 @@ public class ChatOverwrite : BattleBitModule
 
             string textColor = channel == ChatChannel.TeamChat ? "blue" : (channel == ChatChannel.SquadChat ? "green" : "white");
 
-            chatTarget.SayToChat(string.Format(overwriteMessage.Text, nameColor, player.Name, teamAndSquadIndicator, textColor, msg, gradientName));
+            var playerName = GetPlayerName(player);
+
+            chatTarget.SayToChat(string.Format(overwriteMessage.Text, nameColor, playerName, teamAndSquadIndicator, textColor, msg, gradientName));
         }
 
         return Task.FromResult(false);
+    }
+
+    public string GetPlayerName(RunnerPlayer player) {
+        if (SteamApi is not null) {
+            var steam = SteamApi.GetData(player)?.Result;
+            if (steam?.Summary is not null) {
+                if (!string.IsNullOrWhiteSpace(steam.Summary.RealName)) return steam.Summary.RealName;
+                else if (!string.IsNullOrWhiteSpace(steam.Summary.PersonaName)) return steam.Summary.PersonaName;
+            }
+        } 
+        return string.IsNullOrWhiteSpace(player.Name) ? player.SteamID.ToString() : player.Name;
     }
 
     private static string FormatTextWithGradient(string text, string[] gradientColors)
@@ -112,6 +133,7 @@ public class ChatOverwriteConfiguration : ModuleConfiguration
 {
     public Dictionary<string, OverwriteMessage> Overwrites { get; set; } = new()
     {
+        { "ChatOverwrite.Normal", new("<color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },
         { "ChatOverwrite.Rainbow", new("{5}{2} : <color=\"{3}\">{4}", new string[] { "red", "orange", "yellow", "green", "blue", "purple" }) },
         { "ChatOverwrite.Large", new("<size=150%><color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },
         { "ChatOverwrite.Sus", new("<color=\"{0}\">{1}</color>{2} : <color=\"{3}\">I am an idiot and cheat in online games. Please go to my Steam profile and report me!") },

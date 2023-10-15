@@ -42,8 +42,13 @@ public class PlayerRolesConfiguration : ModuleConfiguration
 	{
 		{ "Role.Admin", Roles.Admin },
 		{ "Role.Moderator", Roles.Moderator },
-		{ "Role.Modmin", Roles.Admin | Roles.Moderator }
-	};
+        { "Role.Staff", Roles.Admin | Roles.Moderator },
+        { "Role.Vip", Roles.Vip },
+        { "Role.Special", Roles.Special },
+        { "Role.None", 0 },
+        { "Role.Member", Roles.Admin | Roles.Moderator | Roles.Vip },
+        { "Role.All", Roles.Admin | Roles.Moderator | Roles.Special | Roles.Vip }
+    };
 
 	public bool AppendRoles { get; set; } = false;
 }

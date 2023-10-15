@@ -11,6 +11,43 @@ using System.Threading.Tasks;
 
 namespace Commands;
 
+public enum CommandSource {
+    Unknown,
+    Chat,
+    Console,
+    Custom
+}
+
+public struct CommandInvoker {
+    public RunnerPlayer? Player;
+    public string Name { get {
+            return Player?.Name ?? "Unknown";
+        } }
+}
+
+public struct CommandContext {
+    public CommandSource CommandSource { get; set; }
+    public string Target { get; set; }
+    public CommandInvoker Invoker { get; set; }
+    public RunnerServer? Server { get; set; }
+
+    public bool Reply(string message) {
+        var success = false;
+        switch (CommandSource) {
+            case CommandSource.Chat:
+                try { Invoker.Player?.SayToChat(message); success = true; } catch (Exception ex) { Log("Could not respond to player!"); }
+                break;
+            case CommandSource.Custom:
+                // Custom Implementation with callbacks maybe
+                break;
+            default:
+                Log(message); success = true;
+                break;
+        }
+        return success;
+    }
+}
+
 [Module("Basic in-game chat command handler library", "1.1.0")]
 public class CommandHandler : BattleBitModule
 {

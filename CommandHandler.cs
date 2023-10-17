@@ -135,7 +135,7 @@ public class CommandHandler : BattleBitModule
             return Task.FromResult(true);
         }
 
-        Task.Run(() => this.HandleCommand(new ChatSource(), player, message));
+        Task.Run(() => this.HandleCommand(new ChatSource(player), message));
 
         return Task.FromResult(false);
     }
@@ -147,7 +147,7 @@ public class CommandHandler : BattleBitModule
             return;
         }
 
-        Task.Run(() => this.HandleCommand(new ConsoleSource(), null, command));
+        Task.Run(() => this.HandleCommand(new ConsoleSource(), command));
     }
 
     public bool IsCommand(string message)
@@ -239,10 +239,13 @@ public class CommandHandler : BattleBitModule
         return false;
     }
 
-    public void HandleCommand(Source source, RunnerPlayer? player, string message)
+    public void HandleCommand(Source source, string message)
     {
         string[] fullCommand = parseCommandString(message);
         string command = fullCommand[0].Trim().ToLower()[CommandConfiguration.CommandPrefix.Length..];
+
+        ChatSource? chatSource = source as ChatSource;
+        Context errorContext = new Context(source, message, command, Array.Empty<string>(), Array.Empty<object?>(), null, this, null);
 
         int subCommandSkip;
         for (subCommandSkip = 1; subCommandSkip < fullCommand.Length && !this.commandCallbacks.ContainsKey(command); subCommandSkip++)
@@ -252,13 +255,13 @@ public class CommandHandler : BattleBitModule
 
         if (!this.commandCallbacks.ContainsKey(command))
         {
-            if (player is null)
+            if (chatSource is not null)
             {
-                this.Logger.Error($"Command not found: {command}");
+                errorContext.Reply($"<color=\"red\">Command not found: {command}");
             }
             else
             {
-                player.Message("<color=\"red\">Command not found", CommandConfiguration.MessageTimeout);
+                errorContext.Reply($"Command not found: {command}");
             }
             return;
         }
@@ -268,29 +271,22 @@ public class CommandHandler : BattleBitModule
         (BattleBitModule module, MethodInfo method) = this.commandCallbacks[command];
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-        if (player is null && !commandCallbackAttribute.ConsoleCommand)
+        if (source is ConsoleSource && !commandCallbackAttribute.ConsoleCommand)
         {
             this.Logger.Error($"Command {command} is not a console command.");
             return;
         }
 
         // Permissions
-        if (player is not null && !this.HasPermissionForCommand(player, commandCallbackAttribute))
+        if (chatSource is not null && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
         {
             if (CommandConfiguration.HideInaccessibleCommands)
             {
-                if (player is null)
-                {
-                    this.Logger.Error($"Command not found: {command}");
-                }
-                else
-                {
-                    player.Message("<color=\"red\">Command not found", CommandConfiguration.MessageTimeout);
-                }
+                errorContext.Reply($"<color=\"red\">Command not found: {command}");
                 return;
             }
 
-            player.Message($"<color=\"red\">You don't have permission to use this command.{Environment.NewLine}<color=\"white\">Required permission: {string.Join(" or ", commandCallbackAttribute.Permissions)}", CommandConfiguration.MessageTimeout);
+            errorContext.Reply($"<color=\"red\">You don't have permission to use this command.{Environment.NewLine}<color=\"white\">Required permission: {string.Join(" or ", commandCallbackAttribute.Permissions)}");
             return;
         }
 
@@ -299,14 +295,7 @@ public class CommandHandler : BattleBitModule
         bool hasOptional = parameters.Any(p => p.IsOptional);
         if (fullCommand.Length - 1 < parameters.Skip(1).Count(p => !p.IsOptional) || fullCommand.Length - 1 > parameters.Length - 1)
         {
-            if (player is not null)
-            {
-                messagePlayerCommandUsage(player, method, $"Require {(hasOptional ? $"between {parameters.Skip(1).Count(p => !p.IsOptional)} and {parameters.Length - 1}" : $"{parameters.Length - 1}")} but got {fullCommand.Length - 1} argument{((fullCommand.Length - 1) == 1 ? "" : "s")}.");
-            }
-            else
-            {
-                this.Logger.Error($"Command {command} requires {(hasOptional ? $"between {parameters.Skip(1).Count(p => !p.IsOptional)} and {parameters.Length - 1}" : $"{parameters.Length - 1}")} but got {fullCommand.Length - 1} argument{((fullCommand.Length - 1) == 1 ? "" : "s")}.");
-            }
+            sendCommandUsageMessage(errorContext, method, $"Require {(hasOptional ? $"between {parameters.Skip(1).Count(p => !p.IsOptional)} and {parameters.Length - 1}" : $"{parameters.Length - 1}")} but got {fullCommand.Length - 1} argument{((fullCommand.Length - 1) == 1 ? "" : "s")}.");
             return;
         }
 
@@ -346,9 +335,9 @@ public class CommandHandler : BattleBitModule
                     }
                     catch (Exception ex)
                     {
-                        if (player is not null)
+                        if (chatSource is not null)
                         {
-                            player.Message($"<color=\"red\">Error while searching for player name containing {argument}.{Environment.NewLine}<color=\"white\">{ex.Message}", CommandConfiguration.MessageTimeout);
+                            errorContext.Reply($"<color=\"red\">Error while searching for player name containing {argument}.{Environment.NewLine}<color=\"white\">{ex.Message}");
                         }
                         else
                         {
@@ -359,14 +348,7 @@ public class CommandHandler : BattleBitModule
 
                     if (targetPlayer == null)
                     {
-                        if (player is not null)
-                        {
-                            player.Message($"Could not find player name containing {argument}.", CommandConfiguration.MessageTimeout);
-                        }
-                        else
-                        {
-                            this.Logger.Error($"Could not find player name containing {argument}.");
-                        }
+                        errorContext.Reply($"Could not find player name containing {argument}.");
                         return;
                     }
                 }
@@ -377,14 +359,7 @@ public class CommandHandler : BattleBitModule
 
                 if (targetPlayer == null)
                 {
-                    if (player is not null)
-                    {
-                        player.Message($"Could not find player {argument}.", CommandConfiguration.MessageTimeout);
-                    }
-                    else
-                    {
-                        this.Logger.Error($"Could not find player {argument}.");
-                    }
+                    errorContext.Reply($"Could not find player {argument}.");
                     return;
                 }
 
@@ -394,7 +369,7 @@ public class CommandHandler : BattleBitModule
             {
                 if (!tryParseParameter(parameter, argument, out object? parsedValue))
                 {
-                    messagePlayerCommandUsage(player, method, $"Couldn't parse value {argument} to type {parameter.ParameterType.Name}");
+                    sendCommandUsageMessage(errorContext, method, $"Couldn't parse value {argument} to type {parameter.ParameterType.Name}");
                     return;
                 }
 
@@ -402,7 +377,7 @@ public class CommandHandler : BattleBitModule
             }
         }
 
-        args[0] = new Context(source, player, message, command, fullCommand.Skip(1).ToArray(), args.Skip(1).ToArray(), module, this, commandCallbackAttribute);
+        args[0] = new Context(source, message, command, fullCommand.Skip(1).ToArray(), args.Skip(1).ToArray(), module, this, commandCallbackAttribute);
 
         object? result = method.Invoke(module, args);
         if (result is not null)
@@ -411,17 +386,17 @@ public class CommandHandler : BattleBitModule
         }
     }
 
-    private void messagePlayerCommandUsage(RunnerPlayer? player, MethodInfo method, string? error = null)
+    private void sendCommandUsageMessage(Context context, MethodInfo method, string? error = null)
     {
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
         bool hasOptional = method.GetParameters().Any(p => p.IsOptional);
-        if (player is not null)
+        if (context.Source is ChatSource chatSource)
         {
-            player.Message($"<color=\"red\">Invalid command usage{(error == null ? "" : $" ({error})")}.<color=\"white\"><br><b>Usage</b>: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><size=80%>* Parameter is optional." : "")}", CommandConfiguration.MessageTimeout);
+            context.Reply($"<color=\"red\">Invalid command usage{(error == null ? "" : $" ({error})")}.<color=\"white\"><br><b>Usage</b>: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><size=80%>* Parameter is optional." : "")}");
         }
         else
         {
-            this.Logger.Error($"Invalid command usage{(error == null ? "" : $" ({error})")}.{Environment.NewLine}Usage: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? $"{Environment.NewLine}* Parameter is optional." : "")}");
+            context.Reply($"Invalid command usage{(error == null ? "" : $" ({error})")}.{Environment.NewLine}Usage: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? $"{Environment.NewLine}* Parameter is optional." : "")}");
         }
     }
 
@@ -627,11 +602,11 @@ public class Context
     public string Command { get; set; }
     public string[] RawParameters { get; set; }
     public object?[] Parameters { get; set; }
-    public BattleBitModule Module { get; set; }
+    public BattleBitModule? Module { get; set; }
     public CommandHandler CommandHandler { get; set; }
-    public CommandCallbackAttribute CommandCallbackAttribute { get; set; }
+    public CommandCallbackAttribute? CommandCallbackAttribute { get; set; }
 
-    public Context(Source source, string message, string command, string[] rawParameters, object?[] parameters, BattleBitModule module, CommandHandler commandHandler, CommandCallbackAttribute commandCallbackAttribute)
+    public Context(Source source, string message, string command, string[] rawParameters, object?[] parameters, BattleBitModule? module, CommandHandler commandHandler, CommandCallbackAttribute? commandCallbackAttribute)
     {
         this.Source = source;
         this.Message = message;

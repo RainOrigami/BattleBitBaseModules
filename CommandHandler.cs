@@ -65,9 +65,15 @@ public class CommandHandler : BattleBitModule
 
             // Validate parameter
             ParameterInfo[] parameters = method.GetParameters();
-            if (parameters.Length > 0 && parameters[0].ParameterType != typeof(RunnerPlayer))
+
+            if (parameters.Length == 0)
             {
-                throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has invalid first parameter. Must be of type RunnerPlayer.");
+                throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has no parameters. Must have at least one parameter of type Context.");
+            }
+
+            if (parameters[0].ParameterType != typeof(Context))
+            {
+                throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has invalid first parameter. Must be of type Context.");
             }
 
             string command = attribute.Name.Trim().ToLower();
@@ -129,7 +135,7 @@ public class CommandHandler : BattleBitModule
             return Task.FromResult(true);
         }
 
-        Task.Run(() => this.handleCommand(player, message));
+        Task.Run(() => this.HandleCommand(new ChatSource(), player, message));
 
         return Task.FromResult(false);
     }
@@ -141,7 +147,7 @@ public class CommandHandler : BattleBitModule
             return;
         }
 
-        Task.Run(() => this.handleCommand(null, command));
+        Task.Run(() => this.HandleCommand(new ConsoleSource(), null, command));
     }
 
     public bool IsCommand(string message)
@@ -233,7 +239,7 @@ public class CommandHandler : BattleBitModule
         return false;
     }
 
-    private void handleCommand(RunnerPlayer? player, string message)
+    public void HandleCommand(Source source, RunnerPlayer? player, string message)
     {
         string[] fullCommand = parseCommandString(message);
         string command = fullCommand[0].Trim().ToLower()[CommandConfiguration.CommandPrefix.Length..];
@@ -290,12 +296,6 @@ public class CommandHandler : BattleBitModule
 
         ParameterInfo[] parameters = method.GetParameters();
 
-        if (parameters.Length == 0)
-        {
-            method.Invoke(module, null);
-            return;
-        }
-
         bool hasOptional = parameters.Any(p => p.IsOptional);
         if (fullCommand.Length - 1 < parameters.Skip(1).Count(p => !p.IsOptional) || fullCommand.Length - 1 > parameters.Length - 1)
         {
@@ -311,7 +311,6 @@ public class CommandHandler : BattleBitModule
         }
 
         object?[] args = new object[parameters.Length];
-        args[0] = player;
 
         for (int i = 1; i < parameters.Length; i++)
         {
@@ -403,7 +402,13 @@ public class CommandHandler : BattleBitModule
             }
         }
 
-        method.Invoke(module, args);
+        args[0] = new Context(source, player, message, command, fullCommand.Skip(1).ToArray(), args.Skip(1).ToArray(), module, this, commandCallbackAttribute);
+
+        object? result = method.Invoke(module, args);
+        if (result is not null)
+        {
+            source.Reply((Context)args[0]!, result.ToString() ?? "No reply");
+        }
     }
 
     private void messagePlayerCommandUsage(RunnerPlayer? player, MethodInfo method, string? error = null)
@@ -581,4 +586,62 @@ public class CommandConfiguration : ModuleConfiguration
 public class CommandPermissions : ModuleConfiguration
 {
     public Dictionary<string, string[]?> Permissions { get; set; } = new();
+}
+
+public class Context
+{
+    public RunnerPlayer? Invoker { get; set; } = null;
+    public Source Source { get; set; }
+    public string Message { get; set; }
+    public string Command { get; set; }
+    public string[] RawParameters { get; set; }
+    public object?[] Parameters { get; set; }
+    public BattleBitModule Module { get; set; }
+    public CommandHandler CommandHandler { get; set; }
+    public CommandCallbackAttribute CommandCallbackAttribute { get; set; }
+
+    public Context(Source source, RunnerPlayer? invoker, string message, string command, string[] rawParameters, object?[] parameters, BattleBitModule module, CommandHandler commandHandler, CommandCallbackAttribute commandCallbackAttribute)
+    {
+        this.Invoker = invoker;
+        this.Source = source;
+        this.Message = message;
+        this.Command = command;
+        this.RawParameters = rawParameters;
+        this.Parameters = parameters;
+        this.Module = module;
+        this.CommandHandler = commandHandler;
+        this.CommandCallbackAttribute = commandCallbackAttribute;
+    }
+
+    public virtual void Reply(string message)
+    {
+        this.Source.Reply(this, message);
+    }
+}
+
+public abstract class Source
+{
+    public abstract void Reply(Context context, string message);
+}
+
+public class ChatSource : Source
+{
+    public override void Reply(Context context, string message)
+    {
+        if (context.Invoker is null)
+        {
+            context.CommandHandler.Logger.Error($"Cannot reply to chat command {context.Command} without an invoker.");
+            return;
+        }
+
+        context.Invoker.Message(message, CommandHandler.CommandConfiguration.MessageTimeout);
+    }
+}
+
+public class ConsoleSource : Source
+{
+    public override void Reply(Context context, string message)
+    {
+        context.CommandHandler.Logger.Info(message);
+    }
 }

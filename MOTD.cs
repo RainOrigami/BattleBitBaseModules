@@ -1,4 +1,5 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
+using BattleBitAPI.Features;
 using BBRAPIModules;
 using Commands;
 using System.Collections.Generic;
@@ -16,12 +17,20 @@ public class MOTD : BattleBitModule
     [ModuleReference]
     public CommandHandler CommandHandler { get; set; } = null!;
 
-    public override void OnModulesLoaded()
-    {
-        this.CommandHandler.Register(this);
-    }
+    [ModuleReference]
+    public dynamic? PlaceholderLib { get; set; }
 
     private List<ulong> greetedPlayers = new();
+
+    public override void OnModulesLoaded()
+    {
+        if (this.PlaceholderLib is null)
+        {
+            this.Logger.Info("PlaceholderLib not found. MOTD will only support basic numbered placeholders.");
+        }
+
+        this.CommandHandler.Register(this);
+    }
 
     public override Task OnGameStateChanged(GameState oldState, GameState newState)
     {
@@ -57,7 +66,27 @@ public class MOTD : BattleBitModule
     [CommandCallback("motd", Description = "Shows the MOTD")]
     public void ShowMOTD(RunnerPlayer commandSource)
     {
-        commandSource.Message(string.Format(this.Configuration.MOTD, commandSource.Name, commandSource.PingMs, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount), this.Configuration.MessageTimeout);
+        string message;
+        if (this.PlaceholderLib is not null)
+        {
+            message = new PlaceholderLib(this.Configuration.MOTD)
+            .AddParam("servername", this.Server.ServerName)
+            .AddParam("gamemode", this.Server.Gamemode)
+            .AddParam("map", this.Server.Map)
+            .AddParam("daynight", this.Server.DayNight)
+            .AddParam("mapsize", this.Server.MapSize.ToString().Trim('_'))
+            .AddParam("currentplayers", this.Server.CurrentPlayerCount)
+            .AddParam("inqueueplayers", this.Server.InQueuePlayerCount)
+            .AddParam("maxplayers", this.Server.MaxPlayerCount)
+            .AddParam("name", commandSource.Name)
+            .AddParam("ping", commandSource.PingMs).Run();
+        }
+        else
+        {
+            message = string.Format(this.Configuration.MOTD, commandSource.Name, commandSource.PingMs, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount);
+        }
+
+        commandSource.Message(message, this.Configuration.MessageTimeout);
     }
 }
 

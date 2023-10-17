@@ -25,11 +25,11 @@ public class PasswordReservedSlots : BattleBitModule
         int currentPlayers = this.getCurrentPlayerCount();
         if (this.Server.MaxPlayerCount - this.Configuration.Slots < currentPlayers)
         {
-            this.Server.ExecuteCommand("setpass");
+            this.Server.SetNewPassword("");
         }
         else
         {
-            Server.ExecuteCommand($"setpass {this.Configuration.Password}");
+            Server.SetNewPassword(this.Configuration.Password);
         }
     }
 

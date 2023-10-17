@@ -51,12 +51,12 @@ public class PermissionsCommands : BattleBitModule
 
         if (success)
         {
-            commandSource.Message($"Added permission {permission} to {player.Name}");
+            commandSource.Message($"Added permission {permission} to {player.Name}", this.Configuration.MessageTimeout);
         }
         else
         {
             this.Logger.Error($"Could not add permission {permission} to {player.Name}");
-            commandSource.Message($"Could not add permission {permission} to {player.Name}");
+            commandSource.Message($"Could not add permission {permission} to {player.Name}", this.Configuration.MessageTimeout);
         }
     }
 
@@ -86,12 +86,12 @@ public class PermissionsCommands : BattleBitModule
 
         if (success)
         {
-            commandSource.Message($"Removed permission {permission} from {player.Name}");
+            commandSource.Message($"Removed permission {permission} from {player.Name}", this.Configuration.MessageTimeout);
         }
         else
         {
             this.Logger.Error($"Could not remove permission {permission} from {player.Name}");
-            commandSource.Message($"Could not remove permission {permission} from {player.Name}");
+            commandSource.Message($"Could not remove permission {permission} from {player.Name}", this.Configuration.MessageTimeout);
         }
     }
 
@@ -119,7 +119,7 @@ public class PermissionsCommands : BattleBitModule
             }
         }
 
-        commandSource.Message($"Cleared permissions from {player.Name}");
+        commandSource.Message($"Cleared permissions from {player.Name}", this.Configuration.MessageTimeout);
     }
 
     [CommandCallback("listperms", Description = "Lists player permissions", Permissions = new[] { "Permissions.List" })]
@@ -144,11 +144,12 @@ public class PermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(permissions.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{targetPlayer.Name}: {string.Join("\n", permissions.Skip(page * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}");
+        commandSource.Message($"{targetPlayer.Name}: {string.Join("\n", permissions.Skip(page * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}", this.Configuration.MessageTimeout);
     }
 }
 
 public class PermissionsCommandsConfiguration : ModuleConfiguration
 {
     public int PermissionsPerPage { get; set; } = 6;
+    public int MessageTimeout { get; set; } = 15;
 }

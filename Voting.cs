@@ -37,7 +37,7 @@ public class Voting : BattleBitModule
     {
         if (this.activeVote)
         {
-            commandSource.Message("There is already an active vote.");
+            commandSource.Message("There is already an active vote.", this.Configuration.MessageTimeout);
             return;
         }
 
@@ -47,7 +47,7 @@ public class Voting : BattleBitModule
 
         if (this.voteOptions.Length >= 10)
         {
-            commandSource.Message("You can only have up to 9 options.");
+            commandSource.Message("You can only have up to 9 options.", this.Configuration.MessageTimeout);
             this.activeVote = false;
             return;
         }
@@ -159,4 +159,5 @@ public class Voting : BattleBitModule
 public class VoteConfiguration : ModuleConfiguration
 {
     public int VoteDuration { get; set; } = 60;
+    public int MessageTimeout { get; set; } = 15;
 }

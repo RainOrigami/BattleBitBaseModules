@@ -29,7 +29,7 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         this.GranularPermissions.AddPlayerPermission(player.SteamID, permission);
 
-        commandSource.Message($"Added permission {permission} to {player.Name}");
+        commandSource.Message($"Added permission {permission} to {player.Name}", this.Configuration.MessageTimeout);
         
         this.GranularPermissions.Save();
     }
@@ -39,7 +39,7 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         this.GranularPermissions.RemovePlayerPermission(player.SteamID, permission);
 
-        commandSource.Message($"Removed permission {permission} from {player.Name}");
+        commandSource.Message($"Removed permission {permission} from {player.Name}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -57,7 +57,7 @@ public class GranularPermissionsCommands : BattleBitModule
             this.GranularPermissions.RemovePlayerPermission(player.SteamID, permission);
         }
 
-        commandSource.Message($"Cleared permissions from {player.Name}");
+        commandSource.Message($"Cleared permissions from {player.Name}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -74,7 +74,7 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(permissions.Length / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}");
+        commandSource.Message($"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}", this.Configuration.MessageTimeout);
     }
 
     [CommandCallback("addplayergroup", Description = "Adds a group to a player", Permissions = new[] { "GranularPermissions.AddPlayerGroup" })]
@@ -82,19 +82,19 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (this.GranularPermissions.GetPlayerGroups(player.SteamID).Contains(group))
         {
-            commandSource.Message($"{player.Name} already has group {group}");
+            commandSource.Message($"{player.Name} already has group {group}", this.Configuration.MessageTimeout);
             return;
         }
 
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
+            commandSource.Message($"Group {group} does not exist", this.Configuration.MessageTimeout);
             return;
         }
 
         this.GranularPermissions.AddPlayerGroup(player.SteamID, group);
 
-        commandSource.Message($"Added group {group} to {player.Name}");
+        commandSource.Message($"Added group {group} to {player.Name}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -104,13 +104,13 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (!this.GranularPermissions.GetPlayerGroups(player.SteamID).Contains(group))
         {
-            commandSource.Message($"{player.Name} does not have group {group}");
+            commandSource.Message($"{player.Name} does not have group {group}", this.Configuration.MessageTimeout);
             return;
         }
 
         this.GranularPermissions.RemovePlayerGroup(player.SteamID, group);
 
-        commandSource.Message($"Removed group {group} from {player.Name}");
+        commandSource.Message($"Removed group {group} from {player.Name}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -123,7 +123,7 @@ public class GranularPermissionsCommands : BattleBitModule
             this.GranularPermissions.RemovePlayerGroup(player.SteamID, group);
         }
 
-        commandSource.Message($"Cleared groups from {player.Name}");
+        commandSource.Message($"Cleared groups from {player.Name}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -142,7 +142,7 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(groups.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}");
+        commandSource.Message($"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}", this.Configuration.MessageTimeout);
     }
 
     [CommandCallback("addgroup", Description = "Adds a group", Permissions = new[] { "GranularPermissions.AddGroup" })]
@@ -150,13 +150,13 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} already exists");
+            commandSource.Message($"Group {group} already exists", this.Configuration.MessageTimeout);
             return;
         }
 
         this.GranularPermissions.AddGroup(group);
 
-        commandSource.Message($"Added group {group}");
+        commandSource.Message($"Added group {group}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -166,13 +166,13 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
+            commandSource.Message($"Group {group} does not exist", this.Configuration.MessageTimeout);
             return;
         }
 
         this.GranularPermissions.RemoveGroup(group);
 
-        commandSource.Message($"Removed group {group}");
+        commandSource.Message($"Removed group {group}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -191,7 +191,7 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(groups.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups {page + 1} to see more")}" : "")}");
+        commandSource.Message($"{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups {page + 1} to see more")}" : "")}", this.Configuration.MessageTimeout);
     }
 
     [CommandCallback("addgroupperm", Description = "Adds a permission to a group", Permissions = new[] { "GranularPermissions.AddGroupPerm" })]
@@ -199,19 +199,19 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
+            commandSource.Message($"Group {group} does not exist", this.Configuration.MessageTimeout);
             return;
         }
 
         if (this.GranularPermissions.GetGroupPermissions(group).Contains(permission))
         {
-            commandSource.Message($"{group} already has permission {permission}");
+            commandSource.Message($"{group} already has permission {permission}", this.Configuration.MessageTimeout);
             return;
         }
 
         this.GranularPermissions.AddGroupPermission(group, permission);
 
-        commandSource.Message($"Added permission {permission} to {group}");
+        commandSource.Message($"Added permission {permission} to {group}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -221,19 +221,19 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
+            commandSource.Message($"Group {group} does not exist", this.Configuration.MessageTimeout);
             return;
         }
 
         if (!this.GranularPermissions.GetGroupPermissions(group).Contains(permission))
         {
-            commandSource.Message($"{group} does not have permission {permission}");
+            commandSource.Message($"{group} does not have permission {permission}", this.Configuration.MessageTimeout);
             return;
         }
 
         this.GranularPermissions.RemoveGroupPermission(group, permission);
 
-        commandSource.Message($"Removed permission {permission} from {group}");
+        commandSource.Message($"Removed permission {permission} from {group}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -243,7 +243,7 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
+            commandSource.Message($"Group {group} does not exist", this.Configuration.MessageTimeout);
             return;
         }
 
@@ -252,7 +252,7 @@ public class GranularPermissionsCommands : BattleBitModule
             this.GranularPermissions.RemoveGroupPermission(group, permission);
         }
 
-        commandSource.Message($"Cleared permissions from {group}");
+        commandSource.Message($"Cleared permissions from {group}", this.Configuration.MessageTimeout);
 
         this.GranularPermissions.Save();
     }
@@ -262,7 +262,7 @@ public class GranularPermissionsCommands : BattleBitModule
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
+            commandSource.Message($"Group {group} does not exist", this.Configuration.MessageTimeout);
             return;
         }
 
@@ -277,11 +277,12 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(permissions.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{group}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroupperms \"{group}\" {page + 1} to see more")}" : "")}");
+        commandSource.Message($"{group}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroupperms \"{group}\" {page + 1} to see more")}" : "")}", this.Configuration.MessageTimeout);
     }
 }
 
 public class GranularPermissionsCommandsConfiguration : ModuleConfiguration
 {
     public int PermissionsPerPage { get; set; } = 6;
+    public int MessageTimeout { get; set; } = 15;
 }

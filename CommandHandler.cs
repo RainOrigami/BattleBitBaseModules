@@ -505,58 +505,90 @@ public class CommandHandler : BattleBitModule
         return input.Replace("\\\"", "\"");
     }
 
-    [CommandCallback("help", Description = "Shows this help message", Permissions = new[] { "CommandHandler.Help" })]
-    public void HelpCommand(RunnerPlayer player, int page = 1)
+    [CommandCallback("help", Description = "Shows this help message", Permissions = new[] { "CommandHandler.Help" }, ConsoleCommand = true)]
+    public string HelpCommand(Context context, int page = 1)
     {
         List<string> helpLines = new();
         foreach (var (commandKey, (module, method)) in this.commandCallbacks)
         {
             CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-            if (!this.HasPermissionForCommand(player, commandCallbackAttribute))
+            if (context.Source is ChatSource chatSource && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
             {
                 continue;
             }
 
-            helpLines.Add($"<b>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}</b>{(string.IsNullOrEmpty(commandCallbackAttribute.Description) ? "" : $": {commandCallbackAttribute.Description}")}");
+            if (context.Source is ChatSource)
+            {
+                helpLines.Add($"<b>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}</b>{(string.IsNullOrEmpty(commandCallbackAttribute.Description) ? "" : $": {commandCallbackAttribute.Description}")}");
+            }
+            else
+            {
+                helpLines.Add($"{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}{(string.IsNullOrEmpty(commandCallbackAttribute.Description) ? "" : $": {commandCallbackAttribute.Description}")}");
+            }
         }
 
         int pages = (int)Math.Ceiling((double)helpLines.Count / CommandConfiguration.CommandsPerPage);
 
         if (page < 1 || page > pages)
         {
-            player.Message($"<color=\"red\">Invalid page number. Must be between 1 and {pages}.", CommandConfiguration.MessageTimeout);
-            return;
+            if (context.Source is ChatSource)
+            {
+                return $"<color=\"red\">Invalid page number. Must be between 1 and {pages}.";
+            }
+            else
+            {
+                return $"Invalid page number. Must be between 1 and {pages}.";
+            }
         }
 
-        player.Message($"<#FFA500>Available commands<br><color=\"white\">{Environment.NewLine}{string.Join(Environment.NewLine, helpLines.Skip((page - 1) * CommandConfiguration.CommandsPerPage).Take(CommandConfiguration.CommandsPerPage))}{(pages > 1 ? $"{Environment.NewLine}Page {page} of {pages}{(page < pages ? $" - type !help {page + 1} for next page" : "")}" : "")}", CommandConfiguration.MessageTimeout);
+        if (context.Source is ChatSource)
+        {
+            return $"<#FFA500>Available commands<br><color=\"white\">{Environment.NewLine}{string.Join(Environment.NewLine, helpLines.Skip((page - 1) * CommandConfiguration.CommandsPerPage).Take(CommandConfiguration.CommandsPerPage))}{(pages > 1 ? $"{Environment.NewLine}Page {page} of {pages}{(page < pages ? $" - type !help {page + 1} for next page" : "")}" : "")}";
+        }
+        else
+        {
+            return $"Available commands{Environment.NewLine}{string.Join(Environment.NewLine, helpLines.Skip((page - 1) * CommandConfiguration.CommandsPerPage).Take(CommandConfiguration.CommandsPerPage))}{(pages > 1 ? $"{Environment.NewLine}Page {page} of {pages}{(page < pages ? $" - type !help {page + 1} for next page" : "")}" : "")}";
+        }
     }
 
-    [CommandCallback("cmdhelp", Description = "Shows help for a specific command", Permissions = new[] { "CommandHandler.CommandHelp" })]
-    public void CommandHelpCommand(RunnerPlayer player, string command)
+    [CommandCallback("cmdhelp", Description = "Shows help for a specific command", Permissions = new[] { "CommandHandler.CommandHelp" }, ConsoleCommand = true)]
+    public string CommandHelpCommand(Context context, string command)
     {
         if (!this.commandCallbacks.TryGetValue(command, out var commandCallback))
         {
-            player.Message($"<color=\"red\">Command {command} not found.<color=\"white\">", CommandConfiguration.MessageTimeout);
-            return;
+            if (context.Source is ChatSource)
+            {
+                return $"<color=\"red\">Command {command} not found.<color=\"white\">";
+            }
+            else
+            {
+                return $"Command {command} not found.";
+            }
         }
 
         CommandCallbackAttribute commandCallbackAttribute = commandCallback.Method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-        if (!this.HasPermissionForCommand(player, commandCallbackAttribute))
+        if (context.Source is ChatSource chatSource && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
         {
             if (CommandConfiguration.HideInaccessibleCommands)
             {
-                player.Message($"<color=\"red\">Command {command} not found.<color=\"white\">", CommandConfiguration.MessageTimeout);
-                return;
+                return $"<color=\"red\">Command {command} not found.";
             }
 
-            player.Message($"<color=\"red\">You don't have permission to see help about this command.", CommandConfiguration.MessageTimeout);
-            return;
+            return $"<color=\"red\">You don't have permission to see help about this command.";
         }
 
         bool hasOptional = commandCallback.Method.GetParameters().Any(p => p.IsOptional);
-        player.Message($"<size=120%>{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}<size=100%><br>{commandCallbackAttribute.Description}<br><#F5F5F5>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><color=\"white\"><size=80%>* Parameter is optional." : "")}", CommandConfiguration.MessageTimeout);
+
+        if (context.Source is ChatSource)
+        {
+            return $"<size=120%>{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}<size=100%><br>{commandCallbackAttribute.Description}<br><#F5F5F5>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><color=\"white\"><size=80%>* Parameter is optional." : "")}";
+        }
+        else
+        {
+            return $"{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}{Environment.NewLine}{commandCallbackAttribute.Description}{Environment.NewLine}{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? $"{Environment.NewLine}* Parameter is optional." : "")}";
+        }
     }
 }
 
@@ -590,7 +622,6 @@ public class CommandPermissions : ModuleConfiguration
 
 public class Context
 {
-    public RunnerPlayer? Invoker { get; set; } = null;
     public Source Source { get; set; }
     public string Message { get; set; }
     public string Command { get; set; }
@@ -600,9 +631,8 @@ public class Context
     public CommandHandler CommandHandler { get; set; }
     public CommandCallbackAttribute CommandCallbackAttribute { get; set; }
 
-    public Context(Source source, RunnerPlayer? invoker, string message, string command, string[] rawParameters, object?[] parameters, BattleBitModule module, CommandHandler commandHandler, CommandCallbackAttribute commandCallbackAttribute)
+    public Context(Source source, string message, string command, string[] rawParameters, object?[] parameters, BattleBitModule module, CommandHandler commandHandler, CommandCallbackAttribute commandCallbackAttribute)
     {
-        this.Invoker = invoker;
         this.Source = source;
         this.Message = message;
         this.Command = command;
@@ -626,15 +656,16 @@ public abstract class Source
 
 public class ChatSource : Source
 {
+    public ChatSource(RunnerPlayer invoker)
+    {
+        this.Invoker = invoker;
+    }
+
+    public RunnerPlayer Invoker { get; }
+
     public override void Reply(Context context, string message)
     {
-        if (context.Invoker is null)
-        {
-            context.CommandHandler.Logger.Error($"Cannot reply to chat command {context.Command} without an invoker.");
-            return;
-        }
-
-        context.Invoker.Message(message, CommandHandler.CommandConfiguration.MessageTimeout);
+        this.Invoker.Message(message, CommandHandler.CommandConfiguration.MessageTimeout);
     }
 }
 

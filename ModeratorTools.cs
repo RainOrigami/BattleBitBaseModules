@@ -55,30 +55,36 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Say", Description = "Prints a message to all players", Permissions = new[] { "ModeratorTools.Say" })]
     public void Say(RunnerPlayer commandSource, string message)
     {
+        this.Logger.Info($"[Say] {commandSource.Name}: {message}");
         this.Server.SayToAllChat(message);
     }
 
     [CommandCallback("SayToPlayer", Description = "Prints a message to all players", Permissions = new[] { "ModeratorTools.SayToPlayer" })]
     public void SayToPlayer(RunnerPlayer commandSource, RunnerPlayer target, string message)
     {
+        this.Logger.Info($"[SayToPlayer] {commandSource.Name} -> {target.Name}: {message}");
         this.Server.SayToChat(message, target.SteamID);
     }
 
     [CommandCallback("AnnounceShort", Description = "Prints a short announce to all players", Permissions = new[] { "ModeratorTools.AnnounceShort" })]
     public void AnnounceShort(RunnerPlayer commandSource, string message)
     {
+        this.Logger.Info($"[AnnounceShort] {commandSource.Name}: {message}");
         this.Server.AnnounceShort(message);
     }
 
     [CommandCallback("AnnounceLong", Description = "Prints a long announce to all players", Permissions = new[] { "ModeratorTools.AnnounceLong" })]
     public void AnnounceLong(RunnerPlayer commandSource, string message)
     {
+        this.Logger.Info($"[AnnounceLong] {commandSource.Name}: {message}");
         this.Server.AnnounceLong(message);
     }
 
     [CommandCallback("Message", Description = "Messages a specific player", Permissions = new[] { "ModeratorTools.Message" })]
     public void Message(RunnerPlayer commandSource, RunnerPlayer target, string message, float? timeout = null)
     {
+        this.Logger.Info($"[Message] {commandSource.Name} -> {target.Name}: {message}");
+
         if (timeout.HasValue)
         {
             target.Message(message, timeout.Value);
@@ -94,12 +100,14 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Clear", Description = "Clears the chat", Permissions = new[] { "ModeratorTools.Clear" })]
     public void Clear(RunnerPlayer commandSource)
     {
+        this.Logger.Info($"[Clear] {commandSource.Name}");
         this.Server.SayToAllChat("".PadLeft(30, '\n') + "<size=0%>Chat cleared");
     }
 
     [CommandCallback("Kick", Description = "Kicks a player", Permissions = new[] { "ModeratorTools.Kick" })]
     public void Kick(RunnerPlayer commandSource, RunnerPlayer target, string? reason = null)
     {
+        this.Logger.Info($"[Kick] {commandSource.Name} -> {target.Name}: {reason ?? string.Empty}");
         target.Kick(reason ?? string.Empty);
 
         commandSource.Message($"Player {target.Name} kicked", 10);
@@ -108,6 +116,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Ban", Description = "Bans a player", Permissions = new[] { "ModeratorTools.Ban" })]
     public void Ban(RunnerPlayer commandSource, RunnerPlayer target)
     {
+        this.Logger.Info($"[Ban] {commandSource.Name} -> {target.Name}");
         this.Server.ExecuteCommand($"ban {target.SteamID}");
         target.Kick();
 
@@ -117,6 +126,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Kill", Description = "Kills a player", Permissions = new[] { "ModeratorTools.Kill" })]
     public void Kill(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Kill] {commandSource.Name} -> {target.Name}");
         target.Kill();
 
         commandSource.Message($"Player {target.Name} killed", 10);
@@ -130,6 +140,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Gag", Description = "Gags a player", Permissions = new[] { "ModeratorTools.Gag" })]
     public void Gag(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Gag] {commandSource.Name} -> {target.Name}");
         if (this.gaggedPlayers.Contains(target.SteamID))
         {
             commandSource.Message($"Player {target.Name} is already gagged");
@@ -149,6 +160,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Ungag", Description = "Ungags a player", Permissions = new[] { "ModeratorTools.Ungag" })]
     public void Ungag(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Ungag] {commandSource.Name} -> {target.Name}");
         if (!this.gaggedPlayers.Contains(target.SteamID))
         {
             commandSource.Message($"Player {target.Name} is not gagged");
@@ -168,6 +180,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Mute", Description = "Mutes a player", Permissions = new[] { "ModeratorTools.Mute" })]
     public void Mute(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Mute] {commandSource.Name} -> {target.Name}");
         if (target.Modifications.IsVoiceChatMuted)
         {
             commandSource.Message($"Player {target.Name} is already muted");
@@ -187,6 +200,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Unmute", Description = "Unmutes a player", Permissions = new[] { "ModeratorTools.Unmute" })]
     public void Unmute(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Unmute] {commandSource.Name} -> {target.Name}");
         if (!target.Modifications.IsVoiceChatMuted)
         {
             commandSource.Message($"Player {target.Name} is not muted");
@@ -206,6 +220,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Silence", Description = "Mutes and gags a player", Permissions = new[] { "ModeratorTools.Silence" })]
     public void Silence(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Silence] {commandSource.Name} -> {target.Name}");
         Mute(commandSource, target);
         Gag(commandSource, target);
         commandSource.Message($"Player {target.Name} silenced", 10);
@@ -219,6 +234,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("Unsilence", Description = "Unmutes and ungags a player", Permissions = new[] { "ModeratorTools.Unsilence" })]
     public void Unsilence(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Unsilence] {commandSource.Name} -> {target.Name}");
         Unmute(commandSource, target);
         Ungag(commandSource, target);
         commandSource.Message($"Player {target.Name} unsilenced", 10);
@@ -234,6 +250,7 @@ public class ModeratorTools : BattleBitModule
     {
         if (target == null)
         {
+            this.Logger.Info($"[LockSpawn] {commandSource.Name} -> All");
             this.globalSpawnLock = true;
             foreach (RunnerPlayer player in this.Server.AllPlayers)
             {
@@ -243,6 +260,7 @@ public class ModeratorTools : BattleBitModule
         }
         else
         {
+            this.Logger.Info($"[LockSpawn] {commandSource.Name} -> {target.Name}");
             if (this.lockedSpawns.Contains(target.SteamID))
             {
                 commandSource.Message($"Spawn already locked for {target.Name}", 10);
@@ -265,6 +283,7 @@ public class ModeratorTools : BattleBitModule
     {
         if (target == null)
         {
+            this.Logger.Info($"[UnlockSpawn] {commandSource.Name} -> All");
             this.globalSpawnLock = false;
             foreach (RunnerPlayer player in this.Server.AllPlayers)
             {
@@ -274,6 +293,7 @@ public class ModeratorTools : BattleBitModule
         }
         else
         {
+            this.Logger.Info($"[UnlockSpawn] {commandSource.Name} -> {target.Name}");
             if (!this.lockedSpawns.Contains(target.SteamID))
             {
                 commandSource.Message($"Spawn already unlocked for {target.Name}", 10);
@@ -294,36 +314,42 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("tp2me", Description = "Teleports a player to you", Permissions = new[] { "ModeratorTools.Teleport" })]
     public void TeleportPlayerToMe(RunnerPlayer commandSource, RunnerPlayer target)
     {
+        this.Logger.Info($"[TeleportPlayerToMe] {commandSource.Name} -> {target.Name}");
         target.Teleport(new Vector3((int)commandSource.Position.X, (int)commandSource.Position.Y, (int)commandSource.Position.Z));
     }
 
     [CommandCallback("tpme2", Description = "Teleports you to a player", Permissions = new[] { "ModeratorTools.Teleport" })]
     public void TeleportMeToPlayer(RunnerPlayer commandSource, RunnerPlayer target)
     {
+        this.Logger.Info($"[TeleportMeToPlayer] {commandSource.Name} -> {target.Name}");
         commandSource.Teleport(new Vector3((int)target.Position.X, (int)target.Position.Y, (int)target.Position.Z));
     }
 
     [CommandCallback("tp", Description = "Teleports a player to another player", Permissions = new[] { "ModeratorTools.Teleport" })]
     public void TeleportPlayerToPlayer(RunnerPlayer commandSource, RunnerPlayer target, RunnerPlayer destination)
     {
+        this.Logger.Info($"[TeleportPlayerToPlayer] {commandSource.Name} -> {target.Name} -> {destination.Name}");
         target.Teleport(new Vector3((int)destination.Position.X, (int)destination.Position.Y, (int)destination.Position.Z));
     }
 
     [CommandCallback("tp2pos", Description = "Teleports a player to a position", Permissions = new[] { "ModeratorTools.Teleport" })]
     public void TeleportPlayerToPos(RunnerPlayer commandSource, RunnerPlayer target, int x, int y, int z)
     {
+        this.Logger.Info($"[TeleportPlayerToPos] {commandSource.Name} -> {target.Name} -> {x} {y} {z}");
         target.Teleport(new Vector3(x, y, z));
     }
 
     [CommandCallback("tpme2pos", Description = "Teleports you to a position", Permissions = new[] { "ModeratorTools.Teleport" })]
     public void TeleportMeToPos(RunnerPlayer commandSource, int x, int y, int z)
     {
+        this.Logger.Info($"[TeleportMeToPos] {commandSource.Name} -> {x} {y} {z}");
         commandSource.Teleport(new Vector3(x, y, z));
     }
 
     [CommandCallback("freeze", Description = "Freezes a player", Permissions = new[] { "ModeratorTools.Freeze" })]
     public void Freeze(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Freeze] {commandSource.Name} -> {target.Name}");
         target.Modifications.Freeze = true;
         commandSource.Message($"Player {target.Name} frozen", 10);
 
@@ -336,6 +362,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("unfreeze", Description = "Unfreezes a player", Permissions = new[] { "ModeratorTools.Unfreeze" })]
     public void Unfreeze(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Unfreeze] {commandSource.Name} -> {target.Name}");
         target.Modifications.Freeze = false;
         commandSource.Message($"Player {target.Name} unfrozen", 10);
 
@@ -370,6 +397,7 @@ public class ModeratorTools : BattleBitModule
     [CommandCallback("warn", Description = "Warns a player", Permissions = new[] { "ModeratorTools.Warn" })]
     public void Warn(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
     {
+        this.Logger.Info($"[Warn] {commandSource.Name} -> {target.Name}: {message ?? "no reason"}");
         target.WarnPlayer(message ?? "no reason");
         target.Message($"You have been warned for\n{message ?? "no reason"}", 25);
         commandSource.Message($"Player {target.Name} warned", 10);

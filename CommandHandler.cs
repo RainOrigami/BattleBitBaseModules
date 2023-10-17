@@ -272,6 +272,18 @@ public class CommandHandler : BattleBitModule
         if (player is not null && !this.HasPermissionForCommand(player, commandCallbackAttribute))
         {
             if (CommandConfiguration.HideInaccessibleCommands)
+            {
+                if (player is null)
+                {
+                    this.Logger.Error($"Command not found: {command}");
+                }
+                else
+                {
+                    player.Message("<color=\"red\">Command not found", CommandConfiguration.MessageTimeout);
+                }
+                return;
+            }
+
             player.Message($"<color=\"red\">You don't have permission to use this command.{Environment.NewLine}<color=\"white\">Required permission: {string.Join(" or ", commandCallbackAttribute.Permissions)}", CommandConfiguration.MessageTimeout);
             return;
         }
@@ -529,6 +541,11 @@ public class CommandHandler : BattleBitModule
         if (!this.HasPermissionForCommand(player, commandCallbackAttribute))
         {
             if (CommandConfiguration.HideInaccessibleCommands)
+            {
+                player.Message($"<color=\"red\">Command {command} not found.<color=\"white\">", CommandConfiguration.MessageTimeout);
+                return;
+            }
+
             player.Message($"<color=\"red\">You don't have permission to see help about this command.", CommandConfiguration.MessageTimeout);
             return;
         }
@@ -558,6 +575,7 @@ public class CommandConfiguration : ModuleConfiguration
     public string CommandPrefix { get; set; } = "!";
     public int CommandsPerPage { get; set; } = 6;
     public int MessageTimeout { get; set; } = 15;
+    public bool HideInaccessibleCommands { get; set; } = false;
 }
 
 public class CommandPermissions : ModuleConfiguration

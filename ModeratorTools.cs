@@ -367,6 +367,14 @@ public class ModeratorTools : BattleBitModule
         }
     }
 
+    [CommandCallback("warn", Description = "Warns a player", Permissions = new[] { "ModeratorTools.Warn" })]
+    public void Warn(RunnerPlayer commandSource, RunnerPlayer target, string? message = null)
+    {
+        target.WarnPlayer(message ?? "no reason");
+        target.Message($"You have been warned for\n{message ?? "no reason"}", 25);
+        commandSource.Message($"Player {target.Name} warned", 10);
+    }
+
     private List<ulong> gaggedPlayers = new();
     private List<ulong> lockedSpawns = new();
     private bool globalSpawnLock = false;

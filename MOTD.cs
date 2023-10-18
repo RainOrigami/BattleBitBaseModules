@@ -2,6 +2,7 @@ using BattleBitAPI.Common;
 using BattleBitAPI.Features;
 using BBRAPIModules;
 using Commands;
+using Permissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,9 @@ public class MOTD : BattleBitModule
 
     [ModuleReference]
     public dynamic? PlaceholderLib { get; set; }
+
+    [ModuleReference]
+    public GranularPermissions GranularPermissions { get; set; }
 
     private List<ulong> greetedPlayers = new();
 
@@ -51,6 +55,12 @@ public class MOTD : BattleBitModule
             return Task.CompletedTask;
         }
 
+        if (this.GranularPermissions is not null && !this.GranularPermissions.HasPermission(player.SteamID, "MOTD.View"))
+        {
+            this.Logger.Debug($"Player {player.Name} ({player.SteamID}) does not have permission to view the MOTD.");
+            return Task.CompletedTask;
+        }
+
         this.ShowMOTD(new Context(new ChatSource(player), string.Empty, "motd", Array.Empty<string>(), Array.Empty<object?>(), this, this.CommandHandler, null));
 
         return Task.CompletedTask;
@@ -64,7 +74,7 @@ public class MOTD : BattleBitModule
         this.ShowMOTD(context);
     }
 
-    [CommandCallback("motd", Description = "Shows the MOTD")]
+    [CommandCallback("motd", Description = "Shows the MOTD", Permissions = new[] { "MOTD.View" })]
     public string ShowMOTD(Context context)
     {
         ChatSource? chatSource = context.Source as ChatSource;

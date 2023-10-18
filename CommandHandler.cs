@@ -15,7 +15,7 @@ namespace Commands;
 public class CommandHandler : BattleBitModule
 {
     public static CommandConfiguration CommandConfiguration { get; set; } = null!;
-    public CommandPermissions CommandPermissions { get; set; } = null!;
+    public CommandSettings CommandSettings { get; set; } = null!;
 
     private Dictionary<string, (BattleBitModule Module, MethodInfo Method)> commandCallbacks = new();
 
@@ -58,9 +58,9 @@ public class CommandHandler : BattleBitModule
             }
 
             // Store command permissions
-            if (!this.CommandPermissions.Permissions.ContainsKey(attribute.Name))
+            if (!this.CommandSettings.Settings.ContainsKey(attribute.Name))
             {
-                this.CommandPermissions.Permissions.Add(attribute.Name, null);
+                this.CommandSettings.Settings.Add(attribute.Name, new());
             }
 
             // Validate parameter
@@ -125,7 +125,7 @@ public class CommandHandler : BattleBitModule
             this.commandCallbacks.Add(command, (module, method));
         }
 
-        this.CommandPermissions.Save();
+        this.CommandSettings.Save();
     }
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message)
@@ -195,14 +195,9 @@ public class CommandHandler : BattleBitModule
 
         // Permission overwrites from configuration file
         string[] requiredPermissions = attribute.Permissions;
-        if (!this.CommandPermissions.Permissions.ContainsKey(attribute.Name))
+        if (this.CommandSettings.Settings.ContainsKey(attribute.Name) && this.CommandSettings.Settings.ContainsKey(attribute.Name) && this.CommandSettings.Settings[attribute.Name]?.Permissions is not null)
         {
-            this.Logger.Error($"Command {attribute.Name} has no permissions stored in the CommandPermissions configuration file. This should not happen, report the bug.");
-        }
-
-        if (this.CommandPermissions.Permissions.ContainsKey(attribute.Name) && this.CommandPermissions.Permissions[attribute.Name] is not null)
-        {
-            requiredPermissions = this.CommandPermissions.Permissions[attribute.Name]!;
+            requiredPermissions = this.CommandSettings.Settings[attribute.Name]!.Permissions!;
         }
 
         // PlayerPermissions module
@@ -280,7 +275,13 @@ public class CommandHandler : BattleBitModule
         // Permissions
         if (chatSource is not null && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
         {
-            if (CommandConfiguration.HideInaccessibleCommands)
+            bool hideInaccessible = CommandConfiguration.HideInaccessibleCommands;
+            if (this.CommandSettings.Settings[command]?.HideInaccessible is not null)
+            {
+                hideInaccessible = this.CommandSettings.Settings[command]!.HideInaccessible!.Value;
+            }
+
+            if (hideInaccessible)
             {
                 errorContext.Reply($"<color=\"red\">Command not found: {command}");
                 return;
@@ -546,7 +547,13 @@ public class CommandHandler : BattleBitModule
 
         if (context.Source is ChatSource chatSource && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
         {
-            if (CommandConfiguration.HideInaccessibleCommands)
+            bool hideInaccessible = CommandConfiguration.HideInaccessibleCommands;
+            if (this.CommandSettings.Settings[command]?.HideInaccessible is not null)
+            {
+                hideInaccessible = this.CommandSettings.Settings[command]!.HideInaccessible!.Value;
+            }
+
+            if (hideInaccessible)
             {
                 return $"<color=\"red\">Command {command} not found.";
             }
@@ -591,9 +598,17 @@ public class CommandConfiguration : ModuleConfiguration
     public bool ReplyToChat { get; set; } = false;
 }
 
-public class CommandPermissions : ModuleConfiguration
+public class CommandSettings : ModuleConfiguration
 {
-    public Dictionary<string, string[]?> Permissions { get; set; } = new();
+    public Dictionary<string, CommandSetting?> Settings { get; set; } = new();
+}
+
+public class CommandSetting
+{
+    public string[]? Permissions { get; set; }
+    public bool? ReplyToChat { get; set; }
+    public int? MessageTimeout { get; set; }
+    public bool? HideInaccessible { get; set; }
 }
 
 public class Context
@@ -641,13 +656,25 @@ public class ChatSource : Source
 
     public override void Reply(Context context, string message)
     {
-        if (CommandHandler.CommandConfiguration.ReplyToChat)
+        bool replyToChat = CommandHandler.CommandConfiguration.ReplyToChat;
+        if (context.CommandHandler.CommandSettings.Settings[context.Command]?.ReplyToChat is not null)
+        {
+            replyToChat = context.CommandHandler.CommandSettings.Settings[context.Command]!.ReplyToChat!.Value;
+        }
+
+        if (replyToChat)
         {
             this.Invoker.SayToChat(message);
         }
         else
         {
-            this.Invoker.Message(message, CommandHandler.CommandConfiguration.MessageTimeout);
+            int messageTimeout = CommandHandler.CommandConfiguration.MessageTimeout;
+            if (context.CommandHandler.CommandSettings.Settings[context.Command]?.MessageTimeout is not null)
+            {
+                messageTimeout = context.CommandHandler.CommandSettings.Settings[context.Command]!.MessageTimeout!.Value;
+            }
+
+            this.Invoker.Message(message, messageTimeout);
         }
     }
 }

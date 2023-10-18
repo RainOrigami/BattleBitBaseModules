@@ -154,5 +154,4 @@ public class PermissionsCommands : BattleBitModule
 public class PermissionsCommandsConfiguration : ModuleConfiguration
 {
     public int PermissionsPerPage { get; set; } = 6;
-    public int MessageTimeout { get; set; } = 15;
 }

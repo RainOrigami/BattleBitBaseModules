@@ -159,5 +159,4 @@ public class Voting : BattleBitModule
 public class VoteConfiguration : ModuleConfiguration
 {
     public int VoteDuration { get; set; } = 60;
-    public int MessageTimeout { get; set; } = 15;
 }

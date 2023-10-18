@@ -293,5 +293,4 @@ public class GranularPermissionsCommands : BattleBitModule
 public class GranularPermissionsCommandsConfiguration : ModuleConfiguration
 {
     public int PermissionsPerPage { get; set; } = 6;
-    public int MessageTimeout { get; set; } = 15;
 }

@@ -68,12 +68,14 @@ public class CommandHandler : BattleBitModule
 
             if (parameters.Length == 0)
             {
-                throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has no parameters. Must have at least one parameter of type Context.");
+                this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has no parameters. Must have at least one parameter of type Context.");
+                continue;
             }
 
             if (parameters[0].ParameterType != typeof(Context))
             {
-                throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has invalid first parameter. Must be of type Context.");
+                this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has invalid first parameter. Must be of type Context.");
+                continue;
             }
 
             string command = attribute.Name.Trim().ToLower();
@@ -88,11 +90,13 @@ public class CommandHandler : BattleBitModule
 
                 if (this.commandCallbacks[command].Module.GetType().Name == module.GetType().Name)
                 {
-                    throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as another command callback method {this.commandCallbacks[command].Method.Name} in the same module.");
+                    this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as another command callback method {this.commandCallbacks[command].Method.Name} in the same module.");
+                    continue;
                 }
                 else
                 {
-                    throw new Exception($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as command callback method {this.commandCallbacks[command].Method.Name} in module {this.commandCallbacks[command].Module.GetType().Name}.");
+                    this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as command callback method {this.commandCallbacks[command].Method.Name} in module {this.commandCallbacks[command].Module.GetType().Name}.");
+                    continue;
                 }
             }
 
@@ -104,7 +108,8 @@ public class CommandHandler : BattleBitModule
                     continue;
                 }
 
-                throw new Exception($"Command callback {command} in module {module.GetType().Name} conflicts with subcommand {subcommand}.");
+                this.Logger.Error($"Command callback {command} in module {module.GetType().Name} conflicts with subcommand {subcommand}.");
+                continue;
             }
 
             // Prevent subcommands of existing commands (!perm add and !perm remove do not allow !perm)
@@ -117,7 +122,8 @@ public class CommandHandler : BattleBitModule
                     subcommand += $"{subcommandChain[i]} ";
                     if (this.commandCallbacks.ContainsKey(subcommand.Trim()))
                     {
-                        throw new Exception($"Command callback {command} in module {module.GetType().Name} conflicts with parent command {subcommand.Trim()}.");
+                        this.Logger.Error($"Command callback {command} in module {module.GetType().Name} conflicts with parent command {subcommand.Trim()}.");
+                        continue;
                     }
                 }
             }

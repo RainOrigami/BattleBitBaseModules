@@ -26,7 +26,7 @@ public class PermissionsCommands : BattleBitModule
     }
 
     [CommandCallback("addperm", Description = "Adds a permission to a player", Permissions = new[] { "Permissions.Add" })]
-    public void AddPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, string permission)
+    public string AddPermissionCommand(Context context, RunnerPlayer player, string permission)
     {
         bool success = false;
 
@@ -51,17 +51,18 @@ public class PermissionsCommands : BattleBitModule
 
         if (success)
         {
-            commandSource.Message($"Added permission {permission} to {player.Name}", this.Configuration.MessageTimeout);
+            this.Logger.Info($"Added permission {permission} to {player.Name}");
+            return $"Added permission {permission} to {player.Name}";
         }
         else
         {
             this.Logger.Error($"Could not add permission {permission} to {player.Name}");
-            commandSource.Message($"Could not add permission {permission} to {player.Name}", this.Configuration.MessageTimeout);
+            return $"Could not add permission {permission} to {player.Name}";
         }
     }
 
     [CommandCallback("removeperm", Description = "Removes a permission from a player", Permissions = new[] { "Permissions.Remove" })]
-    public void RemovePermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, string permission)
+    public string RemovePermissionCommand(Context context, RunnerPlayer player, string permission)
     {
         bool success = false;
 
@@ -86,17 +87,18 @@ public class PermissionsCommands : BattleBitModule
 
         if (success)
         {
-            commandSource.Message($"Removed permission {permission} from {player.Name}", this.Configuration.MessageTimeout);
+            this.Logger.Info($"Removed permission {permission} from {player.Name}");
+            return $"Removed permission {permission} from {player.Name}";
         }
         else
         {
             this.Logger.Error($"Could not remove permission {permission} from {player.Name}");
-            commandSource.Message($"Could not remove permission {permission} from {player.Name}", this.Configuration.MessageTimeout);
+            return $"Could not remove permission {permission} from {player.Name}";
         }
     }
 
     [CommandCallback("clearperms", Description = "Clears all permissions and groups from a player", Permissions = new[] { "Permissions.Clear" })]
-    public void ClearPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player)
+    public string ClearPermissionCommand(Context context, RunnerPlayer player)
     {
         if (this.GranularPermissions is not null)
         {
@@ -119,11 +121,12 @@ public class PermissionsCommands : BattleBitModule
             }
         }
 
-        commandSource.Message($"Cleared permissions from {player.Name}", this.Configuration.MessageTimeout);
+        this.Logger.Info($"Cleared permissions from {player.Name}");
+        return $"Cleared permissions from {player.Name}";
     }
 
     [CommandCallback("listperms", Description = "Lists player permissions", Permissions = new[] { "Permissions.List" })]
-    public void ListPermissionCommand(RunnerPlayer commandSource, RunnerPlayer targetPlayer, int page = 1)
+    public string ListPermissionCommand(Context context, RunnerPlayer targetPlayer, int page = 1)
     {
         List<string> permissions = new();
 
@@ -144,7 +147,7 @@ public class PermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(permissions.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{targetPlayer.Name}: {string.Join("\n", permissions.Skip(page * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}", this.Configuration.MessageTimeout);
+        return $"{targetPlayer.Name}: {string.Join("\n", permissions.Skip(page * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}";
     }
 }
 

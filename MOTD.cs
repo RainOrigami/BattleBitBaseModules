@@ -2,6 +2,7 @@ using BattleBitAPI.Common;
 using BattleBitAPI.Features;
 using BBRAPIModules;
 using Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,22 +51,24 @@ public class MOTD : BattleBitModule
             return Task.CompletedTask;
         }
 
-        this.ShowMOTD(player);
+        this.ShowMOTD(new Context(new ChatSource(player), string.Empty, string.Empty, Array.Empty<string>(), Array.Empty<object?>(), this, this.CommandHandler, null));
 
         return Task.CompletedTask;
     }
 
     [CommandCallback("setmotd", Description = "Sets the MOTD", Permissions = new[] { "MOTD.Set" })]
-    public void SetMOTD(RunnerPlayer commandSource, string motd)
+    public void SetMOTD(Context context, string motd)
     {
         this.Configuration.MOTD = motd;
         this.Configuration.Save();
-        this.ShowMOTD(commandSource);
+        this.ShowMOTD(context);
     }
 
     [CommandCallback("motd", Description = "Shows the MOTD")]
-    public void ShowMOTD(RunnerPlayer commandSource)
+    public void ShowMOTD(Context context)
     {
+        ChatSource? chatSource = context.Source as ChatSource;
+
         string message;
         if (this.PlaceholderLib is not null)
         {
@@ -78,15 +81,22 @@ public class MOTD : BattleBitModule
             .AddParam("currentplayers", this.Server.CurrentPlayerCount)
             .AddParam("inqueueplayers", this.Server.InQueuePlayerCount)
             .AddParam("maxplayers", this.Server.MaxPlayerCount)
-            .AddParam("name", commandSource.Name)
-            .AddParam("ping", commandSource.PingMs).Run();
+            .AddParam("name", chatSource?.Invoker.Name ?? context.Source.GetType().Name)
+            .AddParam("ping", chatSource?.Invoker.PingMs ?? 0).Run();
         }
         else
         {
-            message = string.Format(this.Configuration.MOTD, commandSource.Name, commandSource.PingMs, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount);
+            message = string.Format(this.Configuration.MOTD, chatSource?.Invoker.Name ?? context.Source.GetType().Name, chatSource?.Invoker.PingMs ?? 0, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount);
         }
 
-        commandSource.Message(message, this.Configuration.MessageTimeout);
+        if (chatSource is not null)
+        {
+            chatSource.Invoker.Message(message, this.Configuration.MessageTimeout);
+        }
+        else
+        {
+            context.Reply(message);
+        }
     }
 }
 

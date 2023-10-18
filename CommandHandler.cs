@@ -588,6 +588,7 @@ public class CommandConfiguration : ModuleConfiguration
     public int CommandsPerPage { get; set; } = 6;
     public int MessageTimeout { get; set; } = 15;
     public bool HideInaccessibleCommands { get; set; } = false;
+    public bool ReplyToChat { get; set; } = false;
 }
 
 public class CommandPermissions : ModuleConfiguration
@@ -640,7 +641,14 @@ public class ChatSource : Source
 
     public override void Reply(Context context, string message)
     {
-        this.Invoker.Message(message, CommandHandler.CommandConfiguration.MessageTimeout);
+        if (CommandHandler.CommandConfiguration.ReplyToChat)
+        {
+            this.Invoker.SayToChat(message);
+        }
+        else
+        {
+            this.Invoker.Message(message, CommandHandler.CommandConfiguration.MessageTimeout);
+        }
     }
 }
 

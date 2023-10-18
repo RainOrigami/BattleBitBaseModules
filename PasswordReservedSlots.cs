@@ -38,7 +38,7 @@ public class PasswordReservedSlots : BattleBitModule
         while (this.IsLoaded && this.Server.IsConnected)
         {
             this.handleSlots();
-            await Task.Delay(1000);
+            await Task.Delay(this.Configuration.SlotCheckInterval);
         }
     }
 
@@ -88,4 +88,5 @@ public class PasswordReservedSlotsConfiguration : ModuleConfiguration
 {
     public string Password { get; set; } = "changeme";
     public int Slots { get; set; } = 0;
+    public int SlotCheckInterval { get; set; } = 3000;
 }

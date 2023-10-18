@@ -51,7 +51,7 @@ public class MOTD : BattleBitModule
             return Task.CompletedTask;
         }
 
-        this.ShowMOTD(new Context(new ChatSource(player), string.Empty, string.Empty, Array.Empty<string>(), Array.Empty<object?>(), this, this.CommandHandler, null));
+        this.ShowMOTD(new Context(new ChatSource(player), string.Empty, "motd", Array.Empty<string>(), Array.Empty<object?>(), this, this.CommandHandler, null));
 
         return Task.CompletedTask;
     }
@@ -65,7 +65,7 @@ public class MOTD : BattleBitModule
     }
 
     [CommandCallback("motd", Description = "Shows the MOTD")]
-    public void ShowMOTD(Context context)
+    public string ShowMOTD(Context context)
     {
         ChatSource? chatSource = context.Source as ChatSource;
 
@@ -89,19 +89,11 @@ public class MOTD : BattleBitModule
             message = string.Format(this.Configuration.MOTD, chatSource?.Invoker.Name ?? context.Source.GetType().Name, chatSource?.Invoker.PingMs ?? 0, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount);
         }
 
-        if (chatSource is not null)
-        {
-            chatSource.Invoker.Message(message, this.Configuration.MessageTimeout);
-        }
-        else
-        {
-            context.Reply(message);
-        }
+        return message;
     }
 }
 
 public class MOTDConfiguration : ModuleConfiguration
 {
     public string MOTD { get; set; } = "Welcome!";
-    public int MessageTimeout { get; set; } = 30;
 }

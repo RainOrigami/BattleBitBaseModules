@@ -1,7 +1,6 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
@@ -166,13 +165,13 @@ public class BasicServerSettingsConfiguration : ModuleConfiguration
     public bool? Freeze { get; set; } = null;
     public float? ReviveHP { get; set; } = null;
 
-    public Dictionary<GameState, RoundSettingsConfiguration> RoundSettings { get; set; } = new(new Dictionary<GameState, RoundSettingsConfiguration>()
+    public Dictionary<GameState, RoundSettingsConfiguration> RoundSettings { get; set; } = new()
     {
         { GameState.WaitingForPlayers, new() },
         { GameState.CountingDown, new() },
         { GameState.Playing, new() },
         { GameState.EndingGame, new() }
-    });
+    };
 }
 
 public class RoundSettingsConfiguration

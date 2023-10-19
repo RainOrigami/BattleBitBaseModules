@@ -1,6 +1,5 @@
 ﻿using BBRAPIModules;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GeoLimiter;
 
-[Module("Kick users based on their country of origin", "1.1.0")]
+[Module("Kick users based on their country of origin", "1.2.0")]
 public class GeoLimiter : BattleBitModule
 {
     public static GeoLimiterConfiguration Configuration { get; set; } = null!;
@@ -68,15 +67,15 @@ public class GeoLimiter : BattleBitModule
 
         this.Logger.Info($"Found geolocation for IP {player.IP}: {geolocation.CountryName} ({geolocation.CountryCode})");
 
-        if (ServerConfiguration.AllowedCountries?.Contains(geolocation.CountryCode) == true)
+        if (this.ServerConfiguration.AllowCountryCodes && this.ServerConfiguration.CountryCodes.Contains(geolocation.CountryCode))
         {
             this.Logger.Info($"Country {geolocation.CountryCode} is allowed, skipping...");
             return Task.CompletedTask;
         }
 
-        if (ServerConfiguration.DisallowedCountries?.Contains(geolocation.CountryCode) == false)
+        if (!this.ServerConfiguration.AllowCountryCodes && !this.ServerConfiguration.CountryCodes.Contains(geolocation.CountryCode))
         {
-            this.Logger.Info($"Country {geolocation.CountryCode} is not disallowed, skipping...");
+            this.Logger.Info($"Country {geolocation.CountryCode} is not denied, skipping...");
             return Task.CompletedTask;
         }
 
@@ -95,8 +94,8 @@ public class GeoLimiterConfiguration : ModuleConfiguration
 
 public class GeoLimiterServerConfiguration : ModuleConfiguration
 {
-    public string[]? AllowedCountries { get; set; } = new string[] { "DE", "AT", "CH" };
-    public string[]? DisallowedCountries { get; set; } = new string[] { "US", "RU", "CN" };
+    public string[] CountryCodes { get; set; } = new string[] { "DE", "AT", "CH" };
+    public bool AllowCountryCodes { get; set; } = true;
 
     public string KickMessage { get; set; } = "Your country {0} is not allowed on this server.";
 

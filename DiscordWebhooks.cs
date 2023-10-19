@@ -22,7 +22,7 @@ public class DiscordWebhooks : BattleBitModule
         if (string.IsNullOrEmpty(this.Configuration.WebhookURL))
         {
             this.Unload();
-            throw new Exception("Webhook URL is not set. Please set it in the configuration file.");
+            this.Logger.Error("Webhook URL is not set. Please set it in the configuration file.");
         }
     }
 

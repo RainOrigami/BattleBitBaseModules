@@ -33,12 +33,11 @@ public class Voting : BattleBitModule
     }
 
     [CommandCallback("vote", Description = "Votes for an option", Permissions = new[] { "Vote.Vote" })]
-    public void StartVoteCommand(RunnerPlayer commandSource, string text, string options)
+    public string? StartVoteCommand(Context context, string text, string options)
     {
         if (this.activeVote)
         {
-            commandSource.Message("There is already an active vote.");
-            return;
+            return "There is already an active vote.";
         }
 
         this.activeVote = true;
@@ -47,9 +46,8 @@ public class Voting : BattleBitModule
 
         if (this.voteOptions.Length >= 10)
         {
-            commandSource.Message("You can only have up to 9 options.");
             this.activeVote = false;
-            return;
+            return "You can only have up to 9 options.";
         }
 
         this.votes.Clear();
@@ -73,6 +71,8 @@ public class Voting : BattleBitModule
         this.Server.SayToAllChat(messageText.ToString());
 
         Task.Run(voteHandler);
+
+        return null;
     }
 
     private void voteHandler()

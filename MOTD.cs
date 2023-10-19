@@ -1,6 +1,8 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
+using BattleBitAPI.Features;
 using BBRAPIModules;
 using Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,12 +18,20 @@ public class MOTD : BattleBitModule
     [ModuleReference]
     public CommandHandler CommandHandler { get; set; } = null!;
 
-    public override void OnModulesLoaded()
-    {
-        this.CommandHandler.Register(this);
-    }
+    [ModuleReference]
+    public dynamic? PlaceholderLib { get; set; }
 
     private List<ulong> greetedPlayers = new();
+
+    public override void OnModulesLoaded()
+    {
+        if (this.PlaceholderLib is null)
+        {
+            this.Logger.Info("PlaceholderLib not found. MOTD will only support basic numbered placeholders.");
+        }
+
+        this.CommandHandler.Register(this);
+    }
 
     public override Task OnGameStateChanged(GameState oldState, GameState newState)
     {
@@ -41,28 +51,49 @@ public class MOTD : BattleBitModule
             return Task.CompletedTask;
         }
 
-        this.ShowMOTD(player);
+        this.ShowMOTD(new Context(new ChatSource(player), string.Empty, "motd", Array.Empty<string>(), Array.Empty<object?>(), this, this.CommandHandler, null));
 
         return Task.CompletedTask;
     }
 
     [CommandCallback("setmotd", Description = "Sets the MOTD", Permissions = new[] { "MOTD.Set" })]
-    public void SetMOTD(RunnerPlayer commandSource, string motd)
+    public void SetMOTD(Context context, string motd)
     {
         this.Configuration.MOTD = motd;
         this.Configuration.Save();
-        this.ShowMOTD(commandSource);
+        this.ShowMOTD(context);
     }
 
     [CommandCallback("motd", Description = "Shows the MOTD")]
-    public void ShowMOTD(RunnerPlayer commandSource)
+    public string ShowMOTD(Context context)
     {
-        commandSource.Message(string.Format(this.Configuration.MOTD, commandSource.Name, commandSource.PingMs, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount), this.Configuration.MessageTimeout);
+        ChatSource? chatSource = context.Source as ChatSource;
+
+        string message;
+        if (this.PlaceholderLib is not null)
+        {
+            message = new PlaceholderLib(this.Configuration.MOTD)
+            .AddParam("servername", this.Server.ServerName)
+            .AddParam("gamemode", this.Server.Gamemode)
+            .AddParam("map", this.Server.Map)
+            .AddParam("daynight", this.Server.DayNight)
+            .AddParam("mapsize", this.Server.MapSize.ToString().Trim('_'))
+            .AddParam("currentplayers", this.Server.CurrentPlayerCount)
+            .AddParam("inqueueplayers", this.Server.InQueuePlayerCount)
+            .AddParam("maxplayers", this.Server.MaxPlayerCount)
+            .AddParam("name", chatSource?.Invoker.Name ?? context.Source.GetType().Name)
+            .AddParam("ping", chatSource?.Invoker.PingMs ?? 0).Run();
+        }
+        else
+        {
+            message = string.Format(this.Configuration.MOTD, chatSource?.Invoker.Name ?? context.Source.GetType().Name, chatSource?.Invoker.PingMs ?? 0, this.Server.ServerName, this.Server.Gamemode, this.Server.Map, this.Server.DayNight, this.Server.MapSize.ToString().Trim('_'), this.Server.CurrentPlayerCount, this.Server.InQueuePlayerCount, this.Server.MaxPlayerCount);
+        }
+
+        return message;
     }
 }
 
 public class MOTDConfiguration : ModuleConfiguration
 {
     public string MOTD { get; set; } = "Welcome!";
-    public int MessageTimeout { get; set; } = 30;
 }

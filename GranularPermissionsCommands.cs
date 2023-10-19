@@ -25,27 +25,29 @@ public class GranularPermissionsCommands : BattleBitModule
     }
 
     [CommandCallback("addplayerperm", Description = "Adds a permission to a player", Permissions = new[] { "GranularPermissions.AddPlayerPerm" })]
-    public void AddPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, string permission)
+    public string AddPermissionCommand(Context context, RunnerPlayer player, string permission)
     {
         this.GranularPermissions.AddPlayerPermission(player.SteamID, permission);
-
-        commandSource.Message($"Added permission {permission} to {player.Name}");
-        
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Added permission {permission} to {player.Name}");
+
+        return $"Added permission {permission} to {player.Name}";
     }
 
     [CommandCallback("removeplayerperm", Description = "Removes a permission from a player", Permissions = new[] { "GranularPermissions.RemovePlayerPerm" })]
-    public void RemovePermissionCommand(RunnerPlayer commandSource, RunnerPlayer player, string permission)
+    public string RemovePermissionCommand(Context context, RunnerPlayer player, string permission)
     {
         this.GranularPermissions.RemovePlayerPermission(player.SteamID, permission);
-
-        commandSource.Message($"Removed permission {permission} from {player.Name}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Removed permission {permission} from {player.Name}");
+
+        return $"Removed permission {permission} from {player.Name}";
     }
 
     [CommandCallback("clearplayerperms", Description = "Clears all permissions and groups from a player", Permissions = new[] { "GranularPermissions.ClearPlayerPerms" })]
-    public void ClearPermissionCommand(RunnerPlayer commandSource, RunnerPlayer player)
+    public string ClearPermissionCommand(Context context, RunnerPlayer player)
     {
         foreach (string group in this.GranularPermissions.GetPlayerGroups(player.SteamID))
         {
@@ -57,13 +59,15 @@ public class GranularPermissionsCommands : BattleBitModule
             this.GranularPermissions.RemovePlayerPermission(player.SteamID, permission);
         }
 
-        commandSource.Message($"Cleared permissions from {player.Name}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Cleared permissions from {player.Name}");
+
+        return $"Cleared permissions from {player.Name}";
     }
 
     [CommandCallback("listplayerperms", Description = "Lists player permissions", Permissions = new[] { "GranularPermissions.ListPlayerPerms" })]
-    public void ListPermissionCommand(RunnerPlayer commandSource, RunnerPlayer targetPlayer, int page = 1)
+    public string ListPermissionCommand(Context context, RunnerPlayer targetPlayer, int page = 1)
     {
         if (page < 1)
         {
@@ -74,62 +78,65 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(permissions.Length / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}");
+        this.Logger.Debug($"Listing permissions for {targetPlayer.Name}");
+
+        return $"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}";
     }
 
     [CommandCallback("addplayergroup", Description = "Adds a group to a player", Permissions = new[] { "GranularPermissions.AddPlayerGroup" })]
-    public void AddGroupCommand(RunnerPlayer commandSource, RunnerPlayer player, string group)
+    public string AddGroupCommand(Context context, RunnerPlayer player, string group)
     {
         if (this.GranularPermissions.GetPlayerGroups(player.SteamID).Contains(group))
         {
-            commandSource.Message($"{player.Name} already has group {group}");
-            return;
+            return $"{player.Name} already has group {group}";
         }
 
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
-            return;
+            return $"Group {group} does not exist";
         }
 
         this.GranularPermissions.AddPlayerGroup(player.SteamID, group);
-
-        commandSource.Message($"Added group {group} to {player.Name}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Added group {group} to {player.Name}");
+
+        return $"Added group {group} to {player.Name}";
     }
 
     [CommandCallback("removeplayergroup", Description = "Removes a group from a player", Permissions = new[] { "GranularPermissions.RemovePlayerGroup" })]
-    public void RemoveGroupCommand(RunnerPlayer commandSource, RunnerPlayer player, string group)
+    public string RemoveGroupCommand(Context context, RunnerPlayer player, string group)
     {
         if (!this.GranularPermissions.GetPlayerGroups(player.SteamID).Contains(group))
         {
-            commandSource.Message($"{player.Name} does not have group {group}");
-            return;
+            return $"{player.Name} does not have group {group}";
         }
 
         this.GranularPermissions.RemovePlayerGroup(player.SteamID, group);
-
-        commandSource.Message($"Removed group {group} from {player.Name}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Removed group {group} from {player.Name}");
+
+        return $"Removed group {group} from {player.Name}";
     }
 
     [CommandCallback("clearplayergroups", Description = "Clears all groups from a player", Permissions = new[] { "GranularPermissions.ClearPlayerGroups" })]
-    public void ClearGroupCommand(RunnerPlayer commandSource, RunnerPlayer player)
+    public string ClearGroupCommand(Context context, RunnerPlayer player)
     {
         foreach (string group in this.GranularPermissions.GetPlayerGroups(player.SteamID))
         {
             this.GranularPermissions.RemovePlayerGroup(player.SteamID, group);
         }
 
-        commandSource.Message($"Cleared groups from {player.Name}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Cleared groups from {player.Name}");
+
+        return $"Cleared groups from {player.Name}";
     }
 
     [CommandCallback("listplayergroups", Description = "Lists player groups", Permissions = new[] { "GranularPermissions.ListPlayerGroups" })]
-    public void ListGroupCommand(RunnerPlayer commandSource, RunnerPlayer targetPlayer, int page = 1)
+    public string ListGroupCommand(Context context, RunnerPlayer targetPlayer, int page = 1)
     {
         if (page < 1)
         {
@@ -142,43 +149,45 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(groups.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}");
+        this.Logger.Debug($"Listing groups for {targetPlayer.Name}");
+
+        return $"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}";
     }
 
     [CommandCallback("addgroup", Description = "Adds a group", Permissions = new[] { "GranularPermissions.AddGroup" })]
-    public void AddGroupCommand(RunnerPlayer commandSource, string group)
+    public string AddGroupCommand(Context context, string group)
     {
         if (this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} already exists");
-            return;
+            return $"Group {group} already exists";
         }
 
         this.GranularPermissions.AddGroup(group);
-
-        commandSource.Message($"Added group {group}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Added group {group}");
+
+        return $"Added group {group}";
     }
 
     [CommandCallback("removegroup", Description = "Removes a group", Permissions = new[] { "GranularPermissions.RemoveGroup" })]
-    public void RemoveGroupCommand(RunnerPlayer commandSource, string group)
+    public string RemoveGroupCommand(Context context, string group)
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
-            return;
+            return $"Group {group} does not exist";
         }
 
         this.GranularPermissions.RemoveGroup(group);
-
-        commandSource.Message($"Removed group {group}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Removed group {group}");
+
+        return $"Removed group {group}";
     }
 
     [CommandCallback("listgroups", Description = "Lists groups", Permissions = new[] { "GranularPermissions.ListGroups" })]
-    public void ListGroupCommand(RunnerPlayer commandSource, int page = 1)
+    public string ListGroupCommand(Context context, int page = 1)
     {
         if (page < 1)
         {
@@ -191,60 +200,59 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(groups.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups {page + 1} to see more")}" : "")}");
+        this.Logger.Debug($"Listing groups");
+
+        return $"{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups {page + 1} to see more")}" : "")}";
     }
 
     [CommandCallback("addgroupperm", Description = "Adds a permission to a group", Permissions = new[] { "GranularPermissions.AddGroupPerm" })]
-    public void AddGroupPermissionCommand(RunnerPlayer commandSource, string group, string permission)
+    public string AddGroupPermissionCommand(Context context, string group, string permission)
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
-            return;
+            return $"Group {group} does not exist";
         }
 
         if (this.GranularPermissions.GetGroupPermissions(group).Contains(permission))
         {
-            commandSource.Message($"{group} already has permission {permission}");
-            return;
+            return $"{group} already has permission {permission}";
         }
 
         this.GranularPermissions.AddGroupPermission(group, permission);
-
-        commandSource.Message($"Added permission {permission} to {group}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Added permission {permission} to {group}");
+
+        return $"Added permission {permission} to {group}";
     }
 
     [CommandCallback("removegroupperm", Description = "Removes a permission from a group", Permissions = new[] { "GranularPermissions.RemoveGroupPerm" })]
-    public void RemoveGroupPermissionCommand(RunnerPlayer commandSource, string group, string permission)
+    public string RemoveGroupPermissionCommand(Context context, string group, string permission)
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
-            return;
+            return $"Group {group} does not exist";
         }
 
         if (!this.GranularPermissions.GetGroupPermissions(group).Contains(permission))
         {
-            commandSource.Message($"{group} does not have permission {permission}");
-            return;
+            return $"{group} does not have permission {permission}";
         }
 
         this.GranularPermissions.RemoveGroupPermission(group, permission);
-
-        commandSource.Message($"Removed permission {permission} from {group}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Removed permission {permission} from {group}");
+
+        return $"Removed permission {permission} from {group}";
     }
 
     [CommandCallback("cleargroupperms", Description = "Clears all permissions from a group", Permissions = new[] { "GranularPermissions.ClearGroupPerms" })]
-    public void ClearGroupPermissionCommand(RunnerPlayer commandSource, string group)
+    public string ClearGroupPermissionCommand(Context context, string group)
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
-            return;
+            return $"Group {group} does not exist";
         }
 
         foreach (string permission in this.GranularPermissions.GetGroupPermissions(group))
@@ -252,18 +260,19 @@ public class GranularPermissionsCommands : BattleBitModule
             this.GranularPermissions.RemoveGroupPermission(group, permission);
         }
 
-        commandSource.Message($"Cleared permissions from {group}");
-
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Cleared permissions from {group}");
+
+        return $"Cleared permissions from {group}";
     }
 
     [CommandCallback("listgroupperms", Description = "Lists group permissions", Permissions = new[] { "GranularPermissions.ListGroupPerms" })]
-    public void ListGroupPermissionCommand(RunnerPlayer commandSource, string group, int page = 1)
+    public string ListGroupPermissionCommand(Context context, string group, int page = 1)
     {
         if (!this.GranularPermissions.GetGroups().Contains(group))
         {
-            commandSource.Message($"Group {group} does not exist");
-            return;
+            return $"Group {group} does not exist";
         }
 
         if (page < 1)
@@ -277,7 +286,7 @@ public class GranularPermissionsCommands : BattleBitModule
 
         int pageCount = (int)Math.Ceiling(permissions.Count / (double)this.Configuration.PermissionsPerPage);
 
-        commandSource.Message($"{group}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroupperms \"{group}\" {page + 1} to see more")}" : "")}");
+        return $"{group}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroupperms \"{group}\" {page + 1} to see more")}" : "")}";
     }
 }
 

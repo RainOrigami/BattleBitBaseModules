@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 [Module("Configure the map and game mode rotation of the server", "1.0.0")]
-public class Rotation : BattleBitModule
-{
+public class Rotation : BattleBitModule {
     public RotationConfiguration Configuration { get; set; } = null!;
 
-    public override Task OnConnected()
-    {
+    public override Task OnConnected() {
         this.Logger.Info($"Setting up game mode rotation to {string.Join(", ", this.Configuration.GameModes)}");
         this.Server.GamemodeRotation.SetRotation(this.Configuration.GameModes);
         this.Logger.Debug($"New game mode rotation: {string.Join(", ", this.Server.GamemodeRotation.GetGamemodeRotation())}");
@@ -21,8 +19,7 @@ public class Rotation : BattleBitModule
     }
 }
 
-public class RotationConfiguration : ModuleConfiguration
-{
+public class RotationConfiguration : ModuleConfiguration {
     public string[] GameModes { get; set; } = new[]
     {
         "TDM",

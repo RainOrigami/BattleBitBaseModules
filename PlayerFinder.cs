@@ -5,64 +5,52 @@ using System.Linq;
 namespace PlayerFinder;
 
 [Module("Library functions for finding players by partial names or SteamID", "1.0.0")]
-public class PlayerFinder : BattleBitModule
-{
-    public RunnerPlayer? ByExactName(string exactName, bool caseSensitive)
-    {
+public class PlayerFinder : BattleBitModule {
+    public RunnerPlayer? ByExactName(string exactName, bool caseSensitive) {
         return this.Server.AllPlayers.FirstOrDefault(p => p.Name.Equals(exactName, caseSensitive ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase));
     }
 
-    public RunnerPlayer? ByNamePart(string namePart)
-    {
+    public RunnerPlayer? ByNamePart(string namePart) {
         RunnerPlayer? exactMatch = this.ByExactName(namePart, true);
-        if (exactMatch != null)
-        {
+        if (exactMatch != null) {
             return exactMatch;
         }
 
         exactMatch = this.ByExactName(namePart, false);
-        if (exactMatch != null)
-        {
+        if (exactMatch != null) {
             return exactMatch;
         }
 
         RunnerPlayer[] playerList = this.AllByNamePart(namePart);
 
-        if (playerList.Length > 1)
-        {
+        if (playerList.Length > 1) {
             throw new ManyPlayersMatchException(playerList);
         }
 
-        if (playerList.Length == 0)
-        {
+        if (playerList.Length == 0) {
             return null;
         }
 
         return playerList[0];
     }
 
-    public RunnerPlayer? BySteamId(ulong steamId)
-    {
+    public RunnerPlayer? BySteamId(ulong steamId) {
         return this.Server.AllPlayers.FirstOrDefault(p => p.SteamID == steamId);
     }
 
-    public RunnerPlayer[] AllByNamePart(string namePart)
-    {
+    public RunnerPlayer[] AllByNamePart(string namePart) {
         return this.Server.AllPlayers.Where(p => p.Name.ToLower().Contains(namePart.ToLower())).ToArray();
     }
 }
 
-public class ManyPlayersMatchException : Exception
-{
+public class ManyPlayersMatchException : Exception {
     public RunnerPlayer[] Players { get; }
 
-    public ManyPlayersMatchException(RunnerPlayer[] players)
-    {
+    public ManyPlayersMatchException(RunnerPlayer[] players) {
         this.Players = players;
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return $"Multiple players match: {string.Join(", ", this.Players.Select(p => p.Name))}";
     }
 }

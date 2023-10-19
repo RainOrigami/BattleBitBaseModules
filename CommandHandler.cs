@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 namespace Commands;
 
 [Module("Basic in-game chat command handler library", "1.1.1")]
-public class CommandHandler : BattleBitModule
-{
+public class CommandHandler : BattleBitModule {
     public static CommandConfiguration CommandConfiguration { get; set; } = null!;
     public CommandSettings CommandSettings { get; set; } = null!;
 
@@ -28,52 +27,41 @@ public class CommandHandler : BattleBitModule
     [ModuleReference]
     public dynamic? PlayerPermissions { get; set; }
 
-    public override void OnModulesLoaded()
-    {
-        if (this.PlayerPermissions is null && this.GranularPermissions is null)
-        {
+    public override void OnModulesLoaded() {
+        if (this.PlayerPermissions is null && this.GranularPermissions is null) {
             this.Logger.Warn($"Neither PlayerPermissions nor GranularPermissions is loaded. This module will not be able to check permissions for commands.");
         }
 
         this.Register(this);
     }
 
-    public void Register(BattleBitModule module)
-    {
-        foreach (MethodInfo method in module.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-        {
+    public void Register(BattleBitModule module) {
+        foreach (MethodInfo method in module.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
             CommandCallbackAttribute? attribute = method.GetCustomAttribute<CommandCallbackAttribute>();
-            if (attribute == null)
-            {
+            if (attribute == null) {
                 continue;
             }
 
-            if (attribute.AllowedRoles != Roles.None)
-            {
+            if (attribute.AllowedRoles != Roles.None) {
                 this.Logger.Warn($"Command callback method {method.Name} in module {module.GetType().Name} has the deprecated AllowedRoles property set. Use Permissions instead. If you did not make this module, report the issue to the module author.");
-            }
-            else if (attribute.Permissions.Length == 1 && attribute.Permissions[0] == "*")
-            {
+            } else if (attribute.Permissions.Length == 1 && attribute.Permissions[0] == "*") {
                 this.Logger.Warn($"Command callback method {method.Name} in module {module.GetType().Name} has no permissions set. This is not recommended as it allows everyone to use the command. Commands should have at least one granular permission or a PlayerPermissions role.");
             }
 
             // Store command permissions
-            if (!this.CommandSettings.Settings.ContainsKey(attribute.Name))
-            {
+            if (!this.CommandSettings.Settings.ContainsKey(attribute.Name)) {
                 this.CommandSettings.Settings.Add(attribute.Name, new());
             }
 
             // Validate parameter
             ParameterInfo[] parameters = method.GetParameters();
 
-            if (parameters.Length == 0)
-            {
+            if (parameters.Length == 0) {
                 this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has no parameters. Must have at least one parameter of type Context.");
                 continue;
             }
 
-            if (parameters[0].ParameterType != typeof(Context))
-            {
+            if (parameters[0].ParameterType != typeof(Context)) {
                 this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has invalid first parameter. Must be of type Context.");
                 continue;
             }
@@ -81,30 +69,23 @@ public class CommandHandler : BattleBitModule
             string command = attribute.Name.Trim().ToLower();
 
             // Prevent duplicate command names in different methods or modules
-            if (this.commandCallbacks.ContainsKey(command))
-            {
-                if (this.commandCallbacks[command].Method == method)
-                {
+            if (this.commandCallbacks.ContainsKey(command)) {
+                if (this.commandCallbacks[command].Method == method) {
                     continue;
                 }
 
-                if (this.commandCallbacks[command].Module.GetType().Name == module.GetType().Name)
-                {
+                if (this.commandCallbacks[command].Module.GetType().Name == module.GetType().Name) {
                     this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as another command callback method {this.commandCallbacks[command].Method.Name} in the same module.");
                     continue;
-                }
-                else
-                {
+                } else {
                     this.Logger.Error($"Command callback method {method.Name} in module {module.GetType().Name} has the same command name {command} as command callback method {this.commandCallbacks[command].Method.Name} in module {this.commandCallbacks[command].Module.GetType().Name}.");
                     continue;
                 }
             }
 
             // Prevent parent commands of subcommands (!perm command does not allow !perm add and !perm remove)
-            foreach (string subcommand in this.commandCallbacks.Keys.Where(c => c.Contains(' ')))
-            {
-                if (!subcommand.StartsWith(command))
-                {
+            foreach (string subcommand in this.commandCallbacks.Keys.Where(c => c.Contains(' '))) {
+                if (!subcommand.StartsWith(command)) {
                     continue;
                 }
 
@@ -113,15 +94,12 @@ public class CommandHandler : BattleBitModule
             }
 
             // Prevent subcommands of existing commands (!perm add and !perm remove do not allow !perm)
-            if (command.Contains(' '))
-            {
+            if (command.Contains(' ')) {
                 string[] subcommandChain = command.Split(' ');
                 string subcommand = "";
-                for (int i = 0; i < subcommandChain.Length; i++)
-                {
+                for (int i = 0; i < subcommandChain.Length; i++) {
                     subcommand += $"{subcommandChain[i]} ";
-                    if (this.commandCallbacks.ContainsKey(subcommand.Trim()))
-                    {
+                    if (this.commandCallbacks.ContainsKey(subcommand.Trim())) {
                         this.Logger.Error($"Command callback {command} in module {module.GetType().Name} conflicts with parent command {subcommand.Trim()}.");
                         continue;
                     }
@@ -134,10 +112,8 @@ public class CommandHandler : BattleBitModule
         this.CommandSettings.Save();
     }
 
-    public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message)
-    {
-        if (!IsCommand(message))
-        {
+    public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message) {
+        if (!IsCommand(message)) {
             return Task.FromResult(true);
         }
 
@@ -146,39 +122,30 @@ public class CommandHandler : BattleBitModule
         return Task.FromResult(false);
     }
 
-    public override void OnConsoleCommand(string command)
-    {
-        if (!IsCommand(command))
-        {
+    public override void OnConsoleCommand(string command) {
+        if (!IsCommand(command)) {
             return;
         }
 
         Task.Run(() => this.HandleCommand(new ConsoleSource(), command));
     }
 
-    public bool IsCommand(string message)
-    {
+    public bool IsCommand(string message) {
         return message.StartsWith(CommandConfiguration.CommandPrefix) && message.Length > CommandConfiguration.CommandPrefix.Length;
     }
 
-    public bool HasPermissionForCommand(RunnerPlayer player, CommandCallbackAttribute attribute)
-    {
-        if (attribute.AllowedRoles != Roles.None)
-        {
+    public bool HasPermissionForCommand(RunnerPlayer player, CommandCallbackAttribute attribute) {
+        if (attribute.AllowedRoles != Roles.None) {
             this.Logger.Warn($"Command {attribute.Name} has the deprecated AllowedRoles property set. Use Permissions instead. If you did not make this module, report the issue to the module author.");
 
-            if (attribute.Permissions.Length == 1 && attribute.Permissions[0] == "*")
-            {
+            if (attribute.Permissions.Length == 1 && attribute.Permissions[0] == "*") {
                 List<Roles> roles = new();
-                foreach (Roles role in Enum.GetValues(typeof(Roles)))
-                {
-                    if (role == Roles.None)
-                    {
+                foreach (Roles role in Enum.GetValues(typeof(Roles))) {
+                    if (role == Roles.None) {
                         continue;
                     }
 
-                    if ((attribute.AllowedRoles & role) == role)
-                    {
+                    if ((attribute.AllowedRoles & role) == role) {
                         roles.Add(role);
                     }
                 }
@@ -188,50 +155,40 @@ public class CommandHandler : BattleBitModule
             }
         }
 
-        if (attribute.Permissions.Length == 0 || attribute.Permissions[0] == "*")
-        {
+        if (attribute.Permissions.Length == 0 || attribute.Permissions[0] == "*") {
             return true;
         }
 
-        if (this.PlayerPermissions is null && this.GranularPermissions is null)
-        {
+        if (this.PlayerPermissions is null && this.GranularPermissions is null) {
             this.Logger.Warn($"Command {attribute.Name} requires permissions but neither PlayerPermissions nor GranularPermissions is loaded.");
             return false;
         }
 
         // Permission overwrites from configuration file
         string[] requiredPermissions = attribute.Permissions;
-        if (this.CommandSettings.Settings.ContainsKey(attribute.Name) && this.CommandSettings.Settings.ContainsKey(attribute.Name) && this.CommandSettings.Settings[attribute.Name]?.Permissions is not null)
-        {
+        if (this.CommandSettings.Settings.ContainsKey(attribute.Name) && this.CommandSettings.Settings.ContainsKey(attribute.Name) && this.CommandSettings.Settings[attribute.Name]?.Permissions is not null) {
             requiredPermissions = this.CommandSettings.Settings[attribute.Name]!.Permissions!;
         }
 
         // PlayerPermissions module
-        if (this.PlayerPermissions is not null)
-        {
-            foreach (string requiredPermission in requiredPermissions)
-            {
-                if (!Enum.TryParse(requiredPermission, true, out Roles role))
-                {
+        if (this.PlayerPermissions is not null) {
+            foreach (string requiredPermission in requiredPermissions) {
+                if (!Enum.TryParse(requiredPermission, true, out Roles role)) {
                     this.Logger.Warn($"Command {attribute.Name} could not resolve {requiredPermission} to a Role for PlayerPermissions.");
                     this.Logger.Info($"This warning can be ignored if you are also using the GranularPermissions module as the permission may be defined there.");
                     continue;
                 }
 
-                if (this.PlayerPermissions?.HasPlayerRole(player.SteamID, role))
-                {
+                if (this.PlayerPermissions?.HasPlayerRole(player.SteamID, role)) {
                     return true;
                 }
             }
         }
 
         // GranularPermissions module
-        if (this.GranularPermissions is not null)
-        {
-            foreach (string requiredPermission in requiredPermissions)
-            {
-                if (this.GranularPermissions.HasPermission(player.SteamID, requiredPermission))
-                {
+        if (this.GranularPermissions is not null) {
+            foreach (string requiredPermission in requiredPermissions) {
+                if (this.GranularPermissions.HasPermission(player.SteamID, requiredPermission)) {
                     return true;
                 }
             }
@@ -240,8 +197,7 @@ public class CommandHandler : BattleBitModule
         return false;
     }
 
-    public void HandleCommand(Source source, string message)
-    {
+    public void HandleCommand(Source source, string message) {
         string[] fullCommand = parseCommandString(message);
         string command = fullCommand[0].Trim().ToLower()[CommandConfiguration.CommandPrefix.Length..];
 
@@ -249,19 +205,14 @@ public class CommandHandler : BattleBitModule
         Context errorContext = new Context(source, message, command, Array.Empty<string>(), Array.Empty<object?>(), null, this, null);
 
         int subCommandSkip;
-        for (subCommandSkip = 1; subCommandSkip < fullCommand.Length && !this.commandCallbacks.ContainsKey(command); subCommandSkip++)
-        {
+        for (subCommandSkip = 1; subCommandSkip < fullCommand.Length && !this.commandCallbacks.ContainsKey(command); subCommandSkip++) {
             command += $" {fullCommand[subCommandSkip]}";
         }
 
-        if (!this.commandCallbacks.ContainsKey(command))
-        {
-            if (chatSource is not null)
-            {
+        if (!this.commandCallbacks.ContainsKey(command)) {
+            if (chatSource is not null) {
                 errorContext.Reply($"<color=\"red\">Command not found: {command}");
-            }
-            else
-            {
+            } else {
                 errorContext.Reply($"Command not found: {command}");
             }
             return;
@@ -272,23 +223,19 @@ public class CommandHandler : BattleBitModule
         (BattleBitModule module, MethodInfo method) = this.commandCallbacks[command];
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-        if (source is ConsoleSource && !commandCallbackAttribute.ConsoleCommand)
-        {
+        if (source is ConsoleSource && !commandCallbackAttribute.ConsoleCommand) {
             this.Logger.Error($"Command {command} is not a console command.");
             return;
         }
 
         // Permissions
-        if (chatSource is not null && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
-        {
+        if (chatSource is not null && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute)) {
             bool hideInaccessible = CommandConfiguration.HideInaccessibleCommands;
-            if (this.CommandSettings.Settings[command]?.HideInaccessible is not null)
-            {
+            if (this.CommandSettings.Settings[command]?.HideInaccessible is not null) {
                 hideInaccessible = this.CommandSettings.Settings[command]!.HideInaccessible!.Value;
             }
 
-            if (hideInaccessible)
-            {
+            if (hideInaccessible) {
                 errorContext.Reply($"<color=\"red\">Command not found: {command}");
                 return;
             }
@@ -300,82 +247,61 @@ public class CommandHandler : BattleBitModule
         ParameterInfo[] parameters = method.GetParameters();
 
         bool hasOptional = parameters.Any(p => p.IsOptional);
-        if (fullCommand.Length - 1 < parameters.Skip(1).Count(p => !p.IsOptional) || fullCommand.Length - 1 > parameters.Length - 1)
-        {
+        if (fullCommand.Length - 1 < parameters.Skip(1).Count(p => !p.IsOptional) || fullCommand.Length - 1 > parameters.Length - 1) {
             sendCommandUsageMessage(errorContext, method, $"Require {(hasOptional ? $"between {parameters.Skip(1).Count(p => !p.IsOptional)} and {parameters.Length - 1}" : $"{parameters.Length - 1}")} but got {fullCommand.Length - 1} argument{((fullCommand.Length - 1) == 1 ? "" : "s")}.");
             return;
         }
 
         object?[] args = new object[parameters.Length];
 
-        for (int i = 1; i < parameters.Length; i++)
-        {
+        for (int i = 1; i < parameters.Length; i++) {
             ParameterInfo parameter = parameters[i];
 
-            if (parameter.IsOptional && i >= fullCommand.Length)
-            {
+            if (parameter.IsOptional && i >= fullCommand.Length) {
                 args[i] = parameter.DefaultValue;
                 continue;
             }
 
             string argument = fullCommand[i].Trim();
 
-            if (parameter.ParameterType == typeof(string))
-            {
+            if (parameter.ParameterType == typeof(string)) {
                 args[i] = argument;
-            }
-            else if (parameter.ParameterType == typeof(RunnerPlayer))
-            {
+            } else if (parameter.ParameterType == typeof(RunnerPlayer)) {
                 RunnerPlayer? targetPlayer = null;
 
-                if (ulong.TryParse(argument, out ulong steamId) && this.Server.AllPlayers.FirstOrDefault(p => p.SteamID == steamId) is RunnerPlayer playerBySteamId)
-                {
+                if (ulong.TryParse(argument, out ulong steamId) && this.Server.AllPlayers.FirstOrDefault(p => p.SteamID == steamId) is RunnerPlayer playerBySteamId) {
                     args[i] = targetPlayer;
                     continue;
                 }
 
-                if (this.PlayerFinder is not null)
-                {
-                    try
-                    {
+                if (this.PlayerFinder is not null) {
+                    try {
                         targetPlayer = this.PlayerFinder.ByNamePart(argument);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (chatSource is not null)
-                        {
+                    } catch (Exception ex) {
+                        if (chatSource is not null) {
                             errorContext.Reply($"<color=\"red\">Error while searching for player name containing {argument}.{Environment.NewLine}<color=\"white\">{ex.Message}");
-                        }
-                        else
-                        {
+                        } else {
                             this.Logger.Error($"Error while searching for player name containing {argument}.{Environment.NewLine}{ex.Message}");
                         }
                         return;
                     }
 
-                    if (targetPlayer == null)
-                    {
+                    if (targetPlayer == null) {
                         errorContext.Reply($"Could not find player name containing {argument}.");
                         return;
                     }
-                }
-                else
-                {
+                } else {
                     targetPlayer = this.Server.AllPlayers.FirstOrDefault(p => p.Name.Equals(argument, StringComparison.OrdinalIgnoreCase));
                 }
 
-                if (targetPlayer == null)
-                {
+                if (targetPlayer == null) {
                     errorContext.Reply($"Could not find player {argument}.");
                     return;
                 }
 
                 args[i] = targetPlayer;
-            }
-            else
-            {
-                if (!tryParseParameter(parameter, argument, out object? parsedValue))
-                {
+            } else {
+                if (!tryParseParameter(parameter, argument, out object? parsedValue)) {
                     sendCommandUsageMessage(errorContext, method, $"Couldn't parse value {argument} to type {parameter.ParameterType.Name}");
                     return;
                 }
@@ -387,93 +313,67 @@ public class CommandHandler : BattleBitModule
         args[0] = new Context(source, message, command, fullCommand.Skip(1).ToArray(), args.Skip(1).ToArray(), module, this, commandCallbackAttribute);
 
         object? result = method.Invoke(module, args);
-        if (result is not null)
-        {
+        if (result is not null) {
             source.Reply((Context)args[0]!, result.ToString() ?? "No reply");
         }
     }
 
-    private void sendCommandUsageMessage(Context context, MethodInfo method, string? error = null)
-    {
+    private void sendCommandUsageMessage(Context context, MethodInfo method, string? error = null) {
         CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
         bool hasOptional = method.GetParameters().Any(p => p.IsOptional);
-        if (context.Source is ChatSource chatSource)
-        {
+        if (context.Source is ChatSource chatSource) {
             context.Reply($"<color=\"red\">Invalid command usage{(error == null ? "" : $" ({error})")}.<color=\"white\"><br><b>Usage</b>: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><size=80%>* Parameter is optional." : "")}");
-        }
-        else
-        {
+        } else {
             context.Reply($"Invalid command usage{(error == null ? "" : $" ({error})")}.{Environment.NewLine}Usage: {CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? $"{Environment.NewLine}* Parameter is optional." : "")}");
         }
     }
 
-    private static bool tryParseParameter(ParameterInfo parameterInfo, string input, out object? parsedValue)
-    {
+    private static bool tryParseParameter(ParameterInfo parameterInfo, string input, out object? parsedValue) {
         parsedValue = null;
 
-        try
-        {
-            if (parameterInfo.ParameterType.IsEnum)
-            {
+        try {
+            if (parameterInfo.ParameterType.IsEnum) {
                 parsedValue = Enum.Parse(parameterInfo.ParameterType, input, true);
-            }
-            else
-            {
+            } else {
                 Type? targetType = targetType = Nullable.GetUnderlyingType(parameterInfo.ParameterType);
-                if (targetType is null)
-                {
+                if (targetType is null) {
                     targetType = parameterInfo.ParameterType;
                 }
                 parsedValue = Convert.ChangeType(input, targetType);
             }
 
             return true;
-        }
-        catch
-        {
+        } catch {
             return false;
         }
     }
 
-    private static string[] parseCommandString(string command)
-    {
+    private static string[] parseCommandString(string command) {
         List<string> parameterValues = new();
         string[] tokens = command.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
         bool insideQuotes = false;
         StringBuilder currentValue = new();
 
-        foreach (var token in tokens)
-        {
-            if (!insideQuotes)
-            {
-                if (token.StartsWith("\"") && token.EndsWith("\""))
-                {
+        foreach (var token in tokens) {
+            if (!insideQuotes) {
+                if (token.StartsWith("\"") && token.EndsWith("\"")) {
                     insideQuotes = false;
                     currentValue.Clear();
                     parameterValues.Add(token.Substring(1, token.Length - 2));
-                }
-                else if (token.StartsWith("\""))
-                {
+                } else if (token.StartsWith("\"")) {
                     insideQuotes = true;
                     currentValue.Append(token.Substring(1));
-                }
-                else
-                {
+                } else {
                     parameterValues.Add(token);
                 }
-            }
-            else
-            {
-                if (token.EndsWith("\""))
-                {
+            } else {
+                if (token.EndsWith("\"")) {
                     insideQuotes = false;
                     currentValue.Append(" ").Append(token.Substring(0, token.Length - 1));
                     parameterValues.Add(currentValue.ToString());
                     currentValue.Clear();
-                }
-                else
-                {
+                } else {
                     currentValue.Append(" ").Append(token);
                 }
             }
@@ -482,85 +382,63 @@ public class CommandHandler : BattleBitModule
         return parameterValues.Select(unescapeQuotes).ToArray();
     }
 
-    private static string unescapeQuotes(string input)
-    {
+    private static string unescapeQuotes(string input) {
         return input.Replace("\\\"", "\"");
     }
 
     [CommandCallback("help", Description = "Shows this help message", Permissions = new[] { "CommandHandler.Help" }, ConsoleCommand = true)]
-    public string HelpCommand(Context context, int page = 1)
-    {
+    public string HelpCommand(Context context, int page = 1) {
         List<string> helpLines = new();
-        foreach (var (commandKey, (module, method)) in this.commandCallbacks)
-        {
+        foreach (var (commandKey, (module, method)) in this.commandCallbacks) {
             CommandCallbackAttribute commandCallbackAttribute = method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-            if (context.Source is ChatSource chatSource && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
-            {
+            if (context.Source is ChatSource chatSource && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute)) {
                 continue;
             }
 
-            if (context.Source is ChatSource)
-            {
+            if (context.Source is ChatSource) {
                 helpLines.Add($"<b>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}</b>{(string.IsNullOrEmpty(commandCallbackAttribute.Description) ? "" : $": {commandCallbackAttribute.Description}")}");
-            }
-            else
-            {
+            } else {
                 helpLines.Add($"{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name}{(string.IsNullOrEmpty(commandCallbackAttribute.Description) ? "" : $": {commandCallbackAttribute.Description}")}");
             }
         }
 
         int pages = (int)Math.Ceiling((double)helpLines.Count / CommandConfiguration.CommandsPerPage);
 
-        if (page < 1 || page > pages)
-        {
-            if (context.Source is ChatSource)
-            {
+        if (page < 1 || page > pages) {
+            if (context.Source is ChatSource) {
                 return $"<color=\"red\">Invalid page number. Must be between 1 and {pages}.";
-            }
-            else
-            {
+            } else {
                 return $"Invalid page number. Must be between 1 and {pages}.";
             }
         }
 
-        if (context.Source is ChatSource)
-        {
+        if (context.Source is ChatSource) {
             return $"<#FFA500>Available commands<br><color=\"white\">{Environment.NewLine}{string.Join(Environment.NewLine, helpLines.Skip((page - 1) * CommandConfiguration.CommandsPerPage).Take(CommandConfiguration.CommandsPerPage))}{(pages > 1 ? $"{Environment.NewLine}Page {page} of {pages}{(page < pages ? $" - type !help {page + 1} for next page" : "")}" : "")}";
-        }
-        else
-        {
+        } else {
             return $"Available commands{Environment.NewLine}{string.Join(Environment.NewLine, helpLines.Skip((page - 1) * CommandConfiguration.CommandsPerPage).Take(CommandConfiguration.CommandsPerPage))}{(pages > 1 ? $"{Environment.NewLine}Page {page} of {pages}{(page < pages ? $" - type !help {page + 1} for next page" : "")}" : "")}";
         }
     }
 
     [CommandCallback("cmdhelp", Description = "Shows help for a specific command", Permissions = new[] { "CommandHandler.CommandHelp" }, ConsoleCommand = true)]
-    public string CommandHelpCommand(Context context, string command)
-    {
-        if (!this.commandCallbacks.TryGetValue(command, out var commandCallback))
-        {
-            if (context.Source is ChatSource)
-            {
+    public string CommandHelpCommand(Context context, string command) {
+        if (!this.commandCallbacks.TryGetValue(command, out var commandCallback)) {
+            if (context.Source is ChatSource) {
                 return $"<color=\"red\">Command {command} not found.<color=\"white\">";
-            }
-            else
-            {
+            } else {
                 return $"Command {command} not found.";
             }
         }
 
         CommandCallbackAttribute commandCallbackAttribute = commandCallback.Method.GetCustomAttribute<CommandCallbackAttribute>()!;
 
-        if (context.Source is ChatSource chatSource && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute))
-        {
+        if (context.Source is ChatSource chatSource && !this.HasPermissionForCommand(chatSource.Invoker, commandCallbackAttribute)) {
             bool hideInaccessible = CommandConfiguration.HideInaccessibleCommands;
-            if (this.CommandSettings.Settings[command]?.HideInaccessible is not null)
-            {
+            if (this.CommandSettings.Settings[command]?.HideInaccessible is not null) {
                 hideInaccessible = this.CommandSettings.Settings[command]!.HideInaccessible!.Value;
             }
 
-            if (hideInaccessible)
-            {
+            if (hideInaccessible) {
                 return $"<color=\"red\">Command {command} not found.";
             }
 
@@ -569,19 +447,15 @@ public class CommandHandler : BattleBitModule
 
         bool hasOptional = commandCallback.Method.GetParameters().Any(p => p.IsOptional);
 
-        if (context.Source is ChatSource)
-        {
+        if (context.Source is ChatSource) {
             return $"<size=120%>{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}<size=100%><br>{commandCallbackAttribute.Description}<br><#F5F5F5>{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? "<br><color=\"white\"><size=80%>* Parameter is optional." : "")}";
-        }
-        else
-        {
+        } else {
             return $"{commandCallback.Module.GetType().Name} {commandCallbackAttribute.Name}{Environment.NewLine}{commandCallbackAttribute.Description}{Environment.NewLine}{CommandConfiguration.CommandPrefix}{commandCallbackAttribute.Name} {string.Join(' ', commandCallback.Method.GetParameters().Skip(1).Select(s => $"{s.Name}{(s.IsOptional ? "*" : "")}"))}{(hasOptional ? $"{Environment.NewLine}* Parameter is optional." : "")}";
         }
     }
 }
 
-public class CommandCallbackAttribute : Attribute
-{
+public class CommandCallbackAttribute : Attribute {
     public string Name { get; set; }
 
     public string Description { get; set; } = string.Empty;
@@ -589,14 +463,12 @@ public class CommandCallbackAttribute : Attribute
     public string[] Permissions { get; set; } = new[] { "*" };
     public bool ConsoleCommand { get; set; } = false;
 
-    public CommandCallbackAttribute(string name)
-    {
+    public CommandCallbackAttribute(string name) {
         this.Name = name;
     }
 }
 
-public class CommandConfiguration : ModuleConfiguration
-{
+public class CommandConfiguration : ModuleConfiguration {
     public string CommandPrefix { get; set; } = "!";
     public int CommandsPerPage { get; set; } = 6;
     public int MessageTimeout { get; set; } = 15;
@@ -604,21 +476,18 @@ public class CommandConfiguration : ModuleConfiguration
     public bool ReplyToChat { get; set; } = false;
 }
 
-public class CommandSettings : ModuleConfiguration
-{
+public class CommandSettings : ModuleConfiguration {
     public Dictionary<string, CommandSetting?> Settings { get; set; } = new();
 }
 
-public class CommandSetting
-{
+public class CommandSetting {
     public string[]? Permissions { get; set; }
     public bool? ReplyToChat { get; set; }
     public int? MessageTimeout { get; set; }
     public bool? HideInaccessible { get; set; }
 }
 
-public class Context
-{
+public class Context {
     public Source Source { get; set; }
     public string Message { get; set; }
     public string Command { get; set; }
@@ -628,8 +497,7 @@ public class Context
     public CommandHandler CommandHandler { get; set; }
     public CommandCallbackAttribute? CommandCallbackAttribute { get; set; }
 
-    public Context(Source source, string message, string command, string[] rawParameters, object?[] parameters, BattleBitModule? module, CommandHandler commandHandler, CommandCallbackAttribute? commandCallbackAttribute)
-    {
+    public Context(Source source, string message, string command, string[] rawParameters, object?[] parameters, BattleBitModule? module, CommandHandler commandHandler, CommandCallbackAttribute? commandCallbackAttribute) {
         this.Source = source;
         this.Message = message;
         this.Command = command;
@@ -640,43 +508,33 @@ public class Context
         this.CommandCallbackAttribute = commandCallbackAttribute;
     }
 
-    public virtual void Reply(string message)
-    {
+    public virtual void Reply(string message) {
         this.Source.Reply(this, message);
     }
 }
 
-public abstract class Source
-{
+public abstract class Source {
     public abstract void Reply(Context context, string message);
 }
 
-public class ChatSource : Source
-{
-    public ChatSource(RunnerPlayer invoker)
-    {
+public class ChatSource : Source {
+    public ChatSource(RunnerPlayer invoker) {
         this.Invoker = invoker;
     }
 
     public RunnerPlayer Invoker { get; }
 
-    public override void Reply(Context context, string message)
-    {
+    public override void Reply(Context context, string message) {
         bool replyToChat = CommandHandler.CommandConfiguration.ReplyToChat;
-        if (context.CommandHandler.CommandSettings.Settings[context.Command]?.ReplyToChat is not null)
-        {
+        if (context.CommandHandler.CommandSettings.Settings[context.Command]?.ReplyToChat is not null) {
             replyToChat = context.CommandHandler.CommandSettings.Settings[context.Command]!.ReplyToChat!.Value;
         }
 
-        if (replyToChat)
-        {
+        if (replyToChat) {
             this.Invoker.SayToChat(message);
-        }
-        else
-        {
+        } else {
             int messageTimeout = CommandHandler.CommandConfiguration.MessageTimeout;
-            if (context.CommandHandler.CommandSettings.Settings[context.Command]?.MessageTimeout is not null)
-            {
+            if (context.CommandHandler.CommandSettings.Settings[context.Command]?.MessageTimeout is not null) {
                 messageTimeout = context.CommandHandler.CommandSettings.Settings[context.Command]!.MessageTimeout!.Value;
             }
 
@@ -685,10 +543,8 @@ public class ChatSource : Source
     }
 }
 
-public class ConsoleSource : Source
-{
-    public override void Reply(Context context, string message)
-    {
+public class ConsoleSource : Source {
+    public override void Reply(Context context, string message) {
         context.CommandHandler.Logger.Info(message);
     }
 }

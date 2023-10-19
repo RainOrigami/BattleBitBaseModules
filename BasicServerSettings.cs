@@ -6,26 +6,21 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 [Module("Configure basic server settings", "1.0.2")]
-public class BasicServerSettings : BattleBitModule
-{
+public class BasicServerSettings : BattleBitModule {
     public BasicServerSettingsConfiguration Configuration { get; set; } = null!;
 
-    public override Task OnConnected()
-    {
+    public override Task OnConnected() {
         this.applyServerSettings();
 
-        foreach (RunnerPlayer player in this.Server.AllPlayers)
-        {
+        foreach (RunnerPlayer player in this.Server.AllPlayers) {
             this.applyPlayerSettings(player);
         }
 
         return Task.CompletedTask;
     }
 
-    public override Task OnGameStateChanged(GameState oldState, GameState newState)
-    {
-        if (oldState == newState)
-        {
+    public override Task OnGameStateChanged(GameState oldState, GameState newState) {
+        if (oldState == newState) {
             return Task.CompletedTask;
         }
 
@@ -34,15 +29,13 @@ public class BasicServerSettings : BattleBitModule
         return Task.CompletedTask;
     }
 
-    public override Task OnPlayerConnected(RunnerPlayer player)
-    {
+    public override Task OnPlayerConnected(RunnerPlayer player) {
         this.applyPlayerSettings(player);
 
         return Task.CompletedTask;
     }
 
-    private void applyServerSettings()
-    {
+    private void applyServerSettings() {
         this.Server.ServerSettings.APCSpawnDelayMultipler = this.Configuration.APCSpawnDelayMultipler ?? this.Server.ServerSettings.APCSpawnDelayMultipler;
         this.Server.ServerSettings.CanVoteDay = this.Configuration.CanVoteDay ?? this.Server.ServerSettings.CanVoteDay;
         this.Server.ServerSettings.CanVoteNight = this.Configuration.CanVoteNight ?? this.Server.ServerSettings.CanVoteNight;
@@ -62,10 +55,8 @@ public class BasicServerSettings : BattleBitModule
         this.Server.ServerSettings.TeamlessMode = this.Configuration.TeamlessMode ?? this.Server.ServerSettings.TeamlessMode;
     }
 
-    private void applyRoundSettings(GameState gameState)
-    {
-        if (!this.Configuration.RoundSettings.ContainsKey(gameState))
-        {
+    private void applyRoundSettings(GameState gameState) {
+        if (!this.Configuration.RoundSettings.ContainsKey(gameState)) {
             return;
         }
 
@@ -78,8 +69,7 @@ public class BasicServerSettings : BattleBitModule
         this.Server.RoundSettings.TeamBTickets = roundSettings.TeamBTickets ?? this.Server.RoundSettings.TeamBTickets;
     }
 
-    private void applyPlayerSettings(RunnerPlayer player)
-    {
+    private void applyPlayerSettings(RunnerPlayer player) {
         player.Modifications.AirStrafe = this.Configuration.AirStrafe ?? player.Modifications.AirStrafe;
         player.Modifications.AllowedVehicles = this.Configuration.AllowedVehicles ?? player.Modifications.AllowedVehicles;
         player.Modifications.CanDeploy = this.Configuration.CanDeploy ?? player.Modifications.CanDeploy;
@@ -112,8 +102,7 @@ public class BasicServerSettings : BattleBitModule
         player.Modifications.ReviveHP = this.Configuration.ReviveHP ?? player.Modifications.ReviveHP;
     }
 }
-public class BasicServerSettingsConfiguration : ModuleConfiguration
-{
+public class BasicServerSettingsConfiguration : ModuleConfiguration {
     // Server
     public float? APCSpawnDelayMultipler { get; set; } = null;
     public float? HelicopterSpawnDelayMultipler { get; set; } = null;
@@ -174,8 +163,7 @@ public class BasicServerSettingsConfiguration : ModuleConfiguration
     };
 }
 
-public class RoundSettingsConfiguration
-{
+public class RoundSettingsConfiguration {
     public double? MaxTickets { get; set; } = null;
     public int? PlayersToStart { get; set; } = null;
     public int? SecondsLeft { get; set; } = null;

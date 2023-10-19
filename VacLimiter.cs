@@ -11,8 +11,7 @@ using System.Threading.Tasks;
 namespace VacLimiter;
 
 [Module("Kick users with VAC bans", "1.1.0")]
-public class VacLimiter : BattleBitModule
-{
+public class VacLimiter : BattleBitModule {
     public static VacLimiterConfiguration Configuration { get; set; } = null!;
     public static VacLimiterCache Cache { get; set; } = null!;
 
@@ -25,19 +24,15 @@ public class VacLimiter : BattleBitModule
     private static bool isLoaded = false;
     private static HttpClient httpClient = null!;
 
-    public override void OnModulesLoaded()
-    {
-        if (string.IsNullOrWhiteSpace(Configuration.SteamAPIKey))
-        {
+    public override void OnModulesLoaded() {
+        if (string.IsNullOrWhiteSpace(Configuration.SteamAPIKey)) {
             this.Logger.Error("Steam API token is not set. Please set it in the configuration file.");
             this.Unload();
             return;
         }
 
-        if (httpClient == null)
-        {
-            httpClient = new()
-            {
+        if (httpClient == null) {
+            httpClient = new() {
                 Timeout = TimeSpan.FromSeconds(10)
             };
             httpClient.DefaultRequestHeaders.Add("User-Agent", "BattleBit");
@@ -49,22 +44,18 @@ public class VacLimiter : BattleBitModule
         isLoaded = true;
     }
 
-    public override void OnModuleUnloading()
-    {
+    public override void OnModuleUnloading() {
         isLoaded = false;
     }
 
-    private static async Task playerChecker()
-    {
+    private static async Task playerChecker() {
         ILog logger = LogManager.GetLogger(typeof(VacLimiter).Name);
 
-        while (isLoaded)
-        {
+        while (isLoaded) {
             CacheRequest[] playerBatch = playersToCheck.ToArray();
             playersToCheck.Clear();
 
-            if (playerBatch.Length == 0)
-            {
+            if (playerBatch.Length == 0) {
                 await Task.Delay(Configuration.BatchDelay);
                 continue;
             }
@@ -74,21 +65,16 @@ public class VacLimiter : BattleBitModule
 
             HttpResponseMessage? response = null;
 
-            do
-            {
-                try
-                {
+            do {
+                try {
                     response = await httpClient.GetAsync("https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=" + Configuration.SteamAPIKey + "&steamids=" + string.Join(",", playerBatch.Select(x => x.Player.SteamID)));
 
-                    if (!response.IsSuccessStatusCode)
-                    {
+                    if (!response.IsSuccessStatusCode) {
                         logger.Error($"Failed to get player bans: {response.StatusCode} {response.ReasonPhrase}");
                         await Task.Delay(Configuration.RetryDelay);
                         continue;
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     logger.Error($"Failed to get player bans: {e.Message}");
                     await Task.Delay(Configuration.RetryDelay);
                     continue;
@@ -96,28 +82,22 @@ public class VacLimiter : BattleBitModule
             } while (response == null || !response.IsSuccessStatusCode);
 
             PlayerBanResponseModel? playerBanResponse = null;
-            try
-            {
+            try {
                 playerBanResponse = JsonSerializer.Deserialize<PlayerBanResponseModel>(await response.Content.ReadAsStringAsync());
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 logger.Error($"Failed to parse player bans: {e.Message}");
                 await Task.Delay(Configuration.RetryDelay);
                 continue;
             }
 
-            if (playerBanResponse == null)
-            {
+            if (playerBanResponse == null) {
                 logger.Error($"Failed to parse player bans.");
                 await Task.Delay(Configuration.RetryDelay);
                 continue;
             }
 
-            foreach (PlayerBansModel playerBans in playerBanResponse.players)
-            {
-                if (!ulong.TryParse(playerBans.SteamId, out ulong steamId))
-                {
+            foreach (PlayerBansModel playerBans in playerBanResponse.players) {
+                if (!ulong.TryParse(playerBans.SteamId, out ulong steamId)) {
                     logger.Error($"Failed to parse Steam ID {playerBans.SteamId}.");
                     continue;
                 }
@@ -127,8 +107,7 @@ public class VacLimiter : BattleBitModule
 
                 logger.Debug($"Player {steamId} with {playerBans.NumberOfVACBans} VAC bans and {playerBans.NumberOfGameBans} game bans has been cached.");
 
-                foreach (CacheRequest request in playerBatch.Where(x => x.Player.SteamID == steamId))
-                {
+                foreach (CacheRequest request in playerBatch.Where(x => x.Player.SteamID == steamId)) {
                     request.VacLimiter.CheckBans(request.Player, playerBans);
                 }
             }
@@ -138,24 +117,18 @@ public class VacLimiter : BattleBitModule
         }
     }
 
-    public override Task OnConnected()
-    {
+    public override Task OnConnected() {
         this.Logger.Info($"Setting up VAC limiter with age threshold of {this.ServerConfiguration.VACAgeThreshold} days which will {(this.ServerConfiguration.Kick ? "kick" : "")}{(this.ServerConfiguration.Kick && this.ServerConfiguration.Ban ? " and " : "")}{(this.ServerConfiguration.Ban ? "ban" : "")} players with VAC bans.");
 
         return Task.CompletedTask;
     }
 
-    public override Task OnPlayerConnected(RunnerPlayer player)
-    {
-        if (Cache.LastCached.TryGetValue(player.SteamID, out DateTime lastCached) && lastCached.AddDays(this.ServerConfiguration.CacheAge) > DateTime.UtcNow && Cache.PlayerBans.TryGetValue(player.SteamID, out PlayerBansModel? playerBans))
-        {
+    public override Task OnPlayerConnected(RunnerPlayer player) {
+        if (Cache.LastCached.TryGetValue(player.SteamID, out DateTime lastCached) && lastCached.AddDays(this.ServerConfiguration.CacheAge) > DateTime.UtcNow && Cache.PlayerBans.TryGetValue(player.SteamID, out PlayerBansModel? playerBans)) {
             this.Logger.Debug($"Player {player.Name} ({player.SteamID}) is in cache. Last cached {lastCached}.");
             this.CheckBans(player, playerBans);
-        }
-        else
-        {
-            if (playersToCheck.Any(p => p.Player.SteamID == player.SteamID))
-            {
+        } else {
+            if (playersToCheck.Any(p => p.Player.SteamID == player.SteamID)) {
                 this.Logger.Debug($"Player {player.Name} ({player.SteamID}) is already queued for VAC ban check.");
                 return Task.CompletedTask;
             }
@@ -167,55 +140,46 @@ public class VacLimiter : BattleBitModule
         return Task.CompletedTask;
     }
 
-    private void CheckBans(RunnerPlayer player, PlayerBansModel playerBans)
-    {
-        if (!this.Server.IsConnected || !this.IsLoaded)
-        {
+    private void CheckBans(RunnerPlayer player, PlayerBansModel playerBans) {
+        if (!this.Server.IsConnected || !this.IsLoaded) {
             this.Logger?.Info($"Server is not connected or module is not loaded anymore. Skipping VAC ban check for player {player.Name} ({player.SteamID}).");
             return;
         }
 
-        if (!playerBans.VACBanned || playerBans.NumberOfVACBans == 0)
-        {
+        if (!playerBans.VACBanned || playerBans.NumberOfVACBans == 0) {
             this.Logger.Info($"Player {player.Name} ({player.SteamID}) has no VAC ban record.");
             return;
         }
 
-        if (this.GranularPermissions is not null && ServerConfiguration.IgnoredPermissions?.Any(p => this.GranularPermissions.HasPermission(player.SteamID, p)) == true)
-        {
+        if (this.GranularPermissions is not null && ServerConfiguration.IgnoredPermissions?.Any(p => this.GranularPermissions.HasPermission(player.SteamID, p)) == true) {
             this.Logger.Info($"Player {player.Name} ({player.SteamID}) has an ignored permission, skipping...");
             return;
         }
 
-        if (playerBans.DaysSinceLastBan >= this.ServerConfiguration.VACAgeThreshold)
-        {
+        if (playerBans.DaysSinceLastBan >= this.ServerConfiguration.VACAgeThreshold) {
             this.Logger.Info($"Player {player.Name} ({player.SteamID}) has a VAC ban from {playerBans.DaysSinceLastBan} days ago on record, but it is older than the threshold of {this.ServerConfiguration.VACAgeThreshold} days.");
             return;
         }
 
         this.Logger.Info($"Player {player.Name} ({player.SteamID}) has a VAC ban from {playerBans.DaysSinceLastBan} days ago on record. {(this.ServerConfiguration.Kick ? "Kicking" : "")}{(this.ServerConfiguration.Kick && this.ServerConfiguration.Ban ? " and " : "")}{(this.ServerConfiguration.Ban ? "banning" : "")} player.");
 
-        if (this.ServerConfiguration.Kick)
-        {
+        if (this.ServerConfiguration.Kick) {
             this.Server.Kick(player, string.Format(this.ServerConfiguration.KickMessage, playerBans.DaysSinceLastBan, this.ServerConfiguration.VACAgeThreshold));
         }
 
-        if (this.ServerConfiguration.Ban)
-        {
+        if (this.ServerConfiguration.Ban) {
             this.Server.ExecuteCommand($"ban {player.SteamID}");
         }
     }
 }
 
-public class VacLimiterConfiguration : ModuleConfiguration
-{
+public class VacLimiterConfiguration : ModuleConfiguration {
     public string SteamAPIKey { get; set; } = string.Empty;
     public int RetryDelay { get; set; } = 5000;
     public int BatchDelay { get; set; } = 5000;
 }
 
-public class VacLimiterServerConfiguration : ModuleConfiguration
-{
+public class VacLimiterServerConfiguration : ModuleConfiguration {
     public int VACAgeThreshold { get; set; } = 365;
     public bool Kick { get; set; } = true;
     public bool Ban { get; set; } = false;
@@ -224,8 +188,7 @@ public class VacLimiterServerConfiguration : ModuleConfiguration
     public string[] IgnoredPermissions { get; set; } = Array.Empty<string>();
 }
 
-public class VacLimiterCache : ModuleConfiguration
-{
+public class VacLimiterCache : ModuleConfiguration {
     public Dictionary<ulong, DateTime> LastCached { get; set; } = new();
     public Dictionary<ulong, PlayerBansModel> PlayerBans { get; set; } = new();
 }

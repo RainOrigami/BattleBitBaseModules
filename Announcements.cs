@@ -5,59 +5,48 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 [Module("Periodically execute announcements and messages based on configurable delays and conditions", "1.0.0")]
-public class Announcements : BattleBitModule
-{
+public class Announcements : BattleBitModule {
     public AnnouncementsConfiguration Configuration { get; set; } = null!;
     public AnnouncementStore Store { get; set; } = null!;
 
-    public override Task OnConnected()
-    {
+    public override Task OnConnected() {
         Task.Run(announcements);
 
         return Task.CompletedTask;
     }
 
-    private async void announcements()
-    {
-        while (this.IsLoaded && this.Server.IsConnected)
-        {
+    private async void announcements() {
+        while (this.IsLoaded && this.Server.IsConnected) {
             int lastItem = this.doAnnouncement(this.Configuration.AnnounceLongDelay, this.Store.lastAnnounceLong, this.Store.lastAnnounceLongItem, this.Configuration.AnnounceLong, this.Server.AnnounceLong);
-            if (lastItem != -1)
-            {
+            if (lastItem != -1) {
                 this.Store.lastAnnounceLong = DateTime.Now;
                 this.Store.lastAnnounceLongItem = lastItem;
             }
 
             lastItem = this.doAnnouncement(this.Configuration.AnnounceShortDelay, this.Store.lastAnnounceShort, this.Store.lastAnnounceShortItem, this.Configuration.AnnounceShort, this.Server.AnnounceShort);
-            if (lastItem != -1)
-            {
+            if (lastItem != -1) {
                 this.Store.lastAnnounceShort = DateTime.Now;
                 this.Store.lastAnnounceShortItem = lastItem;
             }
 
             lastItem = this.doAnnouncement(this.Configuration.UILogOnServerDelay, this.Store.lastUILogOnServer, this.Store.lastUILogOnServerItem, this.Configuration.UILogOnServer, message => this.Server.UILogOnServer(message, this.Configuration.UILogOnserverTimeout));
-            if (lastItem != -1)
-            {
+            if (lastItem != -1) {
                 this.Store.lastUILogOnServer = DateTime.Now;
                 this.Store.lastUILogOnServerItem = lastItem;
             }
 
-            lastItem = this.doAnnouncement(this.Configuration.MessageToPlayerDelay, this.Store.lastMessageToPlayer, this.Store.lastMessageToPlayerItem, this.Configuration.MessageToPlayer, message =>
-            {
-                foreach (RunnerPlayer player in this.Server.AllPlayers)
-                {
+            lastItem = this.doAnnouncement(this.Configuration.MessageToPlayerDelay, this.Store.lastMessageToPlayer, this.Store.lastMessageToPlayerItem, this.Configuration.MessageToPlayer, message => {
+                foreach (RunnerPlayer player in this.Server.AllPlayers) {
                     player.Message(message, this.Configuration.MessageToPlayerTimeout);
                 }
             });
-            if (lastItem != -1)
-            {
+            if (lastItem != -1) {
                 this.Store.lastMessageToPlayer = DateTime.Now;
                 this.Store.lastMessageToPlayerItem = lastItem;
             }
 
             lastItem = this.doAnnouncement(this.Configuration.SayToAllChatDelay, this.Store.lastSayToAllChat, this.Store.lastSayToAllChatItem, this.Configuration.SayToAllChat, this.Server.SayToAllChat);
-            if (lastItem != -1)
-            {
+            if (lastItem != -1) {
                 this.Store.lastSayToAllChat = DateTime.Now;
                 this.Store.lastSayToAllChatItem = lastItem;
             }
@@ -68,20 +57,16 @@ public class Announcements : BattleBitModule
         }
     }
 
-    private int doAnnouncement(int delay, DateTime lastAnnounce, int lastItem, string[] messages, Action<string> action)
-    {
-        if (messages.Length == 0)
-        {
+    private int doAnnouncement(int delay, DateTime lastAnnounce, int lastItem, string[] messages, Action<string> action) {
+        if (messages.Length == 0) {
             return -1;
         }
 
-        if (DateTime.Now.Subtract(lastAnnounce).TotalSeconds < delay)
-        {
+        if (DateTime.Now.Subtract(lastAnnounce).TotalSeconds < delay) {
             return -1;
         }
 
-        if (lastItem >= messages.Length)
-        {
+        if (lastItem >= messages.Length) {
             lastItem = 0;
         }
 
@@ -91,8 +76,7 @@ public class Announcements : BattleBitModule
     }
 }
 
-public class AnnouncementsConfiguration : ModuleConfiguration
-{
+public class AnnouncementsConfiguration : ModuleConfiguration {
     public int AnnounceLongDelay { get; set; } = 600;
     public int AnnounceShortDelay { get; set; } = 300;
     public int UILogOnServerDelay { get; set; } = 60;
@@ -112,8 +96,7 @@ public class AnnouncementsConfiguration : ModuleConfiguration
     };
 }
 
-public class AnnouncementStore : ModuleConfiguration
-{
+public class AnnouncementStore : ModuleConfiguration {
     public DateTime lastAnnounceLong { get; set; } = DateTime.MinValue;
     public DateTime lastAnnounceShort { get; set; } = DateTime.MinValue;
     public DateTime lastUILogOnServer { get; set; } = DateTime.MinValue;

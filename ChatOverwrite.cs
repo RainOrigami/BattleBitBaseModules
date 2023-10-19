@@ -1,6 +1,5 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using Bluscream;
 using Permissions;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ public class ChatOverwrite : BattleBitModule {
 
     [ModuleReference]
 #if DEBUG
-        public SteamApi? SteamApi { get; set; } = null!;
+    public SteamApi? SteamApi { get; set; } = null!;
 #else
         public SteamApi? SteamApi { get; set; }
 #endif
@@ -28,24 +27,20 @@ public class ChatOverwrite : BattleBitModule {
     [ModuleReference]
     public GranularPermissions GranularPermissions { get; set; } = null!;
 
-    public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string msg)
-    {
-        if (this.CommandHandler is not null && this.CommandHandler.IsCommand(msg))
-        {
+    public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string msg) {
+        if (this.CommandHandler is not null && this.CommandHandler.IsCommand(msg)) {
             this.Logger.Debug($"Ignoring message {msg} from {player.Name} because it is a command");
             return Task.FromResult(true);
         }
 
-        if (this.GranularPermissions.HasPermission(player.SteamID, "ChatOverwrite.Bypass"))
-        {
+        if (this.GranularPermissions.HasPermission(player.SteamID, "ChatOverwrite.Bypass")) {
             this.Logger.Debug($"Ignoring message {msg} from {player.Name} because they have the ChatOverwrite.Bypass permission");
             return Task.FromResult(true);
         }
 
         string? permission = this.Configuration.Overwrites.Keys.FirstOrDefault(k => this.GranularPermissions.HasPermission(player.SteamID, k));
 
-        if (String.IsNullOrEmpty(permission))
-        {
+        if (String.IsNullOrEmpty(permission)) {
             this.Logger.Debug($"Ignoring message {msg} from {player.Name} because they do not have any ChatOverwrite permissions");
             return Task.FromResult(true);
         }
@@ -59,22 +54,18 @@ public class ChatOverwrite : BattleBitModule {
         string teamName = player.Team == Team.TeamA ? "US" : "RU";
         char? squadLetter = player.InSquad ? player.SquadName.ToString()[0] : null;
 
-        foreach (RunnerPlayer chatTarget in this.Server.AllPlayers)
-        {
-            if (channel == ChatChannel.SquadChat && (chatTarget.Team != player.Team || !chatTarget.InSquad || !player.InSquad || chatTarget.SquadName != player.SquadName))
-            {
+        foreach (RunnerPlayer chatTarget in this.Server.AllPlayers) {
+            if (channel == ChatChannel.SquadChat && (chatTarget.Team != player.Team || !chatTarget.InSquad || !player.InSquad || chatTarget.SquadName != player.SquadName)) {
                 continue;
             }
 
-            if (channel == ChatChannel.TeamChat && chatTarget.Team != player.Team)
-            {
+            if (channel == ChatChannel.TeamChat && chatTarget.Team != player.Team) {
                 continue;
             }
 
             string nameColor = player.Team == chatTarget.Team && player.InSquad && chatTarget.InSquad && player.SquadName == chatTarget.SquadName ? "green" : (player.Team == chatTarget.Team ? "blue" : "red");
             string teamAndSquadIndicator = teamName;
-            if (squadLetter != null)
-            {
+            if (squadLetter != null) {
                 teamAndSquadIndicator += $"-{squadLetter}";
             }
             teamAndSquadIndicator = $"[{teamAndSquadIndicator}]";
@@ -98,14 +89,12 @@ public class ChatOverwrite : BattleBitModule {
                 if (!string.IsNullOrWhiteSpace(steam.Summary.RealName)) return steam.Summary.RealName;
                 else if (!string.IsNullOrWhiteSpace(steam.Summary.PersonaName)) return steam.Summary.PersonaName;
             }
-        } 
+        }
         return string.IsNullOrWhiteSpace(player.Name) ? player.SteamID.ToString() : player.Name;
     }
 
-    private static string FormatTextWithGradient(string text, string[] gradientColors)
-    {
-        if (string.IsNullOrEmpty(text) || gradientColors.Length == 0)
-        {
+    private static string FormatTextWithGradient(string text, string[] gradientColors) {
+        if (string.IsNullOrEmpty(text) || gradientColors.Length == 0) {
             return text;
         }
 
@@ -116,8 +105,7 @@ public class ChatOverwrite : BattleBitModule {
         StringBuilder formattedName = new StringBuilder();
         int currentIndex = 0;
 
-        for (int i = 0; i < segmentCount; i++)
-        {
+        for (int i = 0; i < segmentCount; i++) {
             int currentSegmentLength = segmentLength + (i < remainder ? 1 : 0);
             string currentColor = gradientColors[i];
             string segmentText = text.Substring(currentIndex, currentSegmentLength);

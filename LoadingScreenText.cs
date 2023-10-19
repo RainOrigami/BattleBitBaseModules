@@ -1,6 +1,5 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
-using Bluscream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +10,7 @@ namespace BattleBitBaseModules;
 [RequireModule(typeof(Bluscream.BluscreamLib))]
 [RequireModule(typeof(BattleBitBaseModules.RichText))]
 [Module("Configure the loading screen text of your server", "1.0.0")]
-public class LoadingScreenText : BattleBitModule
-{
+public class LoadingScreenText : BattleBitModule {
     [ModuleReference]
     public LoadingScreenTextConfiguration Config { get; set; } = null!;
 

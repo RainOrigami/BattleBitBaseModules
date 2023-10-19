@@ -5,25 +5,20 @@ using System.Reflection;
 namespace BattleBitBaseModules;
 
 [Module("Library for easily using Rich Text", "1.1.0")]
-public class RichText : BattleBitModule
-{
+public class RichText : BattleBitModule {
     public string NewLine() => "<br>";
 
-    public string Color(string? color = null)
-    {
-        if (color is null)
-        {
+    public string Color(string? color = null) {
+        if (color is null) {
             return Colors.White;
         }
 
         return $"<{color}>";
     }
 
-    public string FromColorName(string colorName)
-    {
+    public string FromColorName(string colorName) {
         FieldInfo? color = typeof(Colors).GetFields().FirstOrDefault(x => x.Name.ToLower() == colorName.ToLower());
-        if (color == null)
-        {
+        if (color == null) {
             this.Logger.Error($"No color found with name {colorName}");
             return "<#FFFFFF>";
         }
@@ -31,21 +26,17 @@ public class RichText : BattleBitModule
         return color.GetValue(null)!.ToString()!;
     }
 
-    public string Align(string? alignment = null)
-    {
-        if (alignment is null)
-        {
+    public string Align(string? alignment = null) {
+        if (alignment is null) {
             return Alignments.None;
         }
 
         return $"<align=\"{alignment}\">";
     }
 
-    public string FromAlignmentName(string alignmentName)
-    {
+    public string FromAlignmentName(string alignmentName) {
         FieldInfo? alignment = typeof(Alignments).GetFields().FirstOrDefault(x => x.Name.ToLower() == alignmentName.ToLower());
-        if (alignment == null)
-        {
+        if (alignment == null) {
             this.Logger.Error($"No alignment found with name {alignmentName}");
             return Alignments.None;
         }
@@ -53,10 +44,8 @@ public class RichText : BattleBitModule
         return alignment.GetValue(null)!.ToString()!;
     }
 
-    public string Alpha(string? alpha = null)
-    {
-        if (alpha is null)
-        {
+    public string Alpha(string? alpha = null) {
+        if (alpha is null) {
             return "<alpha=#FF>";
         }
 
@@ -66,20 +55,16 @@ public class RichText : BattleBitModule
     public string CharacterSpacing(int pixels) => $"<cspace={pixels}>";
     public string CharacterSpacing(float em) => $"<cspace={em}em>";
 
-    public string Font(string? fontName)
-    {
-        if (fontName is null)
-        {
+    public string Font(string? fontName) {
+        if (fontName is null) {
             return "<font=\"default\">";
         }
 
         return $"<font=\"{fontName}\">";
     }
 
-    public string Indent(int? percentage = null)
-    {
-        if (percentage is null)
-        {
+    public string Indent(int? percentage = null) {
+        if (percentage is null) {
             return "</indent>";
         }
 
@@ -114,18 +99,15 @@ public class RichText : BattleBitModule
 
     public string TextWidth(int percentage) => $"<width={percentage}%>";
 
-    public string Sprite(string spriteName, string? color = null)
-    {
+    public string Sprite(string spriteName, string? color = null) {
         FieldInfo? sprite = typeof(Sprites).GetFields().FirstOrDefault(x => x.Name.ToLower() == spriteName.ToLower());
-        if (sprite == null)
-        {
+        if (sprite == null) {
             this.Logger.Error($"No sprite found with name {spriteName}");
             return string.Empty;
         }
 
         string spriteText = sprite.GetValue(null)!.ToString()!;
-        if (!string.IsNullOrEmpty(color))
-        {
+        if (!string.IsNullOrEmpty(color)) {
             spriteText = spriteText.Replace("<sprite ", $"<sprite color={color} ");
         }
 
@@ -149,8 +131,7 @@ public class RichText : BattleBitModule
     public string Superscript(bool superscript) => superscript ? "<sup>" : "</sup>";
 }
 
-public static class Alignments
-{
+public static class Alignments {
     public static readonly string Left = "<align=\"left\">";
     public static readonly string Center = "<align=\"center\">";
     public static readonly string Right = "<align=\"right\">";
@@ -303,8 +284,7 @@ public static class Colors {
     public static readonly string Gainsboro = "<#DCDCDC>";
 }
 
-public static class Sprites
-{
+public static class Sprites {
     public static readonly string Moderator = "<sprite index=0>";
     public static readonly string Patreon = "<sprite index=1>";
     public static readonly string Creator = "<sprite index=2>";

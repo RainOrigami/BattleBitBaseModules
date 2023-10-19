@@ -10,15 +10,13 @@ using System.Threading.Tasks;
 namespace ChatOverwrite;
 
 [RequireModule(typeof(GranularPermissions))]
+[RequireModule(typeof(SteamApi))]
 [Module("Overwrite chat messages", "1.0.0")]
 public class ChatOverwrite : BattleBitModule {
 
     [ModuleReference]
     public SteamApi? SteamApi { get; set; } = null!;
 
-#else
-    public SteamApi? SteamApi { get; set; }
-#endif
     public ChatOverwriteConfiguration Configuration { get; set; } = null!;
 
     [ModuleReference]
@@ -84,7 +82,7 @@ public class ChatOverwrite : BattleBitModule {
 
     public string GetPlayerName(RunnerPlayer player) {
         if (SteamApi is not null) {
-            var steam = SteamApi.GetData(player)?.Result;
+            var steam = player.Get()?.Result;
             if (steam?.Summary is not null) {
                 if (!string.IsNullOrWhiteSpace(steam.Summary.RealName)) return steam.Summary.RealName;
                 else if (!string.IsNullOrWhiteSpace(steam.Summary.PersonaName)) return steam.Summary.PersonaName;

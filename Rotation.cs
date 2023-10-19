@@ -20,6 +20,7 @@ public class Rotation : BattleBitModule {
 }
 
 public class RotationConfiguration : ModuleConfiguration {
+
     public string[] GameModes { get; set; } = new[]
     {
         "TDM",
@@ -41,6 +42,7 @@ public class RotationConfiguration : ModuleConfiguration {
         "VoxelTrench",
         "CaptureTheFlag"
     };
+
     public string[] Maps { get; set; } = new[]
     {
         "Azagor",

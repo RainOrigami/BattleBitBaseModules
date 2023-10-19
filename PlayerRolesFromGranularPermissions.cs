@@ -8,6 +8,7 @@ namespace Permissions;
 [RequireModule(typeof(GranularPermissions))]
 [Module("Provides player roles based on granular permissions", "1.0.0")]
 public class PlayerRolesFromGranularPermissions : BattleBitModule {
+
     [ModuleReference]
     public GranularPermissions GranularPermissions { get; set; } = null!;
 
@@ -30,6 +31,7 @@ public class PlayerRolesFromGranularPermissions : BattleBitModule {
 }
 
 public class PlayerRolesConfiguration : ModuleConfiguration {
+
     public Dictionary<string, Roles> PermissionRoles { get; set; } = new()
     {
         { "Role.Admin", Roles.Admin },

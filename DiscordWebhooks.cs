@@ -66,7 +66,6 @@ public class DiscordWebhooks : BattleBitModule {
                         messages.Add(message);
                     }
 
-
                     if (messages.Count > 0) {
                         await sendWebhookMessage(this.Configuration.WebhookURL, string.Join(Environment.NewLine, messages.Select(message => message.ToString())));
                     }
@@ -101,7 +100,6 @@ public class DiscordWebhooks : BattleBitModule {
             success = response.IsSuccessStatusCode;
         }
     }
-
 }
 
 internal class DiscordMessage {
@@ -158,6 +156,7 @@ internal class JoinAndLeaveMessage : DiscordMessage {
 }
 
 internal class WarningMessage : DiscordMessage {
+
     public WarningMessage(string message) {
         this.Message = message;
     }

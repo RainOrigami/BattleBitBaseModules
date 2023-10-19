@@ -10,10 +10,13 @@ namespace PermissionsManager;
 [RequireModule(typeof(CommandHandler))]
 [Module("Provide addperm and removeperm commands for PlayerPermissions", "1.1.0")]
 public class PermissionsCommands : BattleBitModule {
+
     [ModuleReference]
     public dynamic? PlayerPermissions { get; set; }
+
     [ModuleReference]
     public dynamic? GranularPermissions { get; set; }
+
     [ModuleReference]
     public CommandHandler CommandHandler { get; set; } = null!;
 

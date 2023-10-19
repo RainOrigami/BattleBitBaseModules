@@ -514,10 +514,12 @@ public class Context {
 }
 
 public abstract class Source {
+
     public abstract void Reply(Context context, string message);
 }
 
 public class ChatSource : Source {
+
     public ChatSource(RunnerPlayer invoker) {
         this.Invoker = invoker;
     }
@@ -544,6 +546,7 @@ public class ChatSource : Source {
 }
 
 public class ConsoleSource : Source {
+
     public override void Reply(Context context, string message) {
         context.CommandHandler.Logger.Info(message);
     }

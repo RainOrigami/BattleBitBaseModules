@@ -317,6 +317,7 @@ public class GranularPermissions : BattleBitModule {
 }
 
 public class PermissionsConfiguration : ModuleConfiguration {
+
     public Dictionary<string, List<string>> Groups { get; set; } = new() {
         { GranularPermissions.CatchAll, new() }
     };

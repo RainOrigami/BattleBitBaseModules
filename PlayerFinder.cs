@@ -6,6 +6,7 @@ namespace PlayerFinder;
 
 [Module("Library functions for finding players by partial names or SteamID", "1.0.0")]
 public class PlayerFinder : BattleBitModule {
+
     public RunnerPlayer? ByExactName(string exactName, bool caseSensitive) {
         return this.Server.AllPlayers.FirstOrDefault(p => p.Name.Equals(exactName, caseSensitive ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase));
     }

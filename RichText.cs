@@ -6,6 +6,7 @@ namespace BattleBitBaseModules;
 
 [Module("Library for easily using Rich Text", "1.1.0")]
 public class RichText : BattleBitModule {
+
     public string NewLine() => "<br>";
 
     public string Color(string? color = null) {
@@ -53,6 +54,7 @@ public class RichText : BattleBitModule {
     }
 
     public string CharacterSpacing(int pixels) => $"<cspace={pixels}>";
+
     public string CharacterSpacing(float em) => $"<cspace={em}em>";
 
     public string Font(string? fontName) {
@@ -76,14 +78,19 @@ public class RichText : BattleBitModule {
     public string LineIndentation(int percentage) => $"<line-indent={percentage}%>";
 
     public string Lowercase(bool lowercase) => lowercase ? "<lowercase>" : "</lowercase>";
+
     public string Uppercase(bool uppercase) => uppercase ? "<uppercase>" : "</uppercase>";
+
     public string Smallcaps(bool smallcaps) => smallcaps ? "<smallcaps>" : "</smallcaps>";
 
     public string Margin(int pixels) => $"<margin={pixels}>";
+
     public string Margin(float em) => $"<margin={em}em>";
 
     public string Monospacing(int pixels) => $"<mspace={pixels}>";
+
     public string Monospacing(float em) => $"<mspace={em}em>";
+
     public string Monospacing() => "</mspace>";
 
     public string Noparse(bool noparse) => noparse ? "<noparse>" : "</noparse>";
@@ -93,6 +100,7 @@ public class RichText : BattleBitModule {
     public string HorizontalPosition(int percentage) => $"<pos={percentage}%>";
 
     public string HorizontalSpace(int pixels) => $"<space={pixels}>";
+
     public string HorizontalSpace(float em) => $"<space={em}em>";
 
     public string VerticalOffset(float em) => $"<voffset={em}em>";

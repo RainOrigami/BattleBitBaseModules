@@ -89,6 +89,7 @@ public class AnnouncementsConfiguration : ModuleConfiguration {
     public string[] AnnounceShort { get; set; } = Array.Empty<string>();
     public string[] UILogOnServer { get; set; } = Array.Empty<string>();
     public string[] MessageToPlayer { get; set; } = Array.Empty<string>();
+
     public string[] SayToAllChat { get; set; } = new[]
     {
         "We hope you enjoy our server!",

@@ -14,9 +14,9 @@ namespace BattleBitBaseModules;
 public class ModuleUpdates : BattleBitModule {
     public static ModuleUpdatesConfiguration Configuration { get; set; } = null!;
 
-    PropertyInfo nameProperty = null!;
-    PropertyInfo versionProperty = null!;
-    PropertyInfo moduleFilePathProperty = null!;
+    private PropertyInfo nameProperty = null!;
+    private PropertyInfo versionProperty = null!;
+    private PropertyInfo moduleFilePathProperty = null!;
 
     private static dynamic[] modulesToUpdate = Array.Empty<dynamic>();
     private static bool running = false;

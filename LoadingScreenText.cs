@@ -11,18 +11,22 @@ namespace BattleBitBaseModules;
 [RequireModule(typeof(BattleBitBaseModules.RichText))]
 [Module("Configure the loading screen text of your server", "1.0.0")]
 public class LoadingScreenText : BattleBitModule {
+
     [ModuleReference]
     public LoadingScreenTextConfiguration Config { get; set; } = null!;
 
     public override Task OnConnected() {
         UpdateLoadingScreenText(this.Config.ConnectLoadingScreenText); return Task.CompletedTask;
     }
+
     public override Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args) {
         UpdateLoadingScreenText(this.Config.ConnectLoadingScreenText); return Task.CompletedTask;
     }
+
     public override Task OnRoundEnded() {
         UpdateLoadingScreenText(this.Config.MapChangeLoadingScreenText); return Task.CompletedTask;
     }
+
     //public override Task OnSessionChanged(long oldSessionID, long newSessionID) {
     //    UpdateLoadingScreenText(this.Config.MapChangeLoadingScreenText); return Task.CompletedTask;
     //}
@@ -56,13 +60,16 @@ public class LoadingScreenText : BattleBitModule {
     }
 
     public class LoadingScreenTextConfiguration : ModuleConfiguration {
+
         public Dictionary<string, string[]> randomReplacements = new Dictionary<string, string[]>() {
             { "welcome", new string[] { "Enjoy your stay!", "Have a good one!", "Get Ready for battle!" } },
         };
+
         public string ConnectLoadingScreenText { get; set; } =
 @$"{Colors.SkyBlue}Welcome to {Colors.None}{{server}}{Colors.SkyBlue}!
 We are currently playing {Colors.None}{{gamemode}}{Colors.SkyBlue} on {Colors.None}{{map}}{Colors.SkyBlue} at {Colors.None}{{maptime}}{Colors.SkyBlue} with {Colors.None}{{players}}{Colors.SkyBlue}/{Colors.None}{{slots}}{Colors.SkyBlue} players!
 {{random.welcome}}";
+
         public string MapChangeLoadingScreenText { get; set; } =
 @$"{Colors.SkyBlue}Welcome to {Colors.None}{{server}}{Colors.SkyBlue}!
 {{random.welcome}}";

@@ -102,9 +102,12 @@ public class BasicServerSettings : BattleBitModule {
         player.Modifications.ReviveHP = this.Configuration.ReviveHP ?? player.Modifications.ReviveHP;
     }
 }
+
 public class BasicServerSettingsConfiguration : ModuleConfiguration {
+
     // Server
     public float? APCSpawnDelayMultipler { get; set; } = null;
+
     public float? HelicopterSpawnDelayMultipler { get; set; } = null;
     public float? SeaVehicleSpawnDelayMultipler { get; set; } = null;
     public float? TankSpawnDelayMultipler { get; set; } = null;
@@ -124,6 +127,7 @@ public class BasicServerSettingsConfiguration : ModuleConfiguration {
 
     // Player
     public bool? AirStrafe { get; set; } = null;
+
     public VehicleType? AllowedVehicles { get; set; } = null;
     public bool? CanDeploy { get; set; } = null;
     public bool? CanSpectate { get; set; } = null;

@@ -11,6 +11,7 @@ namespace BattleBitBaseModules;
 [RequireModule(typeof(CommandHandler))]
 [Module("Basic moderator tools", "1.1.0")]
 public class ModeratorTools : BattleBitModule {
+
     [ModuleReference]
     public CommandHandler CommandHandler { get; set; } = null!;
 

@@ -14,10 +14,10 @@ namespace ChatOverwrite;
 public class ChatOverwrite : BattleBitModule {
 
     [ModuleReference]
-#if DEBUG
     public SteamApi? SteamApi { get; set; } = null!;
+
 #else
-        public SteamApi? SteamApi { get; set; }
+    public SteamApi? SteamApi { get; set; }
 #endif
     public ChatOverwriteConfiguration Configuration { get; set; } = null!;
 
@@ -120,8 +120,10 @@ public class ChatOverwrite : BattleBitModule {
 
 public class ChatOverwriteConfiguration : ModuleConfiguration {
     public string TimeStampFormat { get; set; } = "HH:mm:ss";
+
     [Obsolete]
     public string TimeZone { get; set; } = System.TimeZone.CurrentTimeZone.StandardName;
+
     public Dictionary<string, OverwriteMessage> Overwrites { get; set; } = new()
     {
         { "ChatOverwrite.Normal", new("[6] <color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },

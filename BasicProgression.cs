@@ -34,7 +34,6 @@ namespace BattleBitBaseModules {
                     return;
                 }
 
-
             var playerFile = getPlayerFile(steamID);
                 for (int i = 0; i < 5; i++) {
                     try {
@@ -53,6 +52,7 @@ namespace BattleBitBaseModules {
                 }
                 this.Logger.Error($"Giving up trying to read \"{playerFile.FullName}\"");
             }
+
 
         public override async Task OnSavePlayerStats(ulong steamID, PlayerStats stats) {
             Console.WriteLine("OnSavePlayerStats");

@@ -4,7 +4,6 @@ using Bluscream;
 using Permissions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -84,7 +83,9 @@ public class ChatOverwrite : BattleBitModule {
 
             var playerName = GetPlayerName(player);
 
-            chatTarget.SayToChat(string.Format(overwriteMessage.Text, nameColor, playerName, teamAndSquadIndicator, textColor, msg, gradientName));
+            var now = string.IsNullOrWhiteSpace(Configuration.TimeStampFormat) ? "" : new DateTimeWithZone(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(Configuration.TimeZone)).LocalTime.ToString(Configuration.TimeStampFormat);
+
+            chatTarget.SayToChat(string.Format(overwriteMessage.Text, nameColor, playerName, teamAndSquadIndicator, textColor, msg, gradientName, now));
         }
 
         return Task.FromResult(false);
@@ -129,15 +130,17 @@ public class ChatOverwrite : BattleBitModule {
     }
 }
 
-public class ChatOverwriteConfiguration : ModuleConfiguration
-{
+public class ChatOverwriteConfiguration : ModuleConfiguration {
+    public string TimeStampFormat { get; set; } = "HH:mm:ss";
+    [Obsolete]
+    public string TimeZone { get; set; } = System.TimeZone.CurrentTimeZone.StandardName;
     public Dictionary<string, OverwriteMessage> Overwrites { get; set; } = new()
     {
-        { "ChatOverwrite.Normal", new("<color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },
+        { "ChatOverwrite.Normal", new("[6] <color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },
         { "ChatOverwrite.Rainbow", new("{5}{2} : <color=\"{3}\">{4}", new string[] { "red", "orange", "yellow", "green", "blue", "purple" }) },
         { "ChatOverwrite.Large", new("<size=150%><color=\"{0}\">{1}</color>{2} : <color=\"{3}\">{4}") },
         { "ChatOverwrite.Sus", new("<color=\"{0}\">{1}</color>{2} : <color=\"{3}\">I am an idiot and cheat in online games. Please go to my Steam profile and report me!") },
-        { "ChatOverwrite.Admin", new("<size=125%><color=\"{0}\">{1}</color>{2}<color=\"orange\">[Server Admin]</color> : <color=\"{3}\">{4}") }
+        { "ChatOverwrite.Admin", new("[6] <size=101%><color=\"{0}\">{1}</color>{2}<color=\"orange\">[Server Admin]</color> : <color=\"{3}\">{4}") }
     };
 }
 

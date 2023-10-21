@@ -66,7 +66,7 @@ public class MOTD : BattleBitModule
         return Task.CompletedTask;
     }
 
-    [CommandCallback("setmotd", Description = "Sets the MOTD", Permissions = new[] { "MOTD.Set" })]
+    [CommandCallback("setmotd", Description = "Sets the MOTD", Permissions = new[] { "MOTD.Set" }, ConsoleCommand = true)]
     public void SetMOTD(Context context, string motd)
     {
         this.Configuration.MOTD = motd;

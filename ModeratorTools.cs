@@ -55,7 +55,7 @@ public class ModeratorTools : BattleBitModule
         return playerInfo.ToString();
     }
 
-    [CommandCallback("Say", Description = "Prints a message to all players", Permissions = new[] { "ModeratorTools.Say" })]
+    [CommandCallback("Say", Description = "Prints a message to all players", Permissions = new[] { "ModeratorTools.Say" }, ConsoleCommand = true)]
     public string Say(Context context, string message)
     {
         this.Logger.Info($"[Say] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)}: {message}");
@@ -64,7 +64,7 @@ public class ModeratorTools : BattleBitModule
         return $"Message sent to all players";
     }
 
-    [CommandCallback("SayToPlayer", Description = "Prints a message to all players", Permissions = new[] { "ModeratorTools.SayToPlayer" })]
+    [CommandCallback("SayToPlayer", Description = "Prints a message to all players", Permissions = new[] { "ModeratorTools.SayToPlayer" }, ConsoleCommand = true)]
     public string SayToPlayer(Context context, RunnerPlayer target, string message)
     {
         this.Logger.Info($"[SayToPlayer] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}: {message}");
@@ -73,7 +73,7 @@ public class ModeratorTools : BattleBitModule
         return $"Message sent to {target.Name}";
     }
 
-    [CommandCallback("AnnounceShort", Description = "Prints a short announce to all players", Permissions = new[] { "ModeratorTools.AnnounceShort" })]
+    [CommandCallback("AnnounceShort", Description = "Prints a short announce to all players", Permissions = new[] { "ModeratorTools.AnnounceShort" }, ConsoleCommand = true)]
     public string AnnounceShort(Context context, string message)
     {
         this.Logger.Info($"[AnnounceShort] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)}: {message}");
@@ -82,7 +82,7 @@ public class ModeratorTools : BattleBitModule
         return $"Announce sent";
     }
 
-    [CommandCallback("AnnounceLong", Description = "Prints a long announce to all players", Permissions = new[] { "ModeratorTools.AnnounceLong" })]
+    [CommandCallback("AnnounceLong", Description = "Prints a long announce to all players", Permissions = new[] { "ModeratorTools.AnnounceLong" }, ConsoleCommand = true)]
     public string AnnounceLong(Context context, string message)
     {
         this.Logger.Info($"[AnnounceLong] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)}: {message}");
@@ -91,7 +91,7 @@ public class ModeratorTools : BattleBitModule
         return $"Announce sent";
     }
 
-    [CommandCallback("Message", Description = "Messages a specific player", Permissions = new[] { "ModeratorTools.Message" })]
+    [CommandCallback("Message", Description = "Messages a specific player", Permissions = new[] { "ModeratorTools.Message" }, ConsoleCommand = true)]
     public string Message(Context context, RunnerPlayer target, string message, float? timeout = null)
     {
         this.Logger.Info($"[Message] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}: {message}");
@@ -108,7 +108,7 @@ public class ModeratorTools : BattleBitModule
         return $"Message sent to {target.Name}";
     }
 
-    [CommandCallback("Clear", Description = "Clears the chat", Permissions = new[] { "ModeratorTools.Clear" })]
+    [CommandCallback("Clear", Description = "Clears the chat", Permissions = new[] { "ModeratorTools.Clear" }, ConsoleCommand = true)]
     public string Clear(Context context)
     {
         this.Logger.Info($"[Clear] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)}");
@@ -117,7 +117,7 @@ public class ModeratorTools : BattleBitModule
         return $"Chat cleared";
     }
 
-    [CommandCallback("Kick", Description = "Kicks a player", Permissions = new[] { "ModeratorTools.Kick" })]
+    [CommandCallback("Kick", Description = "Kicks a player", Permissions = new[] { "ModeratorTools.Kick" }, ConsoleCommand = true)]
     public string Kick(Context context, RunnerPlayer target, string? reason = null)
     {
         this.Logger.Info($"[Kick] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}: {reason ?? string.Empty}");
@@ -126,7 +126,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} kicked";
     }
 
-    [CommandCallback("Ban", Description = "Bans a player", Permissions = new[] { "ModeratorTools.Ban" })]
+    [CommandCallback("Ban", Description = "Bans a player", Permissions = new[] { "ModeratorTools.Ban" }, ConsoleCommand = true)]
     public string Ban(Context context, RunnerPlayer target)
     {
         this.Logger.Info($"[Ban] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -136,7 +136,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} banned";
     }
 
-    [CommandCallback("Kill", Description = "Kills a player", Permissions = new[] { "ModeratorTools.Kill" })]
+    [CommandCallback("Kill", Description = "Kills a player", Permissions = new[] { "ModeratorTools.Kill" }, ConsoleCommand = true)]
     public string Kill(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Kill] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -150,7 +150,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} killed";
     }
 
-    [CommandCallback("Gag", Description = "Gags a player", Permissions = new[] { "ModeratorTools.Gag" })]
+    [CommandCallback("Gag", Description = "Gags a player", Permissions = new[] { "ModeratorTools.Gag" }, ConsoleCommand = true)]
     public string Gag(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Gag] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -169,7 +169,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} gagged";
     }
 
-    [CommandCallback("Ungag", Description = "Ungags a player", Permissions = new[] { "ModeratorTools.Ungag" })]
+    [CommandCallback("Ungag", Description = "Ungags a player", Permissions = new[] { "ModeratorTools.Ungag" }, ConsoleCommand = true)]
     public string Ungag(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Ungag] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -188,7 +188,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} ungagged";
     }
 
-    [CommandCallback("Mute", Description = "Mutes a player", Permissions = new[] { "ModeratorTools.Mute" })]
+    [CommandCallback("Mute", Description = "Mutes a player", Permissions = new[] { "ModeratorTools.Mute" }, ConsoleCommand = true)]
     public string Mute(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Mute] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -207,7 +207,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} muted";
     }
 
-    [CommandCallback("Unmute", Description = "Unmutes a player", Permissions = new[] { "ModeratorTools.Unmute" })]
+    [CommandCallback("Unmute", Description = "Unmutes a player", Permissions = new[] { "ModeratorTools.Unmute" }, ConsoleCommand = true)]
     public string Unmute(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Unmute] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -226,7 +226,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} unmuted";
     }
 
-    [CommandCallback("Silence", Description = "Mutes and gags a player", Permissions = new[] { "ModeratorTools.Silence" })]
+    [CommandCallback("Silence", Description = "Mutes and gags a player", Permissions = new[] { "ModeratorTools.Silence" }, ConsoleCommand = true)]
     public string Silence(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Silence] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -241,7 +241,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} silenced";
     }
 
-    [CommandCallback("Unsilence", Description = "Unmutes and ungags a player", Permissions = new[] { "ModeratorTools.Unsilence" })]
+    [CommandCallback("Unsilence", Description = "Unmutes and ungags a player", Permissions = new[] { "ModeratorTools.Unsilence" }, ConsoleCommand = true)]
     public string Unsilence(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Unsilence] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -256,7 +256,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} unsilenced";
     }
 
-    [CommandCallback("LockSpawn", Description = "Prevents a player or all players from spawning", Permissions = new[] { "ModeratorTools.LockSpawn" })]
+    [CommandCallback("LockSpawn", Description = "Prevents a player or all players from spawning", Permissions = new[] { "ModeratorTools.LockSpawn" }, ConsoleCommand = true)]
     public string LockSpawn(Context context, RunnerPlayer? target = null, string? message = null)
     {
         if (target == null)
@@ -290,7 +290,7 @@ public class ModeratorTools : BattleBitModule
         }
     }
 
-    [CommandCallback("UnlockSpawn", Description = "Allows a player or all players to spawn", Permissions = new[] { "ModeratorTools.UnlockSpawn" })]
+    [CommandCallback("UnlockSpawn", Description = "Allows a player or all players to spawn", Permissions = new[] { "ModeratorTools.UnlockSpawn" }, ConsoleCommand = true)]
     public string UnlockSpawn(Context context, RunnerPlayer? target = null, string? message = null)
     {
         if (target == null)
@@ -352,7 +352,7 @@ public class ModeratorTools : BattleBitModule
         return $"You teleported to {target.Name}";
     }
 
-    [CommandCallback("tp", Description = "Teleports a player to another player", Permissions = new[] { "ModeratorTools.Teleport" })]
+    [CommandCallback("tp", Description = "Teleports a player to another player", Permissions = new[] { "ModeratorTools.Teleport" }, ConsoleCommand = true)]
     public string TeleportPlayerToPlayer(Context context, RunnerPlayer target, RunnerPlayer destination)
     {
         this.Logger.Info($"[TeleportPlayerToPlayer] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name} -> {destination.Name}");
@@ -361,7 +361,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} teleported to {destination.Name}";
     }
 
-    [CommandCallback("tp2pos", Description = "Teleports a player to a position", Permissions = new[] { "ModeratorTools.Teleport" })]
+    [CommandCallback("tp2pos", Description = "Teleports a player to a position", Permissions = new[] { "ModeratorTools.Teleport" }, ConsoleCommand = true)]
     public string TeleportPlayerToPos(Context context, RunnerPlayer target, int x, int y, int z)
     {
         this.Logger.Info($"[TeleportPlayerToPos] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name} -> {x} {y} {z}");
@@ -384,7 +384,7 @@ public class ModeratorTools : BattleBitModule
         return $"You teleported to {x} {y} {z}";
     }
 
-    [CommandCallback("freeze", Description = "Freezes a player", Permissions = new[] { "ModeratorTools.Freeze" })]
+    [CommandCallback("freeze", Description = "Freezes a player", Permissions = new[] { "ModeratorTools.Freeze" }, ConsoleCommand = true)]
     public string Freeze(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Freeze] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -398,7 +398,7 @@ public class ModeratorTools : BattleBitModule
         return $"Player {target.Name} frozen";
     }
 
-    [CommandCallback("unfreeze", Description = "Unfreezes a player", Permissions = new[] { "ModeratorTools.Unfreeze" })]
+    [CommandCallback("unfreeze", Description = "Unfreezes a player", Permissions = new[] { "ModeratorTools.Unfreeze" }, ConsoleCommand = true)]
     public string Unfreeze(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Unfreeze] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}");
@@ -414,7 +414,7 @@ public class ModeratorTools : BattleBitModule
 
     private Dictionary<RunnerPlayer, RunnerPlayer> inspectPlayers = new();
 
-    [CommandCallback("Inspect", Description = "Inspects a player or stops inspection", Permissions = new[] { "ModeratorTools.Inspect" })]
+    [CommandCallback("Inspect", Description = "Inspects a player or stops inspection", Permissions = new[] { "ModeratorTools.Inspect" }, ConsoleCommand = true)]
     public string? Inspect(Context context, RunnerPlayer? target = null)
     {
         if (context.Source is not ChatSource chatSource)
@@ -445,7 +445,7 @@ public class ModeratorTools : BattleBitModule
         return null;
     }
 
-    [CommandCallback("warn", Description = "Warns a player", Permissions = new[] { "ModeratorTools.Warn" })]
+    [CommandCallback("warn", Description = "Warns a player", Permissions = new[] { "ModeratorTools.Warn" }, ConsoleCommand = true)]
     public string Warn(Context context, RunnerPlayer target, string? message = null)
     {
         this.Logger.Info($"[Warn] {(context.Source is ChatSource chatSource ? chatSource.Invoker.Name : context.Source.GetType().Name)} -> {target.Name}: {message ?? "no reason"}");

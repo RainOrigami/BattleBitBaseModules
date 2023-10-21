@@ -1,4 +1,4 @@
-using BattleBitAPI.Common;
+﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
 using System;
@@ -25,7 +25,7 @@ public class PermissionsCommands : BattleBitModule
         this.CommandHandler.Register(this);
     }
 
-    [CommandCallback("addperm", Description = "Adds a permission to a player", Permissions = new[] { "Permissions.Add" })]
+    [CommandCallback("addperm", Description = "Adds a permission to a player", Permissions = new[] { "Permissions.Add" }, ConsoleCommand = true)]
     public string AddPermissionCommand(Context context, RunnerPlayer player, string permission)
     {
         bool success = false;
@@ -61,7 +61,7 @@ public class PermissionsCommands : BattleBitModule
         }
     }
 
-    [CommandCallback("removeperm", Description = "Removes a permission from a player", Permissions = new[] { "Permissions.Remove" })]
+    [CommandCallback("removeperm", Description = "Removes a permission from a player", Permissions = new[] { "Permissions.Remove" }, ConsoleCommand = true)]
     public string RemovePermissionCommand(Context context, RunnerPlayer player, string permission)
     {
         bool success = false;
@@ -97,7 +97,7 @@ public class PermissionsCommands : BattleBitModule
         }
     }
 
-    [CommandCallback("clearperms", Description = "Clears all permissions and groups from a player", Permissions = new[] { "Permissions.Clear" })]
+    [CommandCallback("clearperms", Description = "Clears all permissions and groups from a player", Permissions = new[] { "Permissions.Clear" }, ConsoleCommand = true)]
     public string ClearPermissionCommand(Context context, RunnerPlayer player)
     {
         if (this.GranularPermissions is not null)
@@ -125,7 +125,7 @@ public class PermissionsCommands : BattleBitModule
         return $"Cleared permissions from {player.Name}";
     }
 
-    [CommandCallback("listperms", Description = "Lists player permissions", Permissions = new[] { "Permissions.List" })]
+    [CommandCallback("listperms", Description = "Lists player permissions", Permissions = new[] { "Permissions.List" }, ConsoleCommand = true)]
     public string ListPermissionCommand(Context context, RunnerPlayer targetPlayer, int page = 1)
     {
         List<string> permissions = new();

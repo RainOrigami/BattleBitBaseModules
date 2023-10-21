@@ -1,4 +1,4 @@
-using BattleBitAPI.Common;
+﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
 using System;
@@ -32,7 +32,7 @@ public class Voting : BattleBitModule
         this.CommandHandler.Register(this);
     }
 
-    [CommandCallback("vote", Description = "Votes for an option", Permissions = new[] { "Vote.Vote" })]
+    [CommandCallback("vote", Description = "Votes for an option", Permissions = new[] { "Vote.Vote" }, ConsoleCommand = true)]
     public string? StartVoteCommand(Context context, string text, string options)
     {
         if (this.activeVote)
@@ -110,6 +110,7 @@ public class Voting : BattleBitModule
         int maxVoteIndex = voteCounts.ToList().IndexOf(maxVotes);
 
         this.Server.SayToAllChat($"{this.RichText?.Size(125)}The vote has ended!{Environment.NewLine}{this.RichText?.FromColorName("yellow")}{this.voteOptions[maxVoteIndex]}{this.RichText?.Color()} won with {maxVotes} votes.");
+        this.Logger.Info($"The vote has ended! {this.voteOptions[maxVoteIndex]} won with {maxVotes} votes.");
     }
 
     public override async Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string msg)

@@ -9,7 +9,7 @@ namespace PermissionsManager;
 
 [RequireModule(typeof(CommandHandler))]
 [RequireModule(typeof(GranularPermissions))]
-[Module("Provide commands for managing GranularPermissions", "1.0.0")]
+[Module("Provide commands for managing GranularPermissions", "1.0.1")]
 public class GranularPermissionsCommands : BattleBitModule
 {
     [ModuleReference]

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 [RequireModule(typeof(CommandHandler))]
-[Module("Show a message of the day to players who join the server", "1.1.0")]
+[Module("Show a message of the day to players who join the server", "1.1.1")]
 public class MOTD : BattleBitModule
 {
     public MOTDConfiguration Configuration { get; set; } = null!;

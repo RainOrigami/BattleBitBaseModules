@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Commands;
 
-[Module("Basic in-game chat command handler library", "1.1.1")]
+[Module("Basic in-game chat command handler library", "1.2.0")]
 public class CommandHandler : BattleBitModule
 {
     public static CommandConfiguration CommandConfiguration { get; set; } = null!;

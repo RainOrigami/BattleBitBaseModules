@@ -1,4 +1,4 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BattleBitBaseModules;
 
-[Module("Simple chat voting system", "1.1.0")]
+[Module("Simple chat voting system", "1.1.1")]
 [RequireModule(typeof(CommandHandler))]
 public class Voting : BattleBitModule
 {

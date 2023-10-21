@@ -1,4 +1,4 @@
-﻿using BattleBitAPI.Common;
+using BattleBitAPI.Common;
 using BBRAPIModules;
 using Commands;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 namespace PermissionsManager;
 
 [RequireModule(typeof(CommandHandler))]
-[Module("Provide addperm and removeperm commands for PlayerPermissions", "1.1.0")]
+[Module("Provide addperm and removeperm commands for PlayerPermissions", "1.1.1")]
 public class PermissionsCommands : BattleBitModule
 {
     [ModuleReference]

@@ -15,6 +15,7 @@ namespace Commands;
 public class CommandHandler : BattleBitModule {
     public static CommandConfiguration CommandConfiguration { get; set; } = null!;
     public CommandSettings CommandSettings { get; set; } = null!;
+    public CommandSettings CommandSettings { get; set; } = null!;
 
     private Dictionary<string, (BattleBitModule Module, MethodInfo Method)> commandCallbacks = new();
 
@@ -91,6 +92,8 @@ public class CommandHandler : BattleBitModule {
 
                 this.Logger.Error($"Command callback {command} in module {module.GetType().Name} conflicts with subcommand {subcommand}.");
                 continue;
+                this.Logger.Error($"Command callback {command} in module {module.GetType().Name} conflicts with subcommand {subcommand}.");
+                continue;
             }
 
             // Prevent subcommands of existing commands (!perm add and !perm remove do not allow !perm)
@@ -110,6 +113,7 @@ public class CommandHandler : BattleBitModule {
         }
 
         this.CommandSettings.Save();
+        this.CommandSettings.Save();
     }
 
     public override Task<bool> OnPlayerTypedMessage(RunnerPlayer player, ChatChannel channel, string message) {
@@ -117,6 +121,7 @@ public class CommandHandler : BattleBitModule {
             return Task.FromResult(true);
         }
 
+        Task.Run(() => this.HandleCommand(new ChatSource(player), message));
         Task.Run(() => this.HandleCommand(new ChatSource(player), message));
 
         return Task.FromResult(false);
@@ -127,6 +132,7 @@ public class CommandHandler : BattleBitModule {
             return;
         }
 
+        Task.Run(() => this.HandleCommand(new ConsoleSource(), command));
         Task.Run(() => this.HandleCommand(new ConsoleSource(), command));
     }
 
@@ -200,6 +206,9 @@ public class CommandHandler : BattleBitModule {
     public void HandleCommand(Source source, string message) {
         string[] fullCommand = parseCommandString(message);
         string command = fullCommand[0].Trim().ToLower()[CommandConfiguration.CommandPrefix.Length..];
+
+        ChatSource? chatSource = source as ChatSource;
+        Context errorContext = new Context(source, message, command, Array.Empty<string>(), Array.Empty<object?>(), null, this, null);
 
         ChatSource? chatSource = source as ChatSource;
         Context errorContext = new Context(source, message, command, Array.Empty<string>(), Array.Empty<object?>(), null, this, null);

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 [RequireModule(typeof(CommandHandler))]
-[Module("Basic moderator tools", "1.1.0")]
+[Module("Basic moderator tools", "1.1.1")]
 public class ModeratorTools : BattleBitModule {
 
     [ModuleReference]

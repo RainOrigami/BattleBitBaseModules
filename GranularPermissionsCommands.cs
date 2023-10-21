@@ -9,7 +9,7 @@ namespace PermissionsManager;
 
 [RequireModule(typeof(CommandHandler))]
 [RequireModule(typeof(GranularPermissions))]
-[Module("Provide commands for managing GranularPermissions", "1.0.0")]
+[Module("Provide commands for managing GranularPermissions", "1.0.1")]
 public class GranularPermissionsCommands : BattleBitModule {
 
     [ModuleReference]
@@ -32,12 +32,20 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Added permission {permission} to {player.Name}");
 
         return $"Added permission {permission} to {player.Name}";
+
+        this.Logger.Debug($"Added permission {permission} to {player.Name}");
+
+        return $"Added permission {permission} to {player.Name}";
     }
 
     [CommandCallback("removeplayerperm", Description = "Removes a permission from a player", Permissions = new[] { "GranularPermissions.RemovePlayerPerm" })]
     public string RemovePermissionCommand(Context context, RunnerPlayer player, string permission) {
         this.GranularPermissions.RemovePlayerPermission(player.SteamID, permission);
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Removed permission {permission} from {player.Name}");
+
+        return $"Removed permission {permission} from {player.Name}";
 
         this.Logger.Debug($"Removed permission {permission} from {player.Name}");
 
@@ -59,6 +67,10 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Cleared permissions from {player.Name}");
 
         return $"Cleared permissions from {player.Name}";
+
+        this.Logger.Debug($"Cleared permissions from {player.Name}");
+
+        return $"Cleared permissions from {player.Name}";
     }
 
     [CommandCallback("listplayerperms", Description = "Lists player permissions", Permissions = new[] { "GranularPermissions.ListPlayerPerms" })]
@@ -71,6 +83,9 @@ public class GranularPermissionsCommands : BattleBitModule {
 
         int pageCount = (int)Math.Ceiling(permissions.Length / (double)this.Configuration.PermissionsPerPage);
 
+        this.Logger.Debug($"Listing permissions for {targetPlayer.Name}");
+
+        return $"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}";
         this.Logger.Debug($"Listing permissions for {targetPlayer.Name}");
 
         return $"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listperms \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}";
@@ -92,6 +107,10 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Added group {group} to {player.Name}");
 
         return $"Added group {group} to {player.Name}";
+
+        this.Logger.Debug($"Added group {group} to {player.Name}");
+
+        return $"Added group {group} to {player.Name}";
     }
 
     [CommandCallback("removeplayergroup", Description = "Removes a group from a player", Permissions = new[] { "GranularPermissions.RemovePlayerGroup" })]
@@ -106,6 +125,10 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Removed group {group} from {player.Name}");
 
         return $"Removed group {group} from {player.Name}";
+
+        this.Logger.Debug($"Removed group {group} from {player.Name}");
+
+        return $"Removed group {group} from {player.Name}";
     }
 
     [CommandCallback("clearplayergroups", Description = "Clears all groups from a player", Permissions = new[] { "GranularPermissions.ClearPlayerGroups" })]
@@ -115,6 +138,10 @@ public class GranularPermissionsCommands : BattleBitModule {
         }
 
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Cleared groups from {player.Name}");
+
+        return $"Cleared groups from {player.Name}";
 
         this.Logger.Debug($"Cleared groups from {player.Name}");
 
@@ -136,6 +163,9 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Listing groups for {targetPlayer.Name}");
 
         return $"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}";
+        this.Logger.Debug($"Listing groups for {targetPlayer.Name}");
+
+        return $"{targetPlayer.Name}:{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups \"{targetPlayer.Name}\" {page + 1} to see more")}" : "")}";
     }
 
     [CommandCallback("addgroup", Description = "Adds a group", Permissions = new[] { "GranularPermissions.AddGroup" })]
@@ -150,6 +180,10 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Added group {group}");
 
         return $"Added group {group}";
+
+        this.Logger.Debug($"Added group {group}");
+
+        return $"Added group {group}";
     }
 
     [CommandCallback("removegroup", Description = "Removes a group", Permissions = new[] { "GranularPermissions.RemoveGroup" })]
@@ -160,6 +194,10 @@ public class GranularPermissionsCommands : BattleBitModule {
 
         this.GranularPermissions.RemoveGroup(group);
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Removed group {group}");
+
+        return $"Removed group {group}";
 
         this.Logger.Debug($"Removed group {group}");
 
@@ -181,6 +219,9 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Listing groups");
 
         return $"{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups {page + 1} to see more")}" : "")}";
+        this.Logger.Debug($"Listing groups");
+
+        return $"{Environment.NewLine}{string.Join("\n", groups.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroups {page + 1} to see more")}" : "")}";
     }
 
     [CommandCallback("addgroupperm", Description = "Adds a permission to a group", Permissions = new[] { "GranularPermissions.AddGroupPerm" })]
@@ -195,6 +236,10 @@ public class GranularPermissionsCommands : BattleBitModule {
 
         this.GranularPermissions.AddGroupPermission(group, permission);
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Added permission {permission} to {group}");
+
+        return $"Added permission {permission} to {group}";
 
         this.Logger.Debug($"Added permission {permission} to {group}");
 
@@ -217,6 +262,10 @@ public class GranularPermissionsCommands : BattleBitModule {
         this.Logger.Debug($"Removed permission {permission} from {group}");
 
         return $"Removed permission {permission} from {group}";
+
+        this.Logger.Debug($"Removed permission {permission} from {group}");
+
+        return $"Removed permission {permission} from {group}";
     }
 
     [CommandCallback("cleargroupperms", Description = "Clears all permissions from a group", Permissions = new[] { "GranularPermissions.ClearGroupPerms" })]
@@ -230,6 +279,10 @@ public class GranularPermissionsCommands : BattleBitModule {
         }
 
         this.GranularPermissions.Save();
+
+        this.Logger.Debug($"Cleared permissions from {group}");
+
+        return $"Cleared permissions from {group}";
 
         this.Logger.Debug($"Cleared permissions from {group}");
 
@@ -252,6 +305,7 @@ public class GranularPermissionsCommands : BattleBitModule {
 
         int pageCount = (int)Math.Ceiling(permissions.Count / (double)this.Configuration.PermissionsPerPage);
 
+        return $"{group}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroupperms \"{group}\" {page + 1} to see more")}" : "")}";
         return $"{group}:{Environment.NewLine}{string.Join("\n", permissions.Skip((page - 1) * this.Configuration.PermissionsPerPage).Take(this.Configuration.PermissionsPerPage))}{(pageCount > 1 ? $"{Environment.NewLine}Page {page} of {pageCount}{(page == pageCount ? "" : $", use listgroupperms \"{group}\" {page + 1} to see more")}" : "")}";
     }
 }

@@ -8,9 +8,9 @@ using System.Linq;
 namespace PermissionsManager;
 
 [RequireModule(typeof(CommandHandler))]
-[Module("Provide addperm and removeperm commands for PlayerPermissions", "1.1.0")]
-public class PermissionsCommands : BattleBitModule {
-
+[Module("Provide addperm and removeperm commands for PlayerPermissions", "1.1.1")]
+public class PermissionsCommands : BattleBitModule
+{
     [ModuleReference]
     public dynamic? PlayerPermissions { get; set; }
 
@@ -26,8 +26,9 @@ public class PermissionsCommands : BattleBitModule {
         this.CommandHandler.Register(this);
     }
 
-    [CommandCallback("addperm", Description = "Adds a permission to a player", Permissions = new[] { "Permissions.Add" })]
-    public string AddPermissionCommand(Context context, RunnerPlayer player, string permission) {
+    [CommandCallback("addperm", Description = "Adds a permission to a player", Permissions = new[] { "Permissions.Add" }, ConsoleCommand = true)]
+    public string AddPermissionCommand(Context context, RunnerPlayer player, string permission)
+    {
         bool success = false;
 
         if (this.PlayerPermissions is not null) {
@@ -44,17 +45,21 @@ public class PermissionsCommands : BattleBitModule {
             success = true;
         }
 
-        if (success) {
+        if (success)
+        {
             this.Logger.Info($"Added permission {permission} to {player.Name}");
             return $"Added permission {permission} to {player.Name}";
-        } else {
+        }
+        else
+        {
             this.Logger.Error($"Could not add permission {permission} to {player.Name}");
             return $"Could not add permission {permission} to {player.Name}";
         }
     }
 
-    [CommandCallback("removeperm", Description = "Removes a permission from a player", Permissions = new[] { "Permissions.Remove" })]
-    public string RemovePermissionCommand(Context context, RunnerPlayer player, string permission) {
+    [CommandCallback("removeperm", Description = "Removes a permission from a player", Permissions = new[] { "Permissions.Remove" }, ConsoleCommand = true)]
+    public string RemovePermissionCommand(Context context, RunnerPlayer player, string permission)
+    {
         bool success = false;
 
         if (this.PlayerPermissions is not null) {
@@ -71,19 +76,25 @@ public class PermissionsCommands : BattleBitModule {
             success = true;
         }
 
-        if (success) {
+        if (success)
+        {
             this.Logger.Info($"Removed permission {permission} from {player.Name}");
             return $"Removed permission {permission} from {player.Name}";
-        } else {
+        }
+        else
+        {
             this.Logger.Error($"Could not remove permission {permission} from {player.Name}");
             return $"Could not remove permission {permission} from {player.Name}";
         }
     }
 
-    [CommandCallback("clearperms", Description = "Clears all permissions and groups from a player", Permissions = new[] { "Permissions.Clear" })]
-    public string ClearPermissionCommand(Context context, RunnerPlayer player) {
-        if (this.GranularPermissions is not null) {
-            foreach (string group in this.GranularPermissions.GetPlayerGroups(player.SteamID)) {
+    [CommandCallback("clearperms", Description = "Clears all permissions and groups from a player", Permissions = new[] { "Permissions.Clear" }, ConsoleCommand = true)]
+    public string ClearPermissionCommand(Context context, RunnerPlayer player)
+    {
+        if (this.GranularPermissions is not null)
+        {
+            foreach (string group in this.GranularPermissions.GetPlayerGroups(player.SteamID))
+            {
                 this.GranularPermissions.RemovePlayerGroup(player.SteamID, group);
             }
 
@@ -102,8 +113,9 @@ public class PermissionsCommands : BattleBitModule {
         return $"Cleared permissions from {player.Name}";
     }
 
-    [CommandCallback("listperms", Description = "Lists player permissions", Permissions = new[] { "Permissions.List" })]
-    public string ListPermissionCommand(Context context, RunnerPlayer targetPlayer, int page = 1) {
+    [CommandCallback("listperms", Description = "Lists player permissions", Permissions = new[] { "Permissions.List" }, ConsoleCommand = true)]
+    public string ListPermissionCommand(Context context, RunnerPlayer targetPlayer, int page = 1)
+    {
         List<string> permissions = new();
 
         if (this.GranularPermissions is not null) {

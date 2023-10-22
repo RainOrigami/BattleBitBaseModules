@@ -1,8 +1,6 @@
 using BattleBitAPI.Common;
-using BattleBitAPI.Features;
 using BBRAPIModules;
 using Commands;
-using Permissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +9,7 @@ using System.Threading.Tasks;
 namespace BattleBitBaseModules;
 
 [RequireModule(typeof(CommandHandler))]
-[Module("Show a message of the day to players who join the server", "1.1.1")]
+[Module("Show a message of the day to players who join the server", "1.2.0")]
 public class MOTD : BattleBitModule
 {
     public MOTDConfiguration Configuration { get; set; } = null!;
@@ -23,7 +21,7 @@ public class MOTD : BattleBitModule
     public dynamic? PlaceholderLib { get; set; }
 
     [ModuleReference]
-    public GranularPermissions GranularPermissions { get; set; }
+    public dynamic? GranularPermissions { get; set; }
 
     private List<ulong> greetedPlayers = new();
 
@@ -48,8 +46,10 @@ public class MOTD : BattleBitModule
         return Task.CompletedTask;
     }
 
-    public override Task OnPlayerConnected(RunnerPlayer player) {
-        if (this.greetedPlayers.Contains(player.SteamID)) {
+    public override Task OnPlayerConnected(RunnerPlayer player)
+    {
+        if (this.greetedPlayers.Contains(player.SteamID))
+        {
             return Task.CompletedTask;
         }
 
@@ -80,7 +80,7 @@ public class MOTD : BattleBitModule
         string message;
         if (this.PlaceholderLib is not null)
         {
-            message = new PlaceholderLib(this.Configuration.MOTD)
+            message = this.PlaceholderLib.Create(this.Configuration.MOTD)
             .AddParam("servername", this.Server.ServerName)
             .AddParam("gamemode", this.Server.Gamemode)
             .AddParam("map", this.Server.Map)
@@ -90,7 +90,7 @@ public class MOTD : BattleBitModule
             .AddParam("inqueueplayers", this.Server.InQueuePlayerCount)
             .AddParam("maxplayers", this.Server.MaxPlayerCount)
             .AddParam("name", chatSource?.Invoker.Name ?? context.Source.GetType().Name)
-            .AddParam("ping", chatSource?.Invoker.PingMs ?? 0).Run();
+            .AddParam("ping", chatSource?.Invoker.PingMs ?? 0).Build();
         }
         else
         {
@@ -101,6 +101,7 @@ public class MOTD : BattleBitModule
     }
 }
 
-public class MOTDConfiguration : ModuleConfiguration {
+public class MOTDConfiguration : ModuleConfiguration
+{
     public string MOTD { get; set; } = "Welcome!";
 }

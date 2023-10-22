@@ -1,6 +1,7 @@
 ﻿using BattleBitAPI.Common;
 using BBRAPIModules;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using static BattleBitAPI.Common.PlayerStats;
@@ -10,6 +11,11 @@ namespace BattleBitBaseModules;
 [Module("Provide basic persistent progression for players", "1.1.1")]
 public class BasicProgression : BattleBitModule {
     public BasicProgressionConfiguration Configuration { get; set; } = null!;
+    private IReadOnlyDictionary<ulong, PlayerStats> Cache { get { return _Cache; } }
+    private Dictionary<ulong, PlayerStats> _Cache { get; set; } = new();
+
+    public delegate void StatsRecievedHandler(ulong steamID, PlayerStats stats);
+    public event StatsRecievedHandler? OnStatsRecieved;
 
     private string dataDir => this.Configuration.PerServer ? Path.Combine(this.Configuration.DataDirectory, $"{this.Server.GameIP}:{this.Server.GamePort}") : this.Configuration.DataDirectory;
 
@@ -21,9 +27,37 @@ public class BasicProgression : BattleBitModule {
         return Task.CompletedTask;
     }
 
+
+    public async Task<PlayerStats> GetPlayerStats(RunnerPlayer player) => await GetPlayerStats(player.SteamID);
+    public async Task<PlayerStats> GetPlayerStats(ulong steamId) {
+        if (this.Cache.TryGetValue(steamId, out PlayerStats? stats)) {
+            return stats;
+        }
+        string playerFileName = getPlayerFileName(steamId);
+        for (int i = 0; i < 5; i++) {
+            try {
+                stats = new PlayerStats(File.ReadAllBytes(playerFileName));
+                _Cache[steamId] = stats;
+                return stats;
+            } catch (Exception ex) {
+                this.Logger.Error($"Tried {i} times to read from file {playerFileName} but failed:{ex}");
+            }
+            await Task.Delay(250);
+        }
+
+        return this.Configuration.InitialStats?.ToPlayerStats() ?? new PlayerStats();
+    }
+
+    private void SetPlayerStats(ulong steamID, PlayerStats stats) {
+        _Cache[steamID] = stats;
+        OnStatsRecieved?.Invoke(steamID, stats);
+    }
+    private void RemovePlayerStats(ulong steamID) => _Cache.Remove(steamID);
+
     public override async Task OnPlayerJoiningToServer(ulong steamID, PlayerJoiningArguments args) {
         if (this.Configuration.ApplyInitialStatsOnEveryJoin) {
             args.Stats = this.Configuration.InitialStats?.ToPlayerStats() ?? args.Stats;
+            SetPlayerStats(steamID, args.Stats);
             return;
         }
 
@@ -31,6 +65,7 @@ public class BasicProgression : BattleBitModule {
         for (int i = 0; i < 5; i++) {
             try {
                 args.Stats = File.Exists(playerFileName) ? new PlayerStats(File.ReadAllBytes(playerFileName)) : (this.Configuration.InitialStats?.ToPlayerStats() ?? args.Stats);
+                SetPlayerStats(steamID, args.Stats);
                 return;
             } catch (Exception ex) {
                 this.Logger.Error($"Tried {i} times to read from file {playerFileName} but failed:{ex}");
@@ -44,6 +79,8 @@ public class BasicProgression : BattleBitModule {
         for (int i = 0; i < 5; i++) {
             try {
                 File.WriteAllBytes(getPlayerFileName(steamID), stats.SerializeToByteArray());
+                await Task.Delay(Configuration.RemoveEntriesFromCacheDelay);
+                RemovePlayerStats(steamID);
                 return;
             } catch (Exception ex) {
                 this.Logger.Error($"Tried {i} times to write to file {getPlayerFileName(steamID)} but failed:{ex}");
@@ -64,6 +101,8 @@ public class BasicProgressionConfiguration : ModuleConfiguration {
     public bool PerServer { get; set; } = false;
 
     public bool ApplyInitialStatsOnEveryJoin { get; set; } = false;
+
+    public TimeSpan RemoveEntriesFromCacheDelay { get; set; } = TimeSpan.FromMinutes(1);
 
     public BasicPlayerStats? InitialStats { get; set; } = new BasicPlayerStats() {
         Achievements = new byte[0],

@@ -330,7 +330,7 @@ public class CommandHandler : BattleBitModule
 
                 if (ulong.TryParse(argument, out ulong steamId) && this.Server.AllPlayers.FirstOrDefault(p => p.SteamID == steamId) is RunnerPlayer playerBySteamId)
                 {
-                    args[i] = targetPlayer;
+                    args[i] = playerBySteamId;
                     continue;
                 }
 
